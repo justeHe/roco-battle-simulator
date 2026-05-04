@@ -52,3 +52,6 @@ data/scrape_bilibili_progress.json
 
 # Claude Code 配置文件（本地使用，不纳入版本控制）
 CLAUDE.md
+.claude/
+.codex/
+.pytest_cache/

@@ -394,7 +394,7 @@ class Pokemon:
         self.speed_up = self.speed_down = 0.0
 
     def copy_state(self):
-        """复制状态（用于MCTS模拟）"""
+        """复制状态（用于模拟分支计算）"""
         p = Pokemon(
             name=self.name, pokemon_type=self.pokemon_type,
             hp=self.hp, attack=self.attack, defense=self.defense,

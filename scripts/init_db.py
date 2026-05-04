@@ -14,6 +14,7 @@ import csv
 import sqlite3
 import openpyxl
 import argparse
+import urllib.parse
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB_PATH = os.path.join(BASE_DIR, "data", "nrc.db")
@@ -61,6 +62,11 @@ def create_tables(conn):
         energy_cost INTEGER DEFAULT 0,
         power       INTEGER DEFAULT 0,
         description TEXT DEFAULT '',
+        icon_url    TEXT DEFAULT '',
+        attribute_icon_url TEXT DEFAULT '',
+        category_icon_url  TEXT DEFAULT '',
+        skill_group TEXT DEFAULT '',
+        wiki_url    TEXT DEFAULT '',
         source      TEXT DEFAULT 'wiki'
     )
     """)
@@ -70,6 +76,7 @@ def create_tables(conn):
     CREATE TABLE IF NOT EXISTS pokemon_skill (
         pokemon_id  INTEGER NOT NULL,
         skill_id    INTEGER NOT NULL,
+        learn_group TEXT DEFAULT '',
         PRIMARY KEY (pokemon_id, skill_id),
         FOREIGN KEY (pokemon_id) REFERENCES pokemon(id),
         FOREIGN KEY (skill_id)   REFERENCES skill(id)
@@ -176,19 +183,40 @@ def import_skills_from_bilibili(conn):
             except ValueError:
                 pass
             desc = row.get("技能描述", "").strip()
+            icon_file = row.get("技能图标文件", "").strip()
+            icon_url = (
+                f"/skill-icons/{urllib.parse.quote(icon_file)}"
+                if icon_file else row.get("技能图标", "").strip()
+            )
+            attribute_icon_url = row.get("属性图标", "").strip()
+            category_icon_url = row.get("分类图标", "").strip()
+            skill_group = row.get("技能组", "").strip()
+            wiki_url = row.get("Wiki地址", "").strip()
 
             c.execute("SELECT id FROM skill WHERE name = ?", (name,))
             existing = c.fetchone()
             if existing:
                 c.execute("""
-                    UPDATE skill SET element=?, category=?, energy_cost=?, power=?, description=?, source='bilibili'
+                    UPDATE skill SET element=?, category=?, energy_cost=?, power=?, description=?,
+                        icon_url=?, attribute_icon_url=?, category_icon_url=?, skill_group=?, wiki_url=?,
+                        source='bilibili'
                     WHERE name=?
-                """, (element, category, energy, power, desc, name))
+                """, (
+                    element, category, energy, power, desc,
+                    icon_url, attribute_icon_url, category_icon_url, skill_group, wiki_url,
+                    name
+                ))
             else:
                 c.execute("""
-                    INSERT INTO skill (name, element, category, energy_cost, power, description, source)
-                    VALUES (?,?,?,?,?,?,'bilibili')
-                """, (name, element, category, energy, power, desc))
+                    INSERT INTO skill (
+                        name, element, category, energy_cost, power, description,
+                        icon_url, attribute_icon_url, category_icon_url, skill_group, wiki_url, source
+                    )
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,'bilibili')
+                """, (
+                    name, element, category, energy, power, desc,
+                    icon_url, attribute_icon_url, category_icon_url, skill_group, wiki_url,
+                ))
                 count += 1
 
             # Parse pet list
@@ -264,19 +292,40 @@ def import_skills(conn):
             except ValueError:
                 pass
             desc = row.get("技能描述", "").strip()
+            icon_file = row.get("技能图标文件", "").strip()
+            icon_url = (
+                f"/skill-icons/{urllib.parse.quote(icon_file)}"
+                if icon_file else row.get("技能图标", "").strip()
+            )
+            attribute_icon_url = row.get("属性图标", "").strip()
+            category_icon_url = row.get("分类图标", "").strip()
+            skill_group = row.get("技能组", "").strip()
+            wiki_url = row.get("Wiki地址", "").strip()
 
             c.execute("SELECT id FROM skill WHERE name = ?", (name,))
             existing = c.fetchone()
             if existing:
                 c.execute("""
-                    UPDATE skill SET element=?, category=?, energy_cost=?, power=?, description=?, source='wiki'
+                    UPDATE skill SET element=?, category=?, energy_cost=?, power=?, description=?,
+                        icon_url=?, attribute_icon_url=?, category_icon_url=?, skill_group=?, wiki_url=?,
+                        source='wiki'
                     WHERE name=?
-                """, (element, category, energy, power, desc, name))
+                """, (
+                    element, category, energy, power, desc,
+                    icon_url, attribute_icon_url, category_icon_url, skill_group, wiki_url,
+                    name
+                ))
             else:
                 c.execute("""
-                    INSERT INTO skill (name, element, category, energy_cost, power, description, source)
-                    VALUES (?,?,?,?,?,?,'wiki')
-                """, (name, element, category, energy, power, desc))
+                    INSERT INTO skill (
+                        name, element, category, energy_cost, power, description,
+                        icon_url, attribute_icon_url, category_icon_url, skill_group, wiki_url, source
+                    )
+                    VALUES (?,?,?,?,?,?,?,?,?,?,?,'wiki')
+                """, (
+                    name, element, category, energy, power, desc,
+                    icon_url, attribute_icon_url, category_icon_url, skill_group, wiki_url,
+                ))
                 count += 1
 
             # Parse pet list

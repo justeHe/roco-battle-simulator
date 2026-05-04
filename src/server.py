@@ -5,7 +5,8 @@
 import sys
 import os
 import json
-import asyncio
+import re
+import urllib.parse
 from typing import Optional, List
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -15,29 +16,124 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
 from src.skill_db import load_skills
-from src.models import BattleState, StatusType
+from src.models import BattleState
 from src.effect_models import E, Timing
 from src.effect_engine import EffectExecutor
 from src.team_builder import TeamBuilder
 from src.battle import (
     execute_full_turn, check_winner,
-    auto_switch, get_actions
+    auto_switch
 )
-from src.mcts import MCTS, EXPERIENCE_A, EXPERIENCE_B
 
 app = FastAPI()
 
 STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
 
 _db_loaded = False
+_skill_meta_cache: Optional[dict] = None
+_SKILL_ICON_CACHE: dict = {}
 
 def _ensure_loaded():
     global _db_loaded
     if not _db_loaded:
+        _ensure_metadata_schema()
         load_skills()
         from src.pokemon_db import load_pokemon_db
         load_pokemon_db()
         _db_loaded = True
+
+
+def _ensure_metadata_schema():
+    """让旧数据库兼容新 UI 需要的技能图标/分组字段。"""
+    from src.skill_db import _get_conn
+    conn = _get_conn()
+    c = conn.cursor()
+
+    def columns(table: str) -> set:
+        c.execute(f"PRAGMA table_info({table})")
+        return {r["name"] for r in c.fetchall()}
+
+    skill_cols = columns("skill")
+    for col, ddl in [
+        ("icon_url", "TEXT DEFAULT ''"),
+        ("attribute_icon_url", "TEXT DEFAULT ''"),
+        ("category_icon_url", "TEXT DEFAULT ''"),
+        ("skill_group", "TEXT DEFAULT ''"),
+        ("wiki_url", "TEXT DEFAULT ''"),
+    ]:
+        if col not in skill_cols:
+            c.execute(f"ALTER TABLE skill ADD COLUMN {col} {ddl}")
+
+    ps_cols = columns("pokemon_skill")
+    if "learn_group" not in ps_cols:
+        c.execute("ALTER TABLE pokemon_skill ADD COLUMN learn_group TEXT DEFAULT ''")
+
+    conn.commit()
+
+
+def _safe_skill_icon_stem(name: str) -> str:
+    return re.sub(r'[^\w\u4e00-\u9fff]+', '_', name).strip('_') or "skill"
+
+
+def _build_skill_icon_cache():
+    """扫描本地 data/skill_icons，生成技能名 -> /skill-icons URL。"""
+    global _SKILL_ICON_CACHE
+    if _SKILL_ICON_CACHE:
+        return
+    icon_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_icons")
+    if not os.path.exists(icon_dir):
+        return
+    for fname in os.listdir(icon_dir):
+        if not fname.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".gif")):
+            continue
+        stem, _ = os.path.splitext(fname)
+        _SKILL_ICON_CACHE[stem] = f"/skill-icons/{urllib.parse.quote(fname)}"
+
+
+def _get_skill_icon_url(name: str) -> str:
+    _build_skill_icon_cache()
+    return _SKILL_ICON_CACHE.get(_safe_skill_icon_stem(name), "")
+
+
+def _skill_metadata_cache() -> dict:
+    """返回 name -> 技能展示元数据。"""
+    global _skill_meta_cache
+    if _skill_meta_cache is not None:
+        return _skill_meta_cache
+    from src.skill_db import _get_conn
+    conn = _get_conn()
+    c = conn.cursor()
+    c.execute("""
+        SELECT name, description, icon_url, attribute_icon_url,
+               category_icon_url, skill_group, wiki_url, source
+        FROM skill
+    """)
+    _skill_meta_cache = {}
+    for r in c.fetchall():
+        local_icon = _get_skill_icon_url(r["name"])
+        _skill_meta_cache[r["name"]] = {
+            "description": r["description"] or "",
+            "icon_url": local_icon or r["icon_url"] or "",
+            "attribute_icon_url": r["attribute_icon_url"] or "",
+            "category_icon_url": r["category_icon_url"] or "",
+            "skill_group": r["skill_group"] or "",
+            "wiki_url": r["wiki_url"] or "",
+            "source": r["source"] or "",
+        }
+    return _skill_meta_cache
+
+
+def _get_skill_metadata(name: str) -> dict:
+    _ensure_loaded()
+    return _skill_metadata_cache().get(name, {
+        "description": "",
+        "icon_url": "",
+        "attribute_icon_url": "",
+        "category_icon_url": "",
+        "skill_group": "",
+        "wiki_url": "",
+        "source": "",
+    })
 
 
 def _pct_text(value: float) -> str:
@@ -327,7 +423,7 @@ def _diff_to_logs(before: dict, after: dict, state: BattleState) -> List[str]:
         return team_list[idx].name
 
     def side_label(team):
-        return "🧑你方" if team == "a" else "🤖AI方"
+        return "🟦我方" if team == "a" else "🟥对方"
 
     n = len(state.team_a)
 
@@ -398,9 +494,9 @@ def _diff_to_logs(before: dict, after: dict, state: BattleState) -> List[str]:
     mp_b_before = before.get("mp_b", 4)
     mp_b_after  = after.get("mp_b", 4)
     if mp_a_after < mp_a_before:
-        logs.append(f"  💔 你方 MP -{mp_a_before - mp_a_after} → {mp_a_after}")
+        logs.append(f"  💔 {side_label('a')} MP -{mp_a_before - mp_a_after} → {mp_a_after}")
     if mp_b_after < mp_b_before:
-        logs.append(f"  💔 AI方 MP -{mp_b_before - mp_b_after} → {mp_b_after}")
+        logs.append(f"  💔 {side_label('b')} MP -{mp_b_before - mp_b_after} → {mp_b_after}")
 
     # 换人（换人优先级最高，提到结算日志最前以反映真实执行顺序）
     switch_logs = []
@@ -409,9 +505,9 @@ def _diff_to_logs(before: dict, after: dict, state: BattleState) -> List[str]:
     cb_before = before.get("current_b")
     cb_after  = after.get("current_b")
     if ca_before != ca_after and ca_after is not None:
-        switch_logs.append(f"  🔄 你方 换上 {pname('a', ca_after)}")
+        switch_logs.append(f"  🔄 {side_label('a')} 换上 {pname('a', ca_after)}")
     if cb_before != cb_after and cb_after is not None:
-        switch_logs.append(f"  🔄 AI方 换上 {pname('b', cb_after)}")
+        switch_logs.append(f"  🔄 {side_label('b')} 换上 {pname('b', cb_after)}")
 
     return switch_logs + logs
 
@@ -423,14 +519,14 @@ def _diff_to_logs(before: dict, after: dict, state: BattleState) -> List[str]:
 class BattleSession:
     def __init__(self):
         self.state: Optional[BattleState] = None
-        self.mcts_b: Optional[MCTS] = None
+        self.mode = "manual"
         self.waiting_for_player = False
         self.game_over = False
         self.logs: List[str] = []
 
     def reset(self):
         self.state = None
-        self.mcts_b = None
+        self.mode = "manual"
         self.waiting_for_player = False
         self.game_over = False
         self.logs = []
@@ -532,12 +628,19 @@ def serialize_pokemon(p, is_current=False):
 
 def serialize_skill(s, current_energy, cooldown=0):
     effect_view = _skill_effect_display(s)
+    meta = _get_skill_metadata(s.name)
     return {
         "name":        s.name,
         "type":        s.skill_type.value,
         "category":    s.category.value,
         "power":       s.power,
         "energy_cost": s.energy_cost,
+        "description": meta["description"],
+        "icon_url":    meta["icon_url"],
+        "attribute_icon_url": meta["attribute_icon_url"],
+        "category_icon_url":  meta["category_icon_url"],
+        "skill_group": meta["skill_group"],
+        "wiki_url":    meta["wiki_url"],
         "can_use":     current_energy >= s.energy_cost and cooldown <= 0,
         "on_cooldown": cooldown > 0,
         "cooldown":    cooldown,
@@ -592,6 +695,22 @@ def _get_type_effectiveness_for_display(attacker_type_val: str, defender_type_va
         return 1.0
 
 
+def _manual_switch_prompts(state: BattleState) -> List[dict]:
+    """整理手动模式的待补位请求，每方最多保留一个，倒下优先。"""
+    prompts_by_team = {}
+    for req in getattr(state, "pending_switch_requests", []) or []:
+        team = req.get("team")
+        if team not in ("a", "b"):
+            continue
+        if team not in prompts_by_team or req.get("reason") == "fainted":
+            prompts_by_team[team] = {
+                "team": team,
+                "reason": req.get("reason", "force_switch"),
+                "alive": req.get("alive", []),
+            }
+    return [prompts_by_team[t] for t in ("a", "b") if t in prompts_by_team]
+
+
 def serialize_state(state: BattleState, waiting: bool = False,
                     game_over: bool = False, winner: str = None,
                     events: List[dict] = None,
@@ -632,36 +751,198 @@ def serialize_state(state: BattleState, waiting: bool = False,
         "waiting_for_player": waiting,
         "game_over":          game_over,
         "winner":             winner,
+        "battle_mode":        session.mode,
         "logs":               session.logs,
         "events":             events or [],
         "force_switch_prompt":  force_switch_prompt,
         "force_switch_reason":  force_switch_reason,  # "fainted" | "force_switch"
         "force_switch_alive":   force_switch_alive,    # 后端计算好的可选精灵索引列表
+        "manual_switch_prompts": _manual_switch_prompts(state) if session.mode == "manual" else [],
     }
 
 
-# ═══════════════════════════════════════
-# AI 被动换人
-# ═══════════════════════════════════════
+def _manual_switch_callback(state, team_list, alive_indices):
+    """手动模式下让双方都挂起补位选择。"""
+    return None
 
-def _ai_switch_callback(state, team_list, alive_indices):
-    from src.models import get_type_effectiveness
-    best_idx  = alive_indices[0]
-    best_score = -999
-    enemy_team = "b" if team_list is state.team_a else "a"
-    enemy = state.get_current(enemy_team)
-    for idx in alive_indices:
-        p = team_list[idx]
-        hp_score   = p.current_hp / max(1, p.hp) * 50
-        eff = 0
-        for sk in p.skills:
-            if sk.power > 0:
-                eff = max(eff, get_type_effectiveness(sk.skill_type, enemy.pokemon_type))
-        type_score = (eff - 1.0) * 30
-        if hp_score + type_score > best_score:
-            best_score = hp_score + type_score
-            best_idx = idx
-    return best_idx
+
+def _apply_passive_ability_flags(pokemon, ability_effects):
+    """加载需要在创建时立即生效的被动特性标记。"""
+    pokemon.ability_state = getattr(pokemon, "ability_state", {}) or {}
+    for ae in ability_effects:
+        for tag in ae.effects:
+            if tag.type == E.COST_INVERT:
+                pokemon.ability_state["cost_invert"] = True
+            elif tag.type == E.IMMUNE_ZERO_ENERGY_ATTACKER:
+                pokemon.ability_state["immune_zero_energy_attacker"] = True
+            elif tag.type == E.IMMUNE_LOW_COST_ATTACK:
+                pokemon.ability_state["immune_low_cost_attack"] = tag.params.get("cost_threshold", 1)
+            elif tag.type == E.FIXED_HIT_COUNT_ALL:
+                pokemon.ability_state["fixed_hit_count_all"] = tag.params.get("count", 2)
+            elif tag.type == E.HIT_COUNT_PER_POISON:
+                pokemon.ability_state["hit_count_per_poison"] = True
+            elif tag.type == E.FAINT_NO_MP_LOSS:
+                pokemon.ability_state["faint_no_mp_loss"] = True
+            elif tag.type == E.EXTRA_POISON_TICK:
+                pokemon.ability_state["extra_poison_tick"] = True
+            elif tag.type == E.HEAL_PER_TURN:
+                pokemon.ability_state["heal_per_turn_pct"] = tag.params.get("heal_pct", 0.12)
+            elif tag.type == E.SHARE_GAINS:
+                pokemon.ability_state["share_gains"] = True
+            elif tag.type == E.HALF_METEOR_FULL_DAMAGE:
+                pokemon.ability_state["half_meteor_full_damage"] = True
+            elif tag.type == E.CHARGE_FREE_SKILL:
+                pokemon.ability_state["charge_free_skill"] = True
+            elif tag.type == E.COST_CHANGE_DOUBLE:
+                pokemon.ability_state["cost_change_double"] = True
+            elif tag.type == E.TURN_END_REPEAT:
+                delta = tag.params.get("delta", 1)
+                pokemon.ability_state["turn_end_repeat"] = pokemon.ability_state.get("turn_end_repeat", 0) + delta
+            elif tag.type == E.TURN_END_SKIP:
+                delta = tag.params.get("delta", 1)
+                pokemon.ability_state["turn_end_skip"] = pokemon.ability_state.get("turn_end_skip", 0) + delta
+            elif tag.type == E.BUFF_EXTRA_LAYERS:
+                pokemon.ability_state["buff_extra_layers"] = tag.params.get("extra", 2)
+            elif tag.type == E.CUTE_NO_CAP:
+                pokemon.ability_state["cute_no_cap"] = True
+            elif tag.type == E.CUTE_HIT_PER_STACK:
+                pokemon.ability_state["cute_hit_per_stack"] = tag.params.get("per", 2)
+
+
+def _build_team_from_config(team_cfg: list, label: str):
+    """从前端配置构造一方队伍。"""
+    from src.pokemon_db import get_pokemon, calc_combat_stats
+    from src.models import Pokemon, Type
+    from src.skill_db import get_skill, load_ability_effects
+
+    type_map = TeamBuilder.TYPE_MAP
+    built_team = []
+    errors = []
+
+    for pos, entry in enumerate(team_cfg, start=1):
+        pname = (entry.get("name") or "").strip()
+        skill_names = [n for n in entry.get("skills", []) if n][:4]
+        data = get_pokemon(pname)
+        if not data:
+            errors.append(f"{label}第{pos}位未找到精灵: {pname or '空'}")
+            continue
+        if not skill_names:
+            errors.append(f"{label}{pname} 未配置技能")
+            continue
+
+        ability = (entry.get("ability") or data["特性"] or "").strip()
+        nature = entry.get("nature", "坦率")
+        iv_config = entry.get("iv_config")
+        stats = calc_combat_stats(
+            base_hp=data["生命种族值"],
+            base_atk=data["物攻种族值"],
+            base_spatk=data["魔攻种族值"],
+            base_def=data["物防种族值"],
+            base_spdef=data["魔防种族值"],
+            base_speed=data["速度种族值"],
+            iv_config=iv_config,
+            nature_name=nature,
+        )
+
+        pokemon = Pokemon(
+            name=pname,
+            pokemon_type=type_map.get(data["属性"], Type.NORMAL),
+            hp=stats["hp"],
+            attack=stats["atk"],
+            defense=stats["def"],
+            sp_attack=stats["spatk"],
+            sp_defense=stats["spdef"],
+            speed=stats["speed"],
+            ability=ability,
+            skills=[get_skill(n) for n in skill_names],
+        )
+        if iv_config:
+            pokemon.iv_hp = iv_config.get("hp", 0)
+            pokemon.iv_atk = iv_config.get("atk", 0)
+            pokemon.iv_spatk = iv_config.get("spatk", 0)
+            pokemon.iv_def = iv_config.get("def", 0)
+            pokemon.iv_spdef = iv_config.get("spdef", 0)
+            pokemon.iv_speed = iv_config.get("speed", 0)
+        pokemon.nature = nature
+        pokemon.ability_effects = load_ability_effects(ability) if ability else []
+        _apply_passive_ability_flags(pokemon, pokemon.ability_effects)
+        built_team.append(pokemon)
+
+    if len(built_team) != 6:
+        errors.append(f"{label}需要6只精灵，当前{len(built_team)}只")
+
+    return built_team, errors
+
+
+def _parse_side_action(state: BattleState, side: str, action_data: dict):
+    team = state.team_a if side == "a" else state.team_b
+    current_idx = state.current_a if side == "a" else state.current_b
+    current = team[current_idx]
+    side_name = "我方" if side == "a" else "对方"
+
+    action_type = action_data.get("type")
+    if action_type == "charge":
+        return (-1,), None
+    if action_type == "skill":
+        idx = int(action_data.get("index", -1))
+        if idx < 0 or idx >= len(current.skills):
+            return None, f"{side_name}技能序号无效"
+        skill = current.skills[idx]
+        cooldown = current.cooldowns.get(idx, 0)
+        if current.energy < skill.energy_cost:
+            return None, f"{side_name}{current.name} 能量不足，无法使用 {skill.name}"
+        if cooldown > 0:
+            return None, f"{side_name}{current.name} 的 {skill.name} 仍在冷却"
+        return (idx,), None
+    if action_type == "switch":
+        target_idx = int(action_data.get("index", -1))
+        if target_idx < 0 or target_idx >= len(team):
+            return None, f"{side_name}换人序号无效"
+        if target_idx == current_idx or team[target_idx].is_fainted:
+            return None, f"{side_name}无法换上该精灵"
+        return (-2, target_idx), None
+    return None, f"{side_name}行动类型无效"
+
+
+def _log_declared_action(state: BattleState, side: str, action):
+    icon = "🟦" if side == "a" else "🟥"
+    side_name = "我方" if side == "a" else "对方"
+    team = state.team_a if side == "a" else state.team_b
+    current_idx = state.current_a if side == "a" else state.current_b
+    pokemon = team[current_idx]
+
+    if action[0] == -1:
+        session.add_log(f"  {icon} {side_name}选择：汇合聚能（+5能）")
+    elif action[0] == -2:
+        session.add_log(f"  {icon} {side_name}选择：换上 {team[action[1]].name}（优先执行）")
+    else:
+        skill = pokemon.skills[action[0]]
+        session.add_log(
+            f"  {icon} {side_name}：{pokemon.name} 使用【{skill.name}】"
+            f"（消耗{skill.energy_cost}能 威力{skill.power}）{_eff_preview(skill)}"
+        )
+
+
+def _resolve_manual_pending_switches(state: BattleState):
+    """手动模式先用确定性被动换人收束 pending，后续可升级为弹窗选择。"""
+    if not state.pending_switch_requests:
+        return
+    pending = state.pending_switch_requests
+    state.pending_switch_requests = []
+    for req in pending:
+        alive = req.get("alive") or []
+        if not alive:
+            continue
+        side = req["team"]
+        chosen = alive[0]
+        if side == "a":
+            state.current_a = chosen
+            pokemon = state.team_a[chosen]
+            session.add_log(f"  🔄 我方自动补位：{pokemon.name}")
+        else:
+            state.current_b = chosen
+            pokemon = state.team_b[chosen]
+            session.add_log(f"  🔄 对方自动补位：{pokemon.name}")
 
 
 # ═══════════════════════════════════════
@@ -691,9 +972,6 @@ async def websocket_endpoint(websocket: WebSocket):
                         await websocket.send_text(json.dumps(serialize_state(
                             session.state, waiting=True
                         )))
-                        await websocket.send_text(json.dumps({
-                            "type": "your_turn", "turn": session.state.turn
-                        }))
                 except Exception:
                     pass
     except WebSocketDisconnect:
@@ -704,9 +982,9 @@ async def websocket_endpoint(websocket: WebSocket):
 
 async def handle_message(ws: WebSocket, msg: dict):
     cmd = msg.get("cmd")
-    if   cmd == "start":        await start_battle(ws)
-    elif cmd == "start_custom": await start_custom_battle(ws, msg)
-    elif cmd == "action":       await receive_player_action(ws, msg)
+    if   cmd == "start_manual_custom": await start_manual_custom_battle(ws, msg)
+    elif cmd == "manual_turn":  await receive_manual_turn(ws, msg)
+    elif cmd == "manual_switch": await receive_manual_switch(ws, msg)
     elif cmd == "get_state":
         if session.state:
             winner = check_winner(session.state)
@@ -721,374 +999,137 @@ async def handle_message(ws: WebSocket, msg: dict):
     elif cmd == "reset":
         session.reset()
         await ws.send_text(json.dumps({"type": "reset_ok"}))
+    else:
+        await ws.send_text(json.dumps({
+            "type": "error",
+            "message": "该对战入口只支持双方手动模拟，请先在队伍页配置双方阵容",
+        }))
 
 
-async def start_battle(ws: WebSocket):
+async def start_manual_custom_battle(ws: WebSocket, msg: dict):
+    """启动双方均由用户手动控制的自定义模拟对战。"""
     _ensure_loaded()
     session.reset()
+    session.mode = "manual"
 
-    state = BattleState(
-        team_a=TeamBuilder.create_toxic_team(),
-        team_b=TeamBuilder.create_wing_team(),
-        current_a=0, current_b=0, turn=1
-    )
-    session.state   = state
-    session.mcts_b  = MCTS(simulations=150, team="b", experience=EXPERIENCE_B)
-    session.game_over = False
-
-    session.add_log("═══════════════════════════")
-    session.add_log("⚔️  战斗开始！")
-    session.add_log("🧑 毒队（你）  vs  🤖 翼王队（AI）")
-    session.add_log("═══════════════════════════")
-
-    # 初始换人
-    snap_before = _snapshot(state)
-    auto_switch(state, _ai_switch_callback, _ai_switch_callback)
-    snap_after  = _snapshot(state)
-    for line in _diff_to_logs(snap_before, snap_after, state):
-        session.add_log(line)
-
-    await ws.send_text(json.dumps(serialize_state(state, waiting=True)))
-    session.waiting_for_player = True
-    await ws.send_text(json.dumps({"type": "your_turn", "turn": state.turn}))
-
-
-async def start_custom_battle(ws: WebSocket, msg: dict):
-    """
-    自定义阵容战斗启动。
-    msg.player_team: [{name, skills:[skill_name×4]}×6]
-    msg.ai_team: "toxic" | "wing"
-    """
-    _ensure_loaded()
-    session.reset()
-
-    player_team_cfg = msg.get("player_team", [])
-    ai_team_key     = msg.get("ai_team", "wing")   # "toxic" 或 "wing"
-
-    # ── 构建玩家阵容 ──
-    from src.team_builder import TeamBuilder
-    from src.skill_db import get_skill
-    from src.pokemon_db import get_pokemon
-    from src.models import Pokemon, Type
-    from src.skill_db import load_ability_effects
-
-    type_map = TeamBuilder.TYPE_MAP
-
-    player_team = []
-    errors = []
-    for entry in player_team_cfg:
-        pname      = entry.get("name", "")
-        skill_names = entry.get("skills", [])
-        data = get_pokemon(pname)
-        if not data:
-            errors.append(f"未找到精灵: {pname}")
-            continue
-        ptype_str = data["属性"]
-        ability   = data["特性"]
-        type_enum = type_map.get(ptype_str, Type.NORMAL)
-        skills    = [get_skill(n) for n in skill_names if n]
-        if len(skills) < 1:
-            errors.append(f"{pname} 未配置技能")
-            continue
-
-        # 从种族值计算战斗五维（使用配置的 IV 和性格）
-        from src.pokemon_db import calc_combat_stats
-        iv_config = entry.get("iv_config")
-        nature = entry.get("nature", "坦率")
-        stats = calc_combat_stats(
-            base_hp=data["生命种族值"],
-            base_atk=data["物攻种族值"],
-            base_spatk=data["魔攻种族值"],
-            base_def=data["物防种族值"],
-            base_spdef=data["魔防种族值"],
-            base_speed=data["速度种族值"],
-            iv_config=iv_config,
-            nature_name=nature,
-        )
-
-        p = Pokemon(
-            name=pname, pokemon_type=type_enum,
-            hp=stats["hp"], attack=stats["atk"],
-            defense=stats["def"], sp_attack=stats["spatk"],
-            sp_defense=stats["spdef"], speed=stats["speed"],
-            ability=ability, skills=skills,
-        )
-        # 加载特性效果
-        p.ability_effects = load_ability_effects(ability) if ability else []
-        player_team.append(p)
-
+    team_a_cfg = msg.get("team_a") or msg.get("player_team") or []
+    team_b_cfg = msg.get("team_b") or msg.get("enemy_team") or []
+    team_a, errors_a = _build_team_from_config(team_a_cfg, "我方")
+    team_b, errors_b = _build_team_from_config(team_b_cfg, "对方")
+    errors = errors_a + errors_b
     if errors:
         await ws.send_text(json.dumps({"type": "error", "message": "; ".join(errors)}))
         return
-    if len(player_team) != 6:
-        await ws.send_text(json.dumps({"type": "error", "message": f"需要6只精灵，当前{len(player_team)}只"}))
-        return
-
-    # ── 构建 AI 阵容 ──
-    if ai_team_key == "toxic":
-        ai_team = TeamBuilder.create_toxic_team()
-        ai_name = "毒队"
-    else:
-        ai_team = TeamBuilder.create_wing_team()
-        ai_name = "翼王队"
 
     state = BattleState(
-        team_a=player_team,
-        team_b=ai_team,
-        current_a=0, current_b=0, turn=1
+        team_a=team_a,
+        team_b=team_b,
+        current_a=0,
+        current_b=0,
+        turn=1,
     )
-    session.state   = state
-    session.mcts_b  = MCTS(simulations=150, team="b", experience=EXPERIENCE_B)
+    session.state = state
     session.game_over = False
+    session.waiting_for_player = True
 
     session.add_log("═══════════════════════════")
-    session.add_log("⚔️  战斗开始！")
-    session.add_log(f"🧑 自定义阵容  vs  🤖 {ai_name}（AI）")
-    session.add_log(f"🧑 你方: {', '.join(p.name for p in player_team)}")
-    session.add_log(f"🤖 AI方: {', '.join(p.name for p in ai_team)}")
+    session.add_log("⚔️  手动模拟对战开始！")
+    session.add_log(f"🟦 我方: {', '.join(p.name for p in team_a)}")
+    session.add_log(f"🟥 对方: {', '.join(p.name for p in team_b)}")
     session.add_log("═══════════════════════════")
 
     snap_before = _snapshot(state)
-    auto_switch(state, _ai_switch_callback, _ai_switch_callback)
-    snap_after  = _snapshot(state)
+    auto_switch(state, _manual_switch_callback, _manual_switch_callback)
+    _resolve_manual_pending_switches(state)
+    snap_after = _snapshot(state)
     for line in _diff_to_logs(snap_before, snap_after, state):
         session.add_log(line)
 
     await ws.send_text(json.dumps(serialize_state(state, waiting=True)))
-    session.waiting_for_player = True
-    await ws.send_text(json.dumps({"type": "your_turn", "turn": state.turn}))
 
 
-async def receive_player_action(ws: WebSocket, msg: dict):
+async def receive_manual_turn(ws: WebSocket, msg: dict):
     if not session.state or session.game_over:
         return
+    if session.mode != "manual":
+        await ws.send_text(json.dumps({"type": "error", "message": "当前不是手动模拟模式"}))
+        return
 
-    state       = session.state
-    action_data = msg.get("action")
-
-    # ── 解析玩家行动 ──
-    action_a = None
-    if action_data["type"] == "charge":
-        action_a = (-1,)
-    elif action_data["type"] == "skill":
-        idx = action_data["index"]
-        pa  = state.team_a[state.current_a]
-        if idx < len(pa.skills) and pa.energy >= pa.skills[idx].energy_cost:
-            action_a = (idx,)
-        else:
-            await ws.send_text(json.dumps({"type": "error", "message": "无法使用该技能"}))
-            return
-    elif action_data["type"] == "switch":
-        target_idx = action_data["index"]
-        if target_idx != state.current_a and not state.team_a[target_idx].is_fainted:
-            action_a = (-2, target_idx)
-        else:
-            await ws.send_text(json.dumps({"type": "error", "message": "无法换人"}))
-            return
-    else:
+    state = session.state
+    action_a, err_a = _parse_side_action(state, "a", msg.get("action_a") or {})
+    action_b, err_b = _parse_side_action(state, "b", msg.get("action_b") or {})
+    if err_a or err_b:
+        await ws.send_text(json.dumps({"type": "error", "message": err_a or err_b}))
         return
 
     session.waiting_for_player = False
 
-    # ── 检查湿润印记（回合开始前） ──
     moisture_a = state.marks_a.get("moisture_mark", 0)
     moisture_b = state.marks_b.get("moisture_mark", 0)
 
-    # ── 战报：回合头 ──
     pa = state.team_a[state.current_a]
     pb = state.team_b[state.current_b]
     session.add_log("")
     session.add_log(f"─── 回合 {state.turn} ───")
     session.add_log(
-        f"  📌 当前: 🧑{pa.name}（HP {round(pa.current_hp, 2)}/{pa.hp} E={pa.energy}）"
-        f"  vs  🤖{pb.name}（HP {round(pb.current_hp, 2)}/{pb.hp} E={pb.energy}）"
+        f"  📌 当前: 🟦{pa.name}（HP {round(pa.current_hp, 2)}/{pa.hp} E={pa.energy}）"
+        f"  vs  🟥{pb.name}（HP {round(pb.current_hp, 2)}/{pb.hp} E={pb.energy}）"
     )
+    _log_declared_action(state, "a", action_a)
+    _log_declared_action(state, "b", action_b)
 
-    # ── 玩家行动声明 ──
-    if action_a[0] == -1:
-        session.add_log("  🧑 你选择：汇合聚能（+5能）")
-    elif action_a[0] == -2:
-        session.add_log(f"  🧑 你选择：换上 {state.team_a[action_a[1]].name}（优先执行）")
-    else:
-        sk = pa.skills[action_a[0]]
-        eff_str = _eff_preview(sk)
-        session.add_log(
-            f"  🧑 你：{pa.name} 使用【{sk.name}】"
-            f"（消耗{sk.energy_cost}能 威力{sk.power}）{eff_str}"
-        )
-
-    # ── AI 思考 ──
-    await ws.send_text(json.dumps({"type": "ai_thinking"}))
-    try:
-        loop     = asyncio.get_running_loop()
-        # BUG #1 FIX: Add 30s timeout to MCTS decision to prevent indefinite hanging
-        action_b = await asyncio.wait_for(
-            loop.run_in_executor(None, session.mcts_b.get_best_action, state),
-            timeout=30.0
-        )
-    except asyncio.TimeoutError:
-        import traceback as _tb
-        err_msg = "MCTS决策超时（>30s）"
-        print(f"[AI TIMEOUT] {err_msg}", flush=True)
-        session.add_log(f"  ⏱️  {err_msg}，使用随机决策")
-        # 降级：随机选合法动作
-        from src.battle import get_actions
-        fallback_actions = get_actions(state, "b")
-        import random
-        action_b = random.choice(fallback_actions)
-    except Exception as e:
-        import traceback as _tb
-        err = _tb.format_exc()
-        print(f"[AI ERROR] {e}\n{err}", flush=True)
-        session.add_log(f"  ❌ AI决策异常: {e}")
-        # 降级：随机选合法动作
-        from src.battle import get_actions
-        fallback_actions = get_actions(state, "b")
-        import random
-        action_b = random.choice(fallback_actions)
-
-    # ── AI 行动声明 ──
-    if action_b[0] == -1:
-        session.add_log("  🤖 AI选择：汇合聚能（+5能）")
-    elif action_b[0] == -2:
-        session.add_log(f"  🤖 AI选择：换上 {state.team_b[action_b[1]].name}（优先执行）")
-    else:
-        sk_b    = pb.skills[action_b[0]]
-        eff_str = _eff_preview(sk_b)
-        session.add_log(
-            f"  🤖 AI：{pb.name} 使用【{sk_b.name}】"
-            f"（消耗{sk_b.energy_cost}能 威力{sk_b.power}）{eff_str}"
-        )
-
-    # ── 执行回合 ──
     snap_before = _snapshot(state)
-    # 清除上回合的聚能日志
     if state.energy_recharge_log:
         state.energy_recharge_log.clear()
+
     try:
-        execute_full_turn(state, action_a, action_b, _ai_switch_callback, _ai_switch_callback)
+        execute_full_turn(state, action_a, action_b, _manual_switch_callback, _manual_switch_callback)
     except Exception as e:
         import traceback
         err_msg = traceback.format_exc()
         session.add_log(f"  ❌ 战斗执行异常: {e}")
         await ws.send_text(json.dumps({"type": "error", "message": f"战斗异常: {e}\n{err_msg}"}))
-        # 恢复等待玩家状态，让游戏可以继续
         session.waiting_for_player = True
         await ws.send_text(json.dumps(serialize_state(state, waiting=True)))
-        await ws.send_text(json.dumps({"type": "your_turn", "turn": state.turn}))
         return
-    snap_after  = _snapshot(state)
 
-    # ── 聚能提示 ──
+    snap_after = _snapshot(state)
+
     for ev in state.energy_recharge_log:
-        side_str = "🧑 你" if ev["team"] == "a" else "🤖 AI"
+        side_str = "我方" if ev["team"] == "a" else "对方"
         session.add_log(
-            f"  ⚡ {side_str}方 {ev['pokemon']} 能量不足（需{ev['needed']}，有{ev['had']}），"
+            f"  ⚡ {side_str} {ev['pokemon']} 能量不足（需{ev['needed']}，有{ev['had']}），"
             f"自动聚能+5，{ev['skill']}未能释放"
         )
 
-    # ── 湿润印记触发提示（在执行前检测到的印记已在execute_full_turn开头消耗） ──
     if moisture_a > 0:
-        session.add_log(f"  💧 湿润印记触发！你方全队技能能耗 -{moisture_a}")
+        session.add_log(f"  💧 湿润印记触发！我方全队技能能耗 -{moisture_a}")
     if moisture_b > 0:
-        session.add_log(f"  💧 湿润印记触发！AI方全队技能能耗 -{moisture_b}")
+        session.add_log(f"  💧 湿润印记触发！对方全队技能能耗 -{moisture_b}")
 
-    # ── 详细战报 ──
-    diff_lines = _diff_to_logs(snap_before, snap_after, state)
-    for line in diff_lines:
+    for line in _diff_to_logs(snap_before, snap_after, state):
         session.add_log(line)
 
-    # ── 回合结算摘要 ──
     pa2 = state.team_a[state.current_a]
     pb2 = state.team_b[state.current_b]
     session.add_log(
-        f"  📊 结算 → 🧑{pa2.name} HP:{round(max(0, pa2.current_hp), 2)}/{pa2.hp} E={pa2.energy}"
-        f"  |  🤖{pb2.name} HP:{round(max(0, pb2.current_hp), 2)}/{pb2.hp} E={pb2.energy}"
+        f"  📊 结算 → 🟦{pa2.name} HP:{round(max(0, pa2.current_hp), 2)}/{pa2.hp} E={pa2.energy}"
+        f"  |  🟥{pb2.name} HP:{round(max(0, pb2.current_hp), 2)}/{pb2.hp} E={pb2.energy}"
     )
-    session.add_log(f"  🔷 MP → 你={state.mp_a} | AI={state.mp_b}")
+    session.add_log(f"  🔷 MP → 我方={state.mp_a} | 对方={state.mp_b}")
 
-    # ── 生成前端动画事件 ──
     events = _build_events(snap_before, snap_after, state, action_a, action_b, pa, pb)
 
-    # ── 处理死亡/脱离触发的强制换人（不占回合，玩家手动选）──
-    pending = state.pending_switch_requests
-    if pending:
-        state.pending_switch_requests = []
-        # 去重：每方只保留一个请求，fainted 优先于 force_switch
-        seen_teams = {}
-        for req in pending:
-            t = req["team"]
-            if t not in seen_teams or req.get("reason") == "fainted":
-                seen_teams[t] = req
-        pending = list(seen_teams.values())
-        for req in pending:
-            reason = req.get("reason", "force_switch")
-            if req["team"] == "a":
-                # 玩家方需要手动选择
-                if reason == "fainted":
-                    session.add_log(f"  💀 精灵倒下！选择下一只上场精灵（不占回合）")
-                else:
-                    session.add_log(f"  🔄 脱离成功！选择换上哪只精灵（不占回合）")
-                await ws.send_text(json.dumps(serialize_state(
-                    state, waiting=True, events=events,
-                    force_switch_prompt=True,
-                    force_switch_reason=reason,
-                    force_switch_alive=req["alive"],
-                )))
-                events = []
-                try:
-                    raw = await asyncio.wait_for(ws.receive_text(), timeout=30.0)
-                    msg2 = json.loads(raw)
-                except asyncio.TimeoutError:
-                    session.add_log(f"  ⏱️  玩家选择超时，自动选第一只")
-                    chosen = req["alive"][0]
-                    msg2 = {"type": "switch", "index": chosen}
-                except json.JSONDecodeError:
-                    chosen = req["alive"][0]
-                    msg2 = {"type": "switch", "index": chosen}
-
-                if msg2.get("type") == "switch" and msg2.get("index") in req["alive"]:
-                    chosen = msg2["index"]
-                    already_placed = (chosen == state.current_a)
-                    state.current_a = chosen
-                    new_p = state.team_a[chosen]
-                    session.add_log(f"  ↩️  换上 {new_p.name}")
-                    # 入场特性：如果选的不是已占位的精灵才触发（避免重复）
-                    if not already_placed:
-                        enemy_p = state.team_b[state.current_b]
-                        from src.battle import _apply_mark_on_enter
-                        _apply_mark_on_enter(state, "a", new_p)
-                        EffectExecutor.execute_agility_entry(state, new_p, enemy_p, "a")
-                        if new_p.ability_effects:
-                            EffectExecutor.execute_ability(
-                                state, new_p, enemy_p,
-                                Timing.ON_ENTER, new_p.ability_effects, "a",
-                            )
-            else:
-                # AI方由 AI 决策
-                chosen = _ai_switch_callback(state, state.team_b, req["alive"])
-                state.current_b = chosen
-                new_p = state.team_b[chosen]
-                session.add_log(f"  🤖 AI 换上 {new_p.name}")
-                # AI方入场特性
-                enemy_p = state.team_a[state.current_a]
-                from src.battle import _apply_mark_on_enter
-                _apply_mark_on_enter(state, "b", new_p)
-                if new_p.ability_effects:
-                    EffectExecutor.execute_ability(
-                        state, new_p, enemy_p,
-                        Timing.ON_ENTER, new_p.ability_effects, "b",
-                    )
+    if _manual_switch_prompts(state):
+        session.waiting_for_player = True
+        await ws.send_text(json.dumps(serialize_state(state, waiting=True, events=events)))
+        return
 
     winner = check_winner(state)
     if winner:
         session.game_over = True
-        if winner == "a":
-            session.add_log("")
-            session.add_log("🏆 你赢了！毒队胜利！")
-        else:
-            session.add_log("")
-            session.add_log("💔 AI赢了！翼王队胜利！")
+        session.add_log("")
+        session.add_log("🏆 我方胜利！" if winner == "a" else "🏆 对方胜利！")
         await ws.send_text(json.dumps(serialize_state(
             state, waiting=False, game_over=True, winner=winner, events=events
         )))
@@ -1096,7 +1137,76 @@ async def receive_player_action(ws: WebSocket, msg: dict):
 
     session.waiting_for_player = True
     await ws.send_text(json.dumps(serialize_state(state, waiting=True, events=events)))
-    await ws.send_text(json.dumps({"type": "your_turn", "turn": state.turn}))
+
+
+async def receive_manual_switch(ws: WebSocket, msg: dict):
+    if not session.state or session.game_over:
+        return
+    if session.mode != "manual":
+        await ws.send_text(json.dumps({"type": "error", "message": "当前不是手动模拟模式"}))
+        return
+
+    state = session.state
+    prompts = _manual_switch_prompts(state)
+    if not prompts:
+        await ws.send_text(json.dumps(serialize_state(state, waiting=True)))
+        return
+
+    selections = msg.get("selections") or {}
+    from src.battle import _apply_mark_on_enter
+
+    for prompt in prompts:
+        side = prompt["team"]
+        alive = prompt.get("alive") or []
+        if not alive:
+            continue
+        raw_choice = selections.get(side)
+        try:
+            chosen = int(raw_choice)
+        except (TypeError, ValueError):
+            chosen = alive[0]
+        if chosen not in alive:
+            await ws.send_text(json.dumps({
+                "type": "error",
+                "message": f"{'我方' if side == 'a' else '对方'}补位选择无效",
+            }))
+            return
+
+        if side == "a":
+            already_placed = chosen == state.current_a
+            state.current_a = chosen
+            new_pokemon = state.team_a[chosen]
+            enemy = state.team_b[state.current_b]
+            session.add_log(f"  ↩️  我方换上 {new_pokemon.name}")
+        else:
+            already_placed = chosen == state.current_b
+            state.current_b = chosen
+            new_pokemon = state.team_b[chosen]
+            enemy = state.team_a[state.current_a]
+            session.add_log(f"  ↩️  对方换上 {new_pokemon.name}")
+
+        if not already_placed:
+            _apply_mark_on_enter(state, side, new_pokemon)
+            EffectExecutor.execute_agility_entry(state, new_pokemon, enemy, side)
+            if new_pokemon.ability_effects:
+                EffectExecutor.execute_ability(
+                    state, new_pokemon, enemy,
+                    Timing.ON_ENTER, new_pokemon.ability_effects, side,
+                )
+
+    state.pending_switch_requests = []
+    winner = check_winner(state)
+    if winner:
+        session.game_over = True
+        session.add_log("")
+        session.add_log("🏆 我方胜利！" if winner == "a" else "🏆 对方胜利！")
+        await ws.send_text(json.dumps(serialize_state(
+            state, waiting=False, game_over=True, winner=winner
+        )))
+        return
+
+    session.waiting_for_player = True
+    await ws.send_text(json.dumps(serialize_state(state, waiting=True)))
 
 
 def _eff_preview(s) -> str:
@@ -1316,6 +1426,7 @@ async def api_pokemon_list(q: str = ""):
             "id":      r["id"],
             "name":    r["name"],
             "element": r["element"],
+            "icon_url": _get_icon_url(r["name"]),
             "ability": ability_short,
             "base_total": r["base_total"],
             "base_hp":    r["base_hp"],
@@ -1350,11 +1461,13 @@ async def api_pokemon_skills(name: str):
 
     pokemon_id = row["id"]
     c.execute(
-        "SELECT DISTINCT s.name, s.element, s.category, s.energy_cost, s.power, s.description "
+        "SELECT DISTINCT s.name, s.element, s.category, s.energy_cost, s.power, s.description, "
+        "s.icon_url, s.attribute_icon_url, s.category_icon_url, s.skill_group, s.wiki_url, "
+        "COALESCE(ps.learn_group, '') AS learn_group "
         "FROM skill s "
         "JOIN pokemon_skill ps ON ps.skill_id = s.id "
         "WHERE ps.pokemon_id = ? "
-        "ORDER BY s.energy_cost, s.name",
+        "ORDER BY ps.learn_group, s.energy_cost, s.name",
         (pokemon_id,),
     )
     rows = c.fetchall()
@@ -1363,6 +1476,7 @@ async def api_pokemon_skills(name: str):
     for r in rows:
         skill = get_skill(r["name"])
         effect_view = _skill_effect_display(skill)
+        local_icon = _get_skill_icon_url(r["name"])
         result.append({
             "name":        r["name"],
             "element":     r["element"],
@@ -1370,12 +1484,135 @@ async def api_pokemon_skills(name: str):
             "energy_cost": r["energy_cost"],
             "power":       r["power"],
             "description": r["description"] or "",
+            "icon_url":    local_icon or r["icon_url"] or "",
+            "attribute_icon_url": r["attribute_icon_url"] or "",
+            "category_icon_url": r["category_icon_url"] or "",
+            "skill_group": r["skill_group"] or "",
+            "learn_group": r["learn_group"] or "",
+            "wiki_url": r["wiki_url"] or "",
             "tags":        effect_view["tags"],
             "effect_details": effect_view["details"],
             "effect_summary": effect_view["summary"],
             "has_effects": effect_view["has_effects"],
         })
     return JSONResponse(result)
+
+
+@app.get("/api/skills/list")
+async def api_skills_list(q: str = "", element: str = "", category: str = ""):
+    """技能图鉴列表：支持名称/描述搜索，以及属性、分类筛选。"""
+    _ensure_loaded()
+    from src.skill_db import _get_conn, get_skill
+    conn = _get_conn()
+    c = conn.cursor()
+    where = []
+    params = []
+    if q:
+        where.append("(s.name LIKE ? OR s.description LIKE ? OR s.element LIKE ? OR s.category LIKE ?)")
+        kw = f"%{q}%"
+        params.extend([kw, kw, kw, kw])
+    if element:
+        where.append("s.element = ?")
+        params.append(element)
+    if category:
+        where.append("s.category = ?")
+        params.append(category)
+    where_sql = ("WHERE " + " AND ".join(where)) if where else ""
+    c.execute(f"""
+        SELECT s.id, s.name, s.element, s.category, s.energy_cost, s.power, s.description,
+               s.icon_url, s.attribute_icon_url, s.category_icon_url, s.skill_group, s.wiki_url, s.source,
+               COUNT(DISTINCT ps.pokemon_id) AS learners_count
+        FROM skill s
+        LEFT JOIN pokemon_skill ps ON ps.skill_id = s.id
+        {where_sql}
+        GROUP BY s.id
+        ORDER BY s.element, s.energy_cost, s.name
+    """, params)
+    result = []
+    for r in c.fetchall():
+        skill = get_skill(r["name"])
+        effect_view = _skill_effect_display(skill)
+        local_icon = _get_skill_icon_url(r["name"])
+        result.append({
+            "id": r["id"],
+            "name": r["name"],
+            "element": r["element"],
+            "category": r["category"],
+            "energy_cost": r["energy_cost"],
+            "power": r["power"],
+            "description": r["description"] or "",
+            "icon_url": local_icon or r["icon_url"] or "",
+            "attribute_icon_url": r["attribute_icon_url"] or "",
+            "category_icon_url": r["category_icon_url"] or "",
+            "skill_group": r["skill_group"] or "",
+            "wiki_url": r["wiki_url"] or "",
+            "source": r["source"] or "",
+            "learners_count": r["learners_count"] or 0,
+            "effect_tags": effect_view["tags"],
+            "effect_details": effect_view["details"],
+            "effect_summary": effect_view["summary"],
+            "has_effects": effect_view["has_effects"],
+        })
+    return JSONResponse(result)
+
+
+@app.get("/api/skills/detail")
+async def api_skill_detail(name: str):
+    """技能详情：基础信息 + 可学习精灵，按技能组/学习来源分组。"""
+    _ensure_loaded()
+    from src.skill_db import _get_conn, get_skill
+    conn = _get_conn()
+    c = conn.cursor()
+    c.execute("""
+        SELECT id, name, element, category, energy_cost, power, description,
+               icon_url, attribute_icon_url, category_icon_url, skill_group, wiki_url, source
+        FROM skill WHERE name = ?
+    """, (name,))
+    r = c.fetchone()
+    if not r:
+        return JSONResponse({"error": "skill_not_found"}, status_code=404)
+
+    skill = get_skill(r["name"])
+    effect_view = _skill_effect_display(skill)
+    local_icon = _get_skill_icon_url(r["name"])
+    c.execute("""
+        SELECT p.name, p.element, p.base_total, COALESCE(ps.learn_group, '') AS learn_group
+        FROM pokemon p
+        JOIN pokemon_skill ps ON ps.pokemon_id = p.id
+        JOIN skill s ON s.id = ps.skill_id
+        WHERE s.name = ?
+        ORDER BY ps.learn_group, p.name
+    """, (name,))
+    learners = [
+        {
+            "name": row["name"],
+            "element": row["element"],
+            "base_total": row["base_total"],
+            "learn_group": row["learn_group"] or "可学习",
+            "icon_url": _get_icon_url(row["name"]),
+        }
+        for row in c.fetchall()
+    ]
+    return JSONResponse({
+        "id": r["id"],
+        "name": r["name"],
+        "element": r["element"],
+        "category": r["category"],
+        "energy_cost": r["energy_cost"],
+        "power": r["power"],
+        "description": r["description"] or "",
+        "icon_url": local_icon or r["icon_url"] or "",
+        "attribute_icon_url": r["attribute_icon_url"] or "",
+        "category_icon_url": r["category_icon_url"] or "",
+        "skill_group": r["skill_group"] or "",
+        "wiki_url": r["wiki_url"] or "",
+        "source": r["source"] or "",
+        "learners": learners,
+        "effect_tags": effect_view["tags"],
+        "effect_details": effect_view["details"],
+        "effect_summary": effect_view["summary"],
+        "has_effects": effect_view["has_effects"],
+    })
 
 
 @app.get("/api/pokemon/calc-stats")
@@ -1432,19 +1669,31 @@ async def api_nature_list():
 
 @app.get("/")
 async def index():
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+    return FileResponse(os.path.join(STATIC_DIR, "dex.html"))
 
 @app.get("/battle")
 async def battle_page():
     return FileResponse(os.path.join(STATIC_DIR, "battle.html"))
 
-@app.get("/team")
-async def team_page():
-    return FileResponse(os.path.join(STATIC_DIR, "team.html"))
+@app.get("/dex")
+async def dex_page():
+    return FileResponse(os.path.join(STATIC_DIR, "dex.html"))
 
-@app.get("/rules")
-async def rules_page():
-    return FileResponse(os.path.join(STATIC_DIR, "rules.html"))
+@app.get("/skills")
+async def skills_page():
+    return FileResponse(os.path.join(STATIC_DIR, "skills.html"))
+
+@app.get("/mechanics")
+async def mechanics_page():
+    return FileResponse(os.path.join(STATIC_DIR, "mechanics.html"))
+
+@app.get("/storage")
+async def storage_page():
+    return FileResponse(os.path.join(STATIC_DIR, "storage.html"))
+
+@app.get("/simulator")
+async def simulator_page():
+    return FileResponse(os.path.join(STATIC_DIR, "simulator.html"))
 
 # Serve theme.css directly at /theme.css
 @app.get("/theme.css")
@@ -1462,6 +1711,10 @@ if os.path.exists(STATIC_DIR):
 ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "spirit_icons")
 if os.path.exists(ICONS_DIR):
     app.mount("/icons", StaticFiles(directory=ICONS_DIR), name="icons")
+
+SKILL_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_icons")
+if os.path.exists(SKILL_ICONS_DIR):
+    app.mount("/skill-icons", StaticFiles(directory=SKILL_ICONS_DIR), name="skill-icons")
 
 if __name__ == "__main__":
     import uvicorn

@@ -242,10 +242,58 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 }
 .skill-btn .smeta { font-size: 9px; color: var(--text-secondary); display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
 .skill-btn .spower { font-weight: 700; color: var(--dmg-phys); }
+.skill-title-line { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.skill-btn .skill-icon { width: 26px; height: 26px; }
 .tag-pill { background: rgba(245,166,35,.1); border: 1px solid rgba(245,166,35,.25); border-radius: 3px; padding: 0 3px; font-size: 8px; color: var(--primary-dark); }
 .tag-counter { background: rgba(155,89,182,.1); border: 1px solid rgba(155,89,182,.25); color: var(--status-purple); }
 .skill-btn.cd-btn { border-color: rgba(240,173,78,.5); }
 .skill-btn.cd-btn .sname { color: var(--hp-yellow); }
+
+/* 手动模拟双边行动 */
+#manual-controls { display: none; flex-direction: column; gap: 8px; overflow: hidden; }
+#manual-controls.open { display: flex; }
+.manual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-height: 0; }
+.manual-side {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 8px;
+  min-width: 0;
+}
+.manual-side-title {
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  font-size: 11px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;
+}
+.manual-side-title span:last-child {
+  font-size: 9px; font-weight: 600; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.manual-actions { display: grid; grid-template-columns: 1fr; gap: 5px; max-height: 210px; overflow-y: auto; }
+.manual-choice {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 6px 8px;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-family: 'RocoBody', system-ui, sans-serif;
+  transition: border-color .15s, background .15s, transform .1s;
+}
+.manual-choice:hover:not(:disabled) { border-color: var(--primary); background: var(--bg-card-hover); transform: translateY(-1px); }
+.manual-choice.selected { border-color: var(--primary); background: rgba(245,166,35,.14); box-shadow: 0 0 0 2px rgba(245,166,35,.08); }
+.manual-choice:disabled { opacity: .35; cursor: not-allowed; }
+.manual-choice-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 700; }
+.manual-choice-meta { margin-top: 2px; font-size: 9px; color: var(--text-secondary); display: flex; gap: 4px; flex-wrap: wrap; }
+.manual-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+#manual-hint { font-size: 11px; color: var(--text-secondary); min-width: 0; }
+#manual-submit {
+  background: var(--primary-gradient); color: var(--text-light); border: none; border-radius: var(--r-pill);
+  padding: 8px 22px; font-size: 12px; font-weight: 800; cursor: pointer;
+  font-family: 'RocoBody', system-ui, sans-serif; box-shadow: 0 3px 10px rgba(245,166,35,.3);
+}
+#manual-submit:disabled { opacity: .4; cursor: not-allowed; }
 
 /* 工具行 */
 #util-row { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
@@ -391,6 +439,14 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 <!-- 顶栏 -->
 <div id="top-bar">
   <h1><img class="logo" src="assets/img/logo.png" alt="洛克王国">洛克王国 · 战斗模拟器</h1>
+  <nav class="app-nav">
+    <a href="/dex">图鉴</a>
+    <a href="/skills">技能</a>
+    <a href="/mechanics">机制</a>
+    <a href="/storage">仓库</a>
+    <a href="/simulator">队伍</a>
+    <a href="/battle" class="active">对战</a>
+  </nav>
   <span id="turn-info">—</span>
   <span id="conn-status" class="disconnected">● 未连接</span>
 </div>
@@ -431,7 +487,7 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
           <div id="energy-b"></div>
         </div>
         <div class="hp-track"><div class="hp-fill" id="hp-fill-b" style="width:100%"></div></div>
-        <div class="hp-text"><span>AI方</span><span id="hp-text-b">—</span></div>
+        <div class="hp-text"><span id="hp-side-b">对方</span><span id="hp-text-b">—</span></div>
         <div class="buff-row" id="buff-b"></div>
       </div>
 
@@ -465,7 +521,7 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         <div id="strip-a" class="team-strip" style="gap:5px"></div>
       </div>
       <div class="team-strip">
-        <span class="strip-label">AI方</span>
+        <span class="strip-label" id="strip-label-b">对方</span>
         <div id="strip-b" class="team-strip" style="gap:5px"></div>
       </div>
     </div>
@@ -475,14 +531,30 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
       <!-- 起始界面 -->
       <div id="start-screen">
         <h2>⚔️ 洛克王国战斗模拟器</h2>
-        <p id="start-desc">你将控制<b>毒队</b>对抗 AI 控制的<b>翼王队</b><br>选择技能、聚能或换人，击败对手！</p>
+        <p id="start-desc">请先配置双方队伍，然后进入手动模拟对战。<br>每回合分别选择我方与对方行动后统一结算。</p>
         <button class="start-btn" onclick="startBattle()">开始战斗</button>
-        <a href="/team" style="font-size:11px;color:var(--text-secondary);text-decoration:none;opacity:.7">← 返回阵容搭配</a>
+        <a href="/simulator" style="font-size:11px;color:var(--text-secondary);text-decoration:none;opacity:.7">← 返回队伍配置</a>
       </div>
 
       <!-- 战斗 UI -->
       <div id="battle-ui" style="display:none;flex-direction:column;gap:8px;height:100%">
         <div id="action-title">选择行动</div>
+        <div id="manual-controls">
+          <div class="manual-grid">
+            <div class="manual-side">
+              <div class="manual-side-title"><span>🟦 我方行动</span><span id="manual-name-a">—</span></div>
+              <div id="manual-actions-a" class="manual-actions"></div>
+            </div>
+            <div class="manual-side">
+              <div class="manual-side-title"><span>🟥 对方行动</span><span id="manual-name-b">—</span></div>
+              <div id="manual-actions-b" class="manual-actions"></div>
+            </div>
+          </div>
+          <div class="manual-footer">
+            <span id="manual-hint">分别选择双方本回合行动</span>
+            <button id="manual-submit" onclick="submitManualTurn()" disabled>结算本回合</button>
+          </div>
+        </div>
         <div id="skill-grid"></div>
         <div id="util-row">
           <button class="util-btn" id="btn-charge" onclick="doCharge()">
@@ -496,7 +568,7 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         <div id="switch-panel"></div>
         <div id="wait-mask">
           <div class="spinner"></div>
-          <div class="wtext" id="wait-text">AI思考中…</div>
+          <div class="wtext" id="wait-text">结算中…</div>
         </div>
       </div>
 
@@ -519,6 +591,8 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
   </div>
 </div>
 
+<div id="skill-tooltip" class="skill-tooltip"></div>
+
 <script>
 // ══════════════════════════════
 // 常量 & 配置
@@ -527,7 +601,7 @@ const SPRITE_EMOJIS = {
   '千棘盔':'🦔','影狸':'🦊','裘卡':'🐺',
   '琉璃水母':'🪼','迷迷箱怪':'🎁','海豹船长':'🦭',
   '燃薪虫':'🐛','圣羽翼王':'🦅','翠顶夫人':'🦚',
-  '秩序鱿墨':'🦑','声波缇塔':'🤖',
+  '秩序鱿墨':'🦑','声波缇塔':'⚙️',
 };
 const TYPE_CLASS = {
   normal:'t-normal',fire:'t-fire',water:'t-water',electric:'t-electric',
@@ -543,7 +617,46 @@ const TYPE_ZH = {
 };
 const CAT_ZH = {'物攻':'物','魔攻':'魔','防御':'防','状态':'变','物理':'物','魔法':'魔','变化':'变'};
 
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
 function emoji(name){ return SPRITE_EMOJIS[name] || '🐾'; }
+function skillIconHtml(skill){
+  if(skill && skill.icon_url) return `<img class="skill-icon" src="${esc(skill.icon_url)}" alt="${esc(skill.name)}">`;
+  const name = skill && skill.name ? skill.name : '?';
+  return `<span class="skill-icon missing">${esc(name.slice(0,1))}</span>`;
+}
+function showSkillTooltip(skill, ev){
+  if(!skill) return;
+  const tip = document.getElementById('skill-tooltip');
+  const tags = (skill.effect_details && skill.effect_details.length ? skill.effect_details : skill.effect_tags || skill.tags || [])
+    .slice(0, 7)
+    .map(t => `<span class="tag-pill">${esc(t)}</span>`)
+    .join('');
+  tip.innerHTML = `
+    <div class="tip-head">
+      ${skillIconHtml(skill)}
+      <div>
+        <div class="tip-title">${esc(skill.name)}</div>
+        <div class="tip-meta">
+          <span>${esc(TYPE_ZH[skill.type] || skill.type)}</span>
+          <span>${esc(CAT_ZH[skill.category] || skill.category)}</span>
+          <span>耗${esc(skill.energy_cost)}</span>
+          <span>${skill.power > 0 ? '威' + esc(skill.power) : '无威力'}</span>
+        </div>
+      </div>
+    </div>
+    <div class="tip-desc">${esc(skill.description || skill.effect_summary || '暂无描述')}</div>
+    ${tags ? `<div class="tip-tags">${tags}</div>` : ''}`;
+  tip.classList.add('show');
+  moveSkillTooltip(ev);
+}
+function moveSkillTooltip(ev){
+  const tip = document.getElementById('skill-tooltip');
+  if(!tip.classList.contains('show')) return;
+  const pad = 14;
+  tip.style.left = Math.max(pad, Math.min(ev.clientX + 14, window.innerWidth - tip.offsetWidth - pad)) + 'px';
+  tip.style.top = Math.max(pad, Math.min(ev.clientY + 14, window.innerHeight - tip.offsetHeight - pad)) + 'px';
+}
+function hideSkillTooltip(){ document.getElementById('skill-tooltip').classList.remove('show'); }
 
 function makeSpriteEl(p, side) {
   if(p.icon_url) {
@@ -574,6 +687,12 @@ let state = null;
 let myTurn = false;
 let showSwitch = false;
 let logCount = 0;
+let manualActions = { a: null, b: null };
+let manualSwitchSelections = {};
+
+function isManualBattle(s=state){
+  return true;
+}
 
 // ══════════════════════════════
 // WebSocket
@@ -607,17 +726,6 @@ function onMsg(msg){
       if(msg.force_switch_prompt && !msg.game_over){
       }
       break;
-    case 'your_turn':
-      myTurn=true;
-      setWait(false);
-      enableActions(true);
-      document.getElementById('turn-info').textContent=`回合 ${msg.turn} — 你的回合`;
-      break;
-    case 'ai_thinking':
-      myTurn=false;
-      enableActions(false);
-      setWait(true,'AI思考中…');
-      break;
     case 'reset_ok': location.reload(); break;
     case 'error':
       addLogLine('⚠️ '+msg.message,'');
@@ -631,6 +739,8 @@ function onMsg(msg){
 // ══════════════════════════════
 function renderState(s){
   const pa=s.team_a[s.current_a], pb=s.team_b[s.current_b];
+  document.getElementById('hp-side-b').textContent = '对方';
+  document.getElementById('strip-label-b').textContent = '对方';
   updateHpBar('a',pa); updateHpBar('b',pb);
   renderMp('mp-a',s.mp_a,4); renderMp('mp-b',s.mp_b,4);
   updateSprite('a',pa); updateSprite('b',pb);
@@ -638,26 +748,27 @@ function renderState(s){
   renderStrip('strip-a',s.team_a,s.current_a);
   renderStrip('strip-b',s.team_b,s.current_b);
 
-  const switchPanel = document.getElementById('switch-panel');
-  if(s.force_switch_prompt && !s.game_over){
+  if(!s.game_over && s.manual_switch_prompts && s.manual_switch_prompts.length){
     myTurn=true;
     setWait(false);
-    enableActions(false);
-    renderSkills(null, null);
-    renderForceSwitchPanel(s.team_a, s.current_a, pb, s.force_switch_reason || 'force_switch', s.force_switch_alive);
+    renderManualSwitchControls(s);
+  } else if(!s.game_over){
+    myTurn=true;
+    setWait(false);
+    renderManualControls(s);
   } else {
-    // 非强制换人状态时，确保关闭换人面板
-    switchPanel.classList.remove('open');
-    if(s.waiting_for_player && !s.game_over){
-      myTurn=true;
-      setWait(false);
-      renderSkills(pa, pb);
-      renderSwitchPanel(s.team_a, s.current_a, pb);
-    } else if(s.game_over){
-      myTurn=false;
-      setWait(false);
-    }
+    myTurn=false;
+    setWait(false);
+    setManualUi(false);
   }
+}
+
+function setManualUi(on){
+  document.getElementById('manual-controls').classList.toggle('open', on);
+  document.getElementById('skill-grid').style.display = 'none';
+  document.getElementById('util-row').style.display = 'none';
+  if(on) document.getElementById('switch-panel').classList.remove('open');
+  if(!on) document.getElementById('manual-submit').disabled = true;
 }
 
 function updateHpBar(side,p){
@@ -787,7 +898,7 @@ function renderSkills(pa, pb){
 
     btn.innerHTML=`
       <div class="sname">
-        <span>${s.name}</span>
+        <span class="skill-title-line">${skillIconHtml(s)}<span>${esc(s.name)}</span></span>
         <span class="scost">⚡${s.energy_cost}</span>
       </div>
       <div class="smeta">
@@ -796,9 +907,179 @@ function renderSkills(pa, pb){
         ${s.power>0?`<span class="spower">威${s.power}</span>`:''}
         ${cdNote}${tagHtml}
       </div>`;
+    btn.onmouseenter = ev => showSkillTooltip(s, ev);
+    btn.onmousemove = moveSkillTooltip;
+    btn.onmouseleave = hideSkillTooltip;
     btn.onclick=()=>doSkill(i);
     grid.appendChild(btn);
   });
+}
+
+// ══════════════════════════════
+// 手动模拟：双方行动选择
+// ══════════════════════════════
+function renderManualControls(s){
+  setManualUi(true);
+  manualActions = { a: null, b: null };
+  manualSwitchSelections = {};
+  const pa = s.team_a[s.current_a], pb = s.team_b[s.current_b];
+  document.getElementById('action-title').textContent = `回合 ${s.turn} · 选择双方行动`;
+  document.getElementById('manual-submit').textContent = '结算本回合';
+  document.getElementById('manual-name-a').textContent = `${pa.name} HP ${pa.current_hp}/${pa.hp} E${pa.energy}`;
+  document.getElementById('manual-name-b').textContent = `${pb.name} HP ${pb.current_hp}/${pb.hp} E${pb.energy}`;
+  renderManualSide('a', s.team_a, s.current_a);
+  renderManualSide('b', s.team_b, s.current_b);
+  updateManualSubmit();
+}
+
+function renderManualSwitchControls(s){
+  setManualUi(true);
+  manualActions = { a: null, b: null };
+  manualSwitchSelections = {};
+  const prompts = s.manual_switch_prompts || [];
+  const promptMap = Object.fromEntries(prompts.map(p => [p.team, p]));
+  document.getElementById('action-title').textContent = '选择补位精灵';
+  document.getElementById('manual-submit').textContent = '确认补位';
+  document.getElementById('manual-hint').textContent = '精灵倒下或脱离后，选择下一只上场';
+  renderManualSwitchSide('a', s.team_a, promptMap.a);
+  renderManualSwitchSide('b', s.team_b, promptMap.b);
+  updateManualSwitchSubmit();
+}
+
+function renderManualSwitchSide(side, team, prompt){
+  const panel = document.getElementById(`manual-actions-${side}`);
+  const nameEl = document.getElementById(`manual-name-${side}`);
+  nameEl.textContent = prompt ? (prompt.reason === 'fainted' ? '需要补位' : '需要换上') : '无需补位';
+  panel.innerHTML = '';
+
+  if(!prompt){
+    const div = document.createElement('div');
+    div.className = 'manual-choice';
+    div.style.cursor = 'default';
+    div.innerHTML = '<div class="manual-choice-main"><span>本方无需选择</span></div><div class="manual-choice-meta">继续等待另一方补位</div>';
+    panel.appendChild(div);
+    return;
+  }
+
+  const allowed = new Set(prompt.alive || []);
+  team.forEach((p, idx) => {
+    if(!allowed.has(idx)) return;
+    const pct = p.hp > 0 ? Math.round(p.current_hp / p.hp * 100) : 0;
+    const btn = document.createElement('button');
+    btn.className = 'manual-choice';
+    btn.innerHTML = `
+      <div class="manual-choice-main"><span>${p.name}</span></div>
+      <div class="manual-choice-meta">HP ${pct}% · E${p.energy} · ${TYPE_ZH[p.type] || p.type}</div>`;
+    btn.onclick = () => selectManualSwitch(side, idx, btn, p.name);
+    panel.appendChild(btn);
+  });
+}
+
+function selectManualSwitch(side, idx, btn, name){
+  manualSwitchSelections[side] = idx;
+  document.querySelectorAll(`#manual-actions-${side} .manual-choice`).forEach(el => el.classList.remove('selected'));
+  btn.classList.add('selected');
+  btn.dataset.label = name;
+  updateManualSwitchSubmit();
+}
+
+function updateManualSwitchSubmit(){
+  const prompts = state && state.manual_switch_prompts ? state.manual_switch_prompts : [];
+  const ready = prompts.every(p => manualSwitchSelections[p.team] !== undefined);
+  document.getElementById('manual-submit').disabled = !ready;
+  const selected = prompts
+    .map(p => `${p.team === 'a' ? '我方' : '对方'}：${selectedManualText(p.team) || '未选择'}`)
+    .join(' / ');
+  document.getElementById('manual-hint').textContent = selected || '无需补位';
+}
+
+function renderManualSide(side, team, curIdx){
+  const panel = document.getElementById(`manual-actions-${side}`);
+  const current = team[curIdx];
+  panel.innerHTML = '';
+
+  addManualChoice(panel, side, {type:'charge'}, '汇合聚能', '+5 能量', false);
+
+  if(current.skills && current.skills.length){
+    current.skills.forEach((skill, idx) => {
+      const meta = [
+        `${TYPE_ZH[skill.type] || skill.type}`,
+        `${CAT_ZH[skill.category] || skill.category}`,
+        `威${skill.power || 0}`,
+        `耗${skill.energy_cost}`,
+      ];
+      if(skill.on_cooldown) meta.push(`冷却${skill.cooldown}`);
+      const label = `技能 · ${skill.name}`;
+      addManualChoice(panel, side, {type:'skill', index:idx}, label, meta.join(' · '), !skill.can_use, skill);
+    });
+  }
+
+  team.forEach((p, idx) => {
+    if(idx === curIdx || p.is_fainted) return;
+    const pct = p.hp > 0 ? Math.round(p.current_hp / p.hp * 100) : 0;
+    addManualChoice(panel, side, {type:'switch', index:idx}, `换上 · ${p.name}`, `HP ${pct}% · E${p.energy}`, false);
+  });
+}
+
+function addManualChoice(panel, side, action, title, meta, disabled, skillInfo=null){
+  const btn = document.createElement('button');
+  btn.className = 'manual-choice';
+  btn.disabled = !!disabled;
+  btn.innerHTML = `
+    <div class="manual-choice-main"><span>${esc(title)}</span></div>
+    <div class="manual-choice-meta">${esc(meta)}</div>`;
+  if(skillInfo){
+    btn.onmouseenter = ev => showSkillTooltip(skillInfo, ev);
+    btn.onmousemove = moveSkillTooltip;
+    btn.onmouseleave = hideSkillTooltip;
+  }
+  btn.onclick = () => selectManualAction(side, action, btn, title);
+  panel.appendChild(btn);
+}
+
+function selectManualAction(side, action, btn, title){
+  manualActions[side] = action;
+  document.querySelectorAll(`#manual-actions-${side} .manual-choice`).forEach(el => el.classList.remove('selected'));
+  btn.classList.add('selected');
+  btn.dataset.label = title;
+  updateManualSubmit();
+}
+
+function updateManualSubmit(){
+  const ready = !!manualActions.a && !!manualActions.b;
+  document.getElementById('manual-submit').disabled = !ready;
+  const aText = selectedManualText('a');
+  const bText = selectedManualText('b');
+  document.getElementById('manual-hint').textContent = ready
+    ? `${aText}  vs  ${bText}`
+    : `我方：${aText || '未选择'} / 对方：${bText || '未选择'}`;
+}
+
+function selectedManualText(side){
+  const selected = document.querySelector(`#manual-actions-${side} .manual-choice.selected`);
+  return selected ? selected.dataset.label : '';
+}
+
+function submitManualTurn(){
+  if(state && state.manual_switch_prompts && state.manual_switch_prompts.length){
+    submitManualSwitch();
+    return;
+  }
+  if(!manualActions.a || !manualActions.b) return;
+  document.getElementById('manual-submit').textContent = '结算本回合';
+  setWait(true, '结算中…');
+  document.getElementById('manual-submit').disabled = true;
+  document.querySelectorAll('.manual-choice').forEach(btn => btn.disabled = true);
+  send({cmd:'manual_turn', action_a:manualActions.a, action_b:manualActions.b});
+}
+
+function submitManualSwitch(){
+  const prompts = state && state.manual_switch_prompts ? state.manual_switch_prompts : [];
+  if(!prompts.every(p => manualSwitchSelections[p.team] !== undefined)) return;
+  setWait(true, '补位中…');
+  document.getElementById('manual-submit').disabled = true;
+  document.querySelectorAll('.manual-choice').forEach(btn => btn.disabled = true);
+  send({cmd:'manual_switch', selections: manualSwitchSelections});
 }
 
 // ══════════════════════════════
@@ -903,51 +1184,41 @@ function doForceSwitch(idx){
 // 玩家操作
 // ══════════════════════════════
 function doSkill(idx){
-  if(!myTurn) return;
-  myTurn=false;
-  showSwitch=false;
-  document.getElementById('switch-panel').classList.remove('open');
-  enableActions(false);
-  setWait(true,'执行中…');
-  send({cmd:'action',action:{type:'skill',index:idx}});
+  addLogLine('⚠️ 请在双方行动面板中选择技能');
 }
 function doCharge(){
-  if(!myTurn) return;
-  myTurn=false;
-  enableActions(false);
-  setWait(true,'执行中…');
-  send({cmd:'action',action:{type:'charge'}});
+  addLogLine('⚠️ 请在双方行动面板中选择汇合聚能');
 }
 function doSwitch(idx){
-  if(!myTurn) return;
-  myTurn=false;
-  showSwitch=false;
-  document.getElementById('switch-panel').classList.remove('open');
-  enableActions(false);
-  setWait(true,'执行中…');
-  send({cmd:'action',action:{type:'switch',index:idx}});
+  addLogLine('⚠️ 请在双方行动面板中选择换人');
 }
 function toggleSwitch(){
-  showSwitch=!showSwitch;
-  document.getElementById('switch-panel').classList.toggle('open',showSwitch);
+  addLogLine('⚠️ 请在双方行动面板中选择换人');
 }
 function startBattle(){
+  const playerTeamRaw = sessionStorage.getItem('playerTeam');
+  const enemyTeamRaw = sessionStorage.getItem('enemyTeam');
+  if (!playerTeamRaw || !enemyTeamRaw) {
+    location.href = '/simulator';
+    return;
+  }
+
+  let playerTeam, enemyTeam;
+  try {
+    playerTeam = JSON.parse(playerTeamRaw);
+    enemyTeam = JSON.parse(enemyTeamRaw);
+  } catch {
+    location.href = '/simulator';
+    return;
+  }
+
   document.getElementById('start-screen').style.display='none';
   document.getElementById('gameover-banner').classList.remove('show');
   document.getElementById('battle-ui').style.display='flex';
   setWait(true,'战斗初始化中…');
   logCount=0;
   clearLog();
-
-  const playerTeamRaw = sessionStorage.getItem('playerTeam');
-  const aiTeam = sessionStorage.getItem('aiTeam') || 'wing';
-
-  if (playerTeamRaw) {
-    const playerTeam = JSON.parse(playerTeamRaw);
-    send({ cmd: 'start_custom', player_team: playerTeam, ai_team: aiTeam });
-  } else {
-    send({ cmd: 'start' });
-  }
+  send({ cmd: 'start_manual_custom', team_a: playerTeam, team_b: enemyTeam });
 }
 
 // ══════════════════════════════
@@ -1078,6 +1349,7 @@ function enableActions(on){
   });
   document.querySelectorAll('.skill-btn').forEach(b=>{if(!on) b.disabled=true;});
   document.querySelectorAll('.sw-card').forEach(b=>{if(!on) b.disabled=true;});
+  document.querySelectorAll('.manual-choice').forEach(b=>{if(!on) b.disabled=true;});
 }
 function setWait(show,text=''){
   document.getElementById('wait-mask').classList.toggle('show',show);
@@ -1088,7 +1360,7 @@ function showGameOver(winner){
   const title =document.getElementById('gameover-title');
   banner.classList.add('show');
   setWait(false);
-  title.textContent = winner==='a'?'🏆 你赢了！':'💔 AI赢了！';
+  title.textContent = winner==='a'?'🏆 我方胜利！':'🏆 对方胜利！';
   title.style.color  = winner==='a'?'var(--hp-green)':'var(--hp-red)';
 }
 
@@ -1112,7 +1384,7 @@ function addLogLine(text){
     el.className='log-sep'; el.textContent=text;
   } else if(text.includes('你赢了')||text.includes('胜利')){
     el.className='log-line log-win'; el.textContent=text;
-  } else if(text.includes('AI赢了')){
+  } else if(text.includes('对方胜利')){
     el.className='log-line log-lose'; el.textContent=text;
   } else if(text.includes('受到')&&text.includes('伤害')){
     el.className='log-line log-dmg'; el.textContent=text;
@@ -1142,13 +1414,17 @@ function clearLog(){
 // ══════════════════════════════
 (function checkTeam(){
   const raw = sessionStorage.getItem('playerTeam');
-  const ai  = sessionStorage.getItem('aiTeam') || 'wing';
+  const enemyRaw = sessionStorage.getItem('enemyTeam');
   const desc = document.getElementById('start-desc');
-  if (raw) {
-    const team = JSON.parse(raw);
-    const aiName = ai === 'toxic' ? '毒队' : '翼王队';
-    desc.innerHTML = `你的自定义阵容：<b>${team.map(t=>t.name).join('、')}</b><br>对手AI：<b>${aiName}</b>`;
+  if (raw && enemyRaw) {
+    const teamA = JSON.parse(raw);
+    const teamB = JSON.parse(enemyRaw);
+    desc.innerHTML = `手动模拟：<b>${teamA.map(t=>t.name).join('、')}</b><br>对阵：<b>${teamB.map(t=>t.name).join('、')}</b>`;
+    document.getElementById('hp-side-b').textContent = '对方';
+    document.getElementById('strip-label-b').textContent = '对方';
+    return;
   }
+  desc.innerHTML = '还没有可用的双方阵容。<br>请先返回队伍配置页完成我方与对方 6 只精灵。';
 })();
 connect();
 </script>

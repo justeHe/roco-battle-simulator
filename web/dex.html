@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洛克王国 · 图鉴</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+.dex-layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 14px; }
+.toolbar { margin-bottom: 14px; display: grid; grid-template-columns: 1fr 140px; gap: 10px; }
+.poke-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+.poke-card {
+  background: var(--bg-input);
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 10px;
+  cursor: pointer;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.poke-card:hover,.poke-card.active { border-color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.poke-top { display: flex; align-items: center; gap: 9px; }
+.poke-icon { width: 46px; height: 46px; object-fit: contain; border-radius: var(--r-sm); background: rgba(255,255,255,.7); border: 1px solid var(--border); }
+.poke-name { font-size: 14px; font-weight: 900; }
+.poke-meta { color: var(--text-secondary); font-size: 11px; margin-top: 3px; }
+.stat-list { margin-top: 8px; display: grid; gap: 5px; }
+.stat-row { display: grid; grid-template-columns: 48px 1fr 34px; gap: 6px; align-items: center; font-size: 10px; color: var(--text-secondary); }
+.stat-track { height: 6px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.stat-fill { height: 100%; border-radius: 4px; background: var(--primary); }
+.detail { position: sticky; top: 14px; background: var(--bg-card); border: 2px solid var(--border); border-radius: var(--r-lg); padding: 16px; }
+.detail h2 { font-size: 20px; margin-bottom: 4px; }
+.detail-section { margin-top: 14px; }
+.detail-section h3 { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+.skill-list { display: flex; flex-wrap: wrap; gap: 5px; }
+.skill-chip { border: 1px solid var(--border); background: rgba(255,255,255,.55); border-radius: var(--r-sm); padding: 4px 7px; font-size: 11px; color: var(--text-primary); text-decoration: none; }
+@media(max-width:900px){ .dex-layout,.toolbar{grid-template-columns:1fr}.detail{position:static} }
+</style>
+</head>
+<body>
+<div class="page-shell">
+  <header class="roco-topbar">
+    <img class="logo" src="assets/img/logo.png" alt="洛克王国">
+    <div class="title">精灵图鉴</div>
+    <nav class="app-nav">
+      <a href="/dex" class="active">图鉴</a>
+      <a href="/skills">技能</a>
+      <a href="/mechanics">机制</a>
+      <a href="/storage">仓库</a>
+      <a href="/simulator">队伍</a>
+      <a href="/battle">对战</a>
+    </nav>
+  </header>
+  <main class="page-main">
+    <div class="toolbar">
+      <input id="q" class="roco-input" placeholder="搜索精灵名称、属性或特性" autocomplete="off">
+      <select id="element" class="roco-select"><option value="">全部属性</option></select>
+    </div>
+    <div class="dex-layout">
+      <section id="poke-grid" class="poke-grid"></section>
+      <aside id="detail" class="detail">选择一只精灵查看种族值、特性和可学习技能。</aside>
+    </div>
+  </main>
+</div>
+<script>
+let allPokemon = [];
+let selected = '';
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+async function loadPokemon(){
+  const res = await fetch('/api/pokemon/list?q=');
+  allPokemon = await res.json();
+  const elements = [...new Set(allPokemon.map(p => p.element).filter(Boolean))].sort();
+  document.getElementById('element').innerHTML = '<option value="">全部属性</option>' + elements.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('');
+  renderList();
+  if(allPokemon[0]) showDetail(allPokemon[0].name);
+}
+function filtered(){
+  const q = document.getElementById('q').value.trim();
+  const element = document.getElementById('element').value;
+  return allPokemon.filter(p => {
+    const okQ = !q || p.name.includes(q) || (p.element||'').includes(q) || (p.ability||'').includes(q);
+    const okE = !element || p.element === element;
+    return okQ && okE;
+  });
+}
+function renderList(){
+  const rows = filtered();
+  document.getElementById('poke-grid').innerHTML = rows.map(p => `
+    <article class="poke-card ${p.name===selected?'active':''}" data-name="${esc(p.name)}">
+      <div class="poke-top">
+        ${p.icon_url ? `<img class="poke-icon" src="${esc(p.icon_url)}" alt="${esc(p.name)}">` : `<div class="poke-icon"></div>`}
+        <div>
+          <div class="poke-name">${esc(p.name)}</div>
+          <div class="poke-meta">${esc(p.element)} · BST ${esc(p.base_total || 0)}</div>
+        </div>
+      </div>
+    </article>`).join('') || '<div style="color:var(--text-secondary)">没有匹配的精灵</div>';
+  document.querySelectorAll('.poke-card').forEach(card => card.onclick = () => showDetail(card.dataset.name));
+}
+function statRows(p){
+  const stats = [['HP',p.base_hp],['物攻',p.base_atk],['魔攻',p.base_spatk],['物防',p.base_def],['魔防',p.base_spdef],['速度',p.base_speed]];
+  const max = Math.max(...stats.map(s => Number(s[1]) || 0), 1);
+  return stats.map(([name,val]) => `<div class="stat-row"><span>${name}</span><div class="stat-track"><div class="stat-fill" style="width:${Math.round((val||0)/max*100)}%"></div></div><b>${val||0}</b></div>`).join('');
+}
+async function showDetail(name){
+  selected = name;
+  renderList();
+  const p = allPokemon.find(x => x.name === name);
+  if(!p) return;
+  const detail = document.getElementById('detail');
+  detail.innerHTML = `
+    <div class="poke-top">
+      ${p.icon_url ? `<img class="poke-icon" src="${esc(p.icon_url)}" alt="${esc(p.name)}" style="width:64px;height:64px">` : ''}
+      <div><h2>${esc(p.name)}</h2><div class="poke-meta">${esc(p.element)} · BST ${esc(p.base_total || 0)}</div></div>
+    </div>
+    <div class="detail-section"><h3>特性</h3><div>${esc(p.ability || '暂无')}</div></div>
+    <div class="detail-section"><h3>种族值</h3><div class="stat-list">${statRows(p)}</div></div>
+    <div class="detail-section"><h3>可学习技能</h3><div id="skills" class="skill-list">加载中...</div></div>
+  `;
+  const res = await fetch(`/api/pokemon/skills?name=${encodeURIComponent(name)}`);
+  const skills = await res.json();
+  document.getElementById('skills').innerHTML = skills.map(s => `<a class="skill-chip" href="/skills?skill=${encodeURIComponent(s.name)}">${esc(s.name)} · ${esc(s.element)} · 耗${esc(s.energy_cost)}</a>`).join('') || '暂无技能数据';
+}
+document.getElementById('q').addEventListener('input', renderList);
+document.getElementById('element').addEventListener('change', renderList);
+loadPokemon();
+</script>
+</body>
+</html>

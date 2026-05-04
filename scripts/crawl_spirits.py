@@ -11,6 +11,7 @@
 """
 
 import csv
+import argparse
 import os
 import re
 import sys
@@ -19,6 +20,9 @@ import urllib.parse
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
+from urllib.parse import urljoin
+
+from bs4 import BeautifulSoup
 
 BASE_URL = "https://wiki.biligame.com"
 HEADERS = {
@@ -35,6 +39,7 @@ HEADERS = {
 ROOT = Path(__file__).resolve().parent.parent
 ICON_DIR = ROOT / "data" / "spirit_icons"
 CSV_PATH = ROOT / "data" / "spirit_evolution.csv"
+ICON_MANIFEST_PATH = ROOT / "data" / "spirit_icons_manifest.csv"
 
 
 def fetch(url: str, retries: int = 3) -> str:
@@ -69,81 +74,61 @@ def fetch_bytes(url: str, retries: int = 3) -> bytes:
 
 def parse_spirit_list(html: str) -> list[dict]:
     """
-    从主页解析精灵列表
-    每个 divsort 块包含一个精灵卡片
-    两种属性模式：
-      data-param1, data-param2, data-param3, data-param4, data-reverse, data-param5, data-param6
-      data-param1, data-param2, data-param4, data-reverse, data-param5, data-param6
+    从精灵图鉴主页解析精灵卡片。
+
+    当前 Wiki 卡片中每个 divsort 下有一张宠物立绘：
+      alt="页面 宠物 立绘 鸭吉吉（蓬松的样子） 1.png"
+
+    这里以图片 alt/title 为准，保留不同形态、不同样子、异色等完整展示名。
     """
     spirits = []
+    soup = BeautifulSoup(html, "lxml")
+    seen = set()
 
-    # 通用属性提取（逐个提取而不是固定顺序）
-    def extract_data_param(text, param_name):
-        m = re.search(rf'{param_name}="([^"]*)"', text)
-        return m.group(1) if m else ""
-
-    # 精灵编号和名称
-    name_pattern = re.compile(
-        r'<span style="color:#343437;font-weight:0;font-size:10px;">(NO\.\d+)</span>.*?'
-        r'<span class="font-mainfeiziti"[^>]*>([^<]+)</span>',
-        re.DOTALL
-    )
-
-    # 图片链接 (src 在 class 前面)
-    img_pattern = re.compile(
-        r'<img[^>]*src="([^"]+)"[^>]*class="rocom_prop_icon"[^>]*/?>',
-        re.DOTALL
-    )
-
-    # 详情页链接
-    link_pattern = re.compile(
-        r'<a\s+href="(/rocom/[^"]+)"\s+title="([^"]+)"',
-        re.DOTALL
-    )
-
-    # 分割每个卡片
-    card_splits = re.split(r'(?=<div\s+class="divsort")', html)
-
-    for card_html in card_splits:
-        if 'class="divsort"' not in card_html:
+    for card in soup.select("div.divsort"):
+        text = card.get_text(" ", strip=True)
+        m_num = re.search(r"NO\.\d+", text)
+        if not m_num:
             continue
+        number = m_num.group(0)
 
-        # 提取 divsort 标签的属性
-        div_match = re.search(r'<div\s+class="divsort"([^>]*)>', card_html)
-        if not div_match:
-            continue
-        div_attrs = div_match.group(1)
+        for img in card.find_all("img"):
+            alt = (img.get("alt") or "").strip()
+            if "页面 宠物 立绘" not in alt:
+                continue
 
-        stage = extract_data_param(div_attrs, "data-param1")       # 阶段
-        element = extract_data_param(div_attrs, "data-param2")     # 属性
-        form_type = extract_data_param(div_attrs, "data-param4")   # 形态分类
-        form = extract_data_param(div_attrs, "data-param5")        # 形态
-        has_variant = extract_data_param(div_attrs, "data-param6") # 异色
+            m_alt = re.match(r"页面\s+宠物\s+立绘\s+(.+?)\s+\d+\.png$", alt)
+            if not m_alt:
+                continue
+            name = m_alt.group(1).strip()
+            if name.endswith(" 异色"):
+                name = name[:-3].strip() + "（异色）"
 
-        m_name = name_pattern.search(card_html)
-        if not m_name:
-            continue
-        number = m_name.group(1)
-        name = m_name.group(2).strip()
+            link = img.find_parent("a")
+            if not link:
+                link = card.find("a", href=re.compile(r"^/rocom/"))
+            detail_path = link.get("href", "") if link else ""
+            detail_url = urljoin(BASE_URL, detail_path) if detail_path else ""
 
-        m_img = img_pattern.search(card_html)
-        img_url = m_img.group(1) if m_img else ""
+            img_url = img.get("src") or img.get("data-src") or ""
+            img_url = urljoin(BASE_URL, img_url)
 
-        m_link = link_pattern.search(card_html)
-        detail_path = m_link.group(1) if m_link else ""
-        detail_url = BASE_URL + detail_path if detail_path else ""
+            key = (number, name, img_url)
+            if key in seen:
+                continue
+            seen.add(key)
 
-        spirits.append({
-            "number": number,
-            "name": name,
-            "stage": stage,
-            "element": element,
-            "form_type": form_type,
-            "form": form,
-            "has_variant": has_variant,
-            "img_url": img_url,
-            "detail_url": detail_url,
-        })
+            spirits.append({
+                "number": number,
+                "name": name,
+                "stage": card.get("data-param1", ""),
+                "element": card.get("data-param2", ""),
+                "form_type": card.get("data-param4", ""),
+                "form": card.get("data-param5", ""),
+                "has_variant": card.get("data-param6", ""),
+                "img_url": img_url,
+                "detail_url": detail_url,
+            })
 
     return spirits
 
@@ -164,6 +149,37 @@ def get_full_img_url(thumb_url: str) -> str:
             if len(segments) == 2:
                 return parts[0] + "/" + segments[0]
     return thumb_url
+
+
+def safe_icon_filename(spirit: dict) -> str:
+    """生成本地精灵图标文件名，保留形态括号以便按完整名称匹配。"""
+    name = re.sub(r'[\\/:*?"<>|\x00-\x1f]+', "_", spirit["name"]).strip()
+    return f"{spirit['number'].replace('.', '')}_{name}.png"
+
+
+def write_icon_manifest(spirits: list[dict], path: Path = ICON_MANIFEST_PATH) -> None:
+    """记录图鉴页解析到的全部本地立绘映射，供后续 UI 展示不同形态。"""
+    with open(path, "w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "编号", "名字", "阶段", "属性", "形态分类", "形态", "是否有异色",
+            "图片文件名", "本地URL", "来源图片URL", "详情页URL",
+        ])
+        for s in spirits:
+            filename = safe_icon_filename(s)
+            writer.writerow([
+                s["number"],
+                s["name"],
+                s["stage"],
+                s["element"],
+                s["form_type"],
+                s["form"],
+                s["has_variant"],
+                filename,
+                f"/icons/{urllib.parse.quote(filename)}",
+                get_full_img_url(s.get("img_url", "")),
+                s.get("detail_url", ""),
+            ])
 
 
 def parse_detail_page(html: str, name: str) -> dict:
@@ -238,7 +254,7 @@ def parse_detail_page(html: str, name: str) -> dict:
     return result
 
 
-def download_image(spirit: dict, icon_dir: Path) -> str:
+def download_image(spirit: dict, icon_dir: Path, force: bool = False) -> str:
     """下载精灵图片，返回保存文件名"""
     img_url = spirit.get("img_url", "")
     if not img_url:
@@ -247,12 +263,11 @@ def download_image(spirit: dict, icon_dir: Path) -> str:
     # 获取原始大图
     full_url = get_full_img_url(img_url)
 
-    # 文件名：编号_名字.png
-    safe_name = re.sub(r'[^\w\u4e00-\u9fff]', '_', spirit["name"])
-    filename = f"{spirit['number'].replace('.', '')}_{safe_name}.png"
+    # 文件名：编号_完整形态名.png
+    filename = safe_icon_filename(spirit)
     filepath = icon_dir / filename
 
-    if filepath.exists():
+    if filepath.exists() and not force:
         return filename
 
     data = fetch_bytes(full_url)
@@ -263,6 +278,12 @@ def download_image(spirit: dict, icon_dir: Path) -> str:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="爬取洛克王国精灵图鉴与本地立绘")
+    parser.add_argument("--icons-only", action="store_true", help="只解析图鉴主页并下载精灵图标，不爬详情页")
+    parser.add_argument("--force-icons", action="store_true", help="重新下载已存在的图标文件")
+    parser.add_argument("--workers", type=int, default=5, help="图片并发下载数")
+    args = parser.parse_args()
+
     ICON_DIR.mkdir(parents=True, exist_ok=True)
 
     # Step 1: 获取主页精灵列表
@@ -282,8 +303,39 @@ def main():
     spirits = [s for s in spirits if s["number"].startswith("NO.")]
     print(f"  过滤后: {len(spirits)} 个有效精灵")
 
-    # 只处理「最终形态」以避免重复爬详情页
-    # 但我们也要记录所有阶段的精灵
+    if args.icons_only:
+        print("\n" + "=" * 60)
+        print("Step 2: 只下载精灵图标...")
+        print("=" * 60)
+
+        downloaded = 0
+        failed = 0
+        with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
+            futures = {
+                pool.submit(download_image, s, ICON_DIR, args.force_icons): s
+                for s in spirits
+            }
+            for i, future in enumerate(as_completed(futures)):
+                name, number = futures[future]["name"], futures[future]["number"]
+                try:
+                    filename = future.result()
+                except Exception as e:
+                    filename = ""
+                    print(f"  [ERROR] {number} {name}: {e}")
+                if filename:
+                    downloaded += 1
+                else:
+                    failed += 1
+                if (i + 1) % 50 == 0:
+                    print(f"  已处理 {i+1}/{len(spirits)}，成功 {downloaded}，失败 {failed}")
+
+        print(f"  完成: 成功 {downloaded} 张，失败 {failed} 张")
+        print(f"  图片保存在: {ICON_DIR}")
+        write_icon_manifest(spirits)
+        print(f"  图标清单: {ICON_MANIFEST_PATH}")
+        print("=" * 60)
+        return
+
     # 先按 detail_url 分组，同一个详情页只爬一次
     detail_urls = {}
     for s in spirits:
@@ -334,12 +386,12 @@ def main():
     print("=" * 60)
 
     def download_one(spirit):
-        filename = download_image(spirit, ICON_DIR)
+        filename = download_image(spirit, ICON_DIR, args.force_icons)
         return spirit["name"], filename
 
     downloaded = 0
     failed = 0
-    with ThreadPoolExecutor(max_workers=5) as pool:
+    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
         futures = {pool.submit(download_one, s): s for s in spirits}
         for i, future in enumerate(as_completed(futures)):
             name, filename = future.result()
@@ -370,8 +422,7 @@ def main():
 
         for s in spirits:
             info = detail_data.get(s["name"], {})
-            safe_name = re.sub(r'[^\w\u4e00-\u9fff]', '_', s["name"])
-            filename = f"{s['number'].replace('.', '')}_{safe_name}.png"
+            filename = safe_icon_filename(s)
             img_exists = (ICON_DIR / filename).exists()
 
             writer.writerow([
@@ -391,6 +442,8 @@ def main():
             ])
 
     print(f"  CSV 保存在: {CSV_PATH}")
+    write_icon_manifest(spirits)
+    print(f"  图标清单: {ICON_MANIFEST_PATH}")
     print("\n" + "=" * 60)
     print("全部完成!")
     print(f"  精灵总数: {len(spirits)}")

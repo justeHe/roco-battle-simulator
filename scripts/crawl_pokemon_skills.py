@@ -41,6 +41,17 @@ def get_all_pokemon(conn):
     return [(r["id"], r["name"]) for r in c.fetchall()]
 
 
+def ensure_schema(conn):
+    """确保精灵-技能关联表能记录学习来源分组。"""
+    c = conn.cursor()
+    c.execute("PRAGMA table_info(pokemon_skill)")
+    columns = {r["name"] for r in c.fetchall()}
+    if "learn_group" not in columns:
+        c.execute("ALTER TABLE pokemon_skill ADD COLUMN learn_group TEXT DEFAULT ''")
+        conn.commit()
+        print("[OK] pokemon_skill.learn_group column added")
+
+
 def get_skill_id(conn, name: str):
     """根据技能名查找技能ID，不存在返回None"""
     c = conn.cursor()
@@ -71,13 +82,19 @@ def get_existing_skills_for_pokemon(conn, pokemon_id: int):
     return {r["skill_id"] for r in c.fetchall()}
 
 
-def upsert_pokemon_skill(conn, pokemon_id: int, skill_id: int):
-    """插入精灵-技能关联（已存在则忽略）"""
+def upsert_pokemon_skill(conn, pokemon_id: int, skill_id: int, learn_group: str = ""):
+    """插入精灵-技能关联，并记录技能组/学习来源。"""
     c = conn.cursor()
     c.execute(
-        "INSERT OR IGNORE INTO pokemon_skill (pokemon_id, skill_id) VALUES (?, ?)",
-        (pokemon_id, skill_id)
+        "INSERT OR IGNORE INTO pokemon_skill (pokemon_id, skill_id, learn_group) VALUES (?, ?, ?)",
+        (pokemon_id, skill_id, learn_group)
     )
+    if learn_group:
+        c.execute(
+            "UPDATE pokemon_skill SET learn_group = ? "
+            "WHERE pokemon_id = ? AND skill_id = ? AND COALESCE(learn_group, '') != ?",
+            (learn_group, pokemon_id, skill_id, learn_group)
+        )
 
 
 # ── 爬取单只精灵的技能 ──
@@ -133,6 +150,7 @@ def main():
     args = parser.parse_args()
 
     conn = get_conn()
+    ensure_schema(conn)
     session = requests.Session()
 
     # ── 测试模式 ──
@@ -194,9 +212,11 @@ def main():
                         # 技能不在DB里，跳过（不自动新增，避免引入脏数据）
                         continue
                     if sk_id not in existing:
-                        upsert_pokemon_skill(conn, pid, sk_id)
+                        upsert_pokemon_skill(conn, pid, sk_id, tab_name)
                         new_relations += 1
                         existing.add(sk_id)
+                    else:
+                        upsert_pokemon_skill(conn, pid, sk_id, tab_name)
             conn.commit()
             if new_relations > 0:
                 print(f"(+{new_relations}条关联)", end=" ")

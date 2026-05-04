@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洛克王国 · 机制百科</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+.mechanics-layout { display: grid; grid-template-columns: 250px minmax(0,1fr); gap: 14px; }
+.side {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px;
+  align-self: start;
+  position: sticky;
+  top: 14px;
+}
+.side button {
+  width: 100%;
+  text-align: left;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+  font-family: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+.side button:hover,.side button.active { background: rgba(255,255,255,.55); color: var(--text-primary); border-color: var(--border); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+.mechanic-card { background: var(--bg-input); border: 2px solid var(--border); border-radius: var(--r-md); padding: 14px; }
+.mechanic-card h2 { font-size: 17px; margin-bottom: 6px; }
+.mechanic-card p { color: var(--text-secondary); font-size: 12px; line-height: 1.65; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.pill { border-radius: var(--r-pill); background: var(--bg-card); border: 1px solid var(--border); padding: 3px 8px; font-size: 10px; color: var(--text-secondary); font-weight: 800; }
+@media(max-width:800px){.mechanics-layout{grid-template-columns:1fr}.side{position:static}}
+</style>
+</head>
+<body>
+<div class="page-shell">
+  <header class="roco-topbar">
+    <img class="logo" src="assets/img/logo.png" alt="洛克王国">
+    <div class="title">机制百科</div>
+    <nav class="app-nav">
+      <a href="/dex">图鉴</a>
+      <a href="/skills">技能</a>
+      <a href="/mechanics" class="active">机制</a>
+      <a href="/storage">仓库</a>
+      <a href="/simulator">队伍</a>
+      <a href="/battle">对战</a>
+    </nav>
+  </header>
+  <main class="page-main">
+    <div class="mechanics-layout">
+      <aside class="side" id="tabs"></aside>
+      <section class="cards" id="cards"></section>
+    </div>
+  </main>
+</div>
+<script>
+const DATA = {
+  status: {
+    label: '状态效果',
+    rows: [
+      ['中毒', '回合结束受到最大生命 3% × 层数的伤害，当前实现中不自然衰减。', ['持续伤害','层数']],
+      ['灼烧', '回合结束受到最大生命 2% × 层数的伤害，结算后层数衰减；部分特性可改变衰减。', ['持续伤害','衰减']],
+      ['冻伤', '每回合累加不可恢复伤害，等价于侵蚀最大生命上限。', ['上限侵蚀']],
+      ['寄生', '回合结束造成 8% × 层数伤害，并将伤害转化为对方回复。', ['吸取']],
+      ['星陨', '倒计时归零后引爆，按敌方魔攻、己方魔防和层数计算伤害。', ['延迟伤害']],
+      ['萌化', '作为特殊层数状态，被多项萌系技能和特性读取或消耗。', ['特殊层数']],
+    ],
+  },
+  marks: {
+    label: '印记',
+    rows: [
+      ['湿润印记', '在回合开始阶段影响技能能耗，是水系队伍的核心联动资源。', ['能耗']],
+      ['中毒印记', '常与中毒层数互相转换，用于毒队的爆发和消耗。', ['毒系联动']],
+      ['龙噬印记', '龙系技能常见资源，可被特定技能叠加、消耗或转化。', ['龙系联动']],
+      ['风起印记', '翼系相关印记，常与先制、速度或连击联动。', ['翼系联动']],
+      ['攻击印记', '偏进攻增益的印记资源。', ['攻击']],
+      ['迟缓印记', '偏减速或行动干扰的印记资源。', ['控制']],
+      ['降灵印记', '幽系相关印记，常服务于转化和额外结算。', ['幽系联动']],
+      ['星陨印记', '与星陨伤害或印记转星陨技能相关。', ['星陨']],
+      ['荆刺印记', '与反伤、寄生或草系消耗联动。', ['反制']],
+      ['光合印记', '光/草相关资源，常与回复、强化或蓄势联动。', ['回复']],
+    ],
+  },
+  turn: {
+    label: '回合流程',
+    rows: [
+      ['行动选择', '双方选择技能、换人或聚能。手动模式下双方都由玩家指定。', ['对战']],
+      ['先后手', '换人优先级最高；技能按先手等级、速度和随机平局决定顺序。', ['速度','先手']],
+      ['应对系统', '防御/状态/攻击应对会改变结算效果，应对不是简单抢先行动。', ['应对']],
+      ['回合结束', '统一结算状态伤害、天气、冷却、临时技能修正和印记效果。', ['结算']],
+    ],
+  },
+  ability: {
+    label: '特性结算',
+    rows: [
+      ['入场特性', '精灵上场时触发，常用于根据携带技能、队伍状态或敌方状态修正数值。', ['入场']],
+      ['行动后特性', '使用特定属性或分类技能后触发，例如回能、加伤、叠层。', ['行动后']],
+      ['倒下特性', '倒下时扣 MP、复活、传递增益或触发队伍效果。', ['倒下']],
+      ['被动特性', '持续读取当前战场状态，影响减伤、状态衰减或可用技能。', ['持续']],
+    ],
+  },
+};
+let active = 'status';
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function renderTabs(){
+  document.getElementById('tabs').innerHTML = Object.entries(DATA).map(([key,item]) =>
+    `<button class="${key===active?'active':''}" data-key="${key}">${esc(item.label)}</button>`
+  ).join('');
+  document.querySelectorAll('#tabs button').forEach(btn => btn.onclick = () => { active = btn.dataset.key; render(); });
+}
+function renderCards(){
+  const item = DATA[active];
+  document.getElementById('cards').innerHTML = item.rows.map(([name,desc,tags]) => `
+    <article class="mechanic-card">
+      <h2>${esc(name)}</h2>
+      <p>${esc(desc)}</p>
+      <div class="pill-row">${tags.map(t => `<span class="pill">${esc(t)}</span>`).join('')}</div>
+    </article>
+  `).join('');
+}
+function render(){ renderTabs(); renderCards(); }
+render();
+</script>
+</body>
+</html>

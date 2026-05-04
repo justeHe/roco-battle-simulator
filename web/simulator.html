@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洛克王国 · 手动模拟对战</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+#topbar {
+  height: 48px; flex-shrink: 0; padding: 0 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-topbar); box-shadow: 0 3px 12px rgba(200,150,50,.3); z-index: 5;
+}
+#topbar h1 {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'RocoTitle', 'RocoBody', system-ui, sans-serif;
+  color: var(--text-light); font-size: 16px; letter-spacing: 1px;
+}
+#topbar .logo { height: 28px; filter: brightness(10); }
+.top-actions { display: flex; align-items: center; gap: 8px; }
+.top-btn {
+  border: 1.5px solid var(--border); border-radius: var(--r-pill);
+  background: rgba(255,255,255,.16); color: var(--text-light);
+  padding: 7px 14px; cursor: pointer; font-size: 12px; font-weight: 700;
+  font-family: 'RocoBody', system-ui, sans-serif;
+}
+.top-btn.primary { background: var(--title-bg); border: none; box-shadow: var(--shadow-sm); }
+.top-btn:disabled { opacity: .45; cursor: not-allowed; }
+#main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(280px, 36%) 1fr; background: var(--bg-page); }
+#catalog { border-right: 2px solid var(--border); display: flex; flex-direction: column; min-width: 0; }
+#searchbar { padding: 12px 14px; display: flex; gap: 8px; border-bottom: 1px solid var(--border); background: rgba(245,237,224,.55); }
+#search-input {
+  flex: 1; min-width: 0; background: var(--bg-input); border: 2px solid var(--border);
+  border-radius: var(--r-md); padding: 8px 10px; outline: none; color: var(--text-primary);
+  font-family: 'RocoBody', system-ui, sans-serif;
+}
+#search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,166,35,.14); }
+#catalog-count { font-size: 10px; color: var(--text-muted); white-space: nowrap; align-self: center; }
+#poke-list {
+  flex: 1; overflow-y: auto; padding: 10px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 8px; align-content: start;
+}
+.poke-card {
+  background: var(--bg-input); border: 2px solid var(--border); border-radius: var(--r-md);
+  padding: 9px; transition: transform .12s, border-color .12s, box-shadow .12s;
+}
+.poke-card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: var(--shadow-md); }
+.poke-name { font-size: 12px; font-weight: 800; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.poke-meta { margin-top: 4px; display: flex; gap: 4px; align-items: center; min-width: 0; }
+.poke-ability { font-size: 9px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.add-row { margin-top: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.mini-btn {
+  border: 1.5px solid var(--border); border-radius: var(--r-sm); background: var(--bg-card);
+  color: var(--text-primary); font-size: 10px; font-weight: 700; padding: 4px 6px; cursor: pointer;
+  font-family: 'RocoBody', system-ui, sans-serif;
+}
+.mini-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
+#teams { display: grid; grid-template-columns: 1fr 1fr; min-width: 0; min-height: 0; }
+.team-panel { display: flex; flex-direction: column; min-width: 0; border-right: 1px solid var(--border); }
+.team-panel:last-child { border-right: none; }
+.team-head {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  background: var(--bg-card);
+}
+.team-title { font-size: 14px; font-weight: 900; color: var(--text-primary); }
+.team-count { font-size: 11px; color: var(--text-secondary); }
+.team-tools { display: flex; gap: 5px; }
+.slots { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 7px; }
+.slot {
+  background: var(--bg-input); border: 2px solid var(--border); border-radius: var(--r-md);
+  min-height: 82px; padding: 9px; position: relative;
+}
+.slot.empty { border-style: dashed; opacity: .58; display: flex; align-items: center; color: var(--text-muted); font-size: 11px; }
+.slot.lead { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(245,166,35,.08); }
+.slot-num { position: absolute; top: 6px; left: 8px; font-size: 9px; color: var(--text-muted); font-weight: 800; }
+.slot-main { margin-left: 20px; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.slot-name { font-size: 12px; font-weight: 900; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.slot-ability { margin: 5px 0 0 20px; font-size: 9px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skill-tags { margin: 6px 0 0 20px; display: flex; flex-wrap: wrap; gap: 3px; }
+.skill-tag { background: var(--bg-card); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 9px; color: var(--text-secondary); }
+.slot-actions { margin: 7px 0 0 20px; display: flex; gap: 4px; flex-wrap: wrap; }
+.slot-action {
+  border: 1px solid var(--border); border-radius: 3px; background: none;
+  color: var(--primary-dark); font-size: 9px; padding: 2px 6px; cursor: pointer;
+}
+.slot-remove { position: absolute; top: 4px; right: 6px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; }
+.slot-remove:hover { color: var(--hp-red); }
+#hint { min-height: 18px; padding: 0 20px 9px; font-size: 11px; color: var(--hp-red); background: var(--bg-card); }
+.type-badge { font-size: 9px; padding: 1px 6px; border-radius: 5px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.t-火{background:#F08030}.t-水{background:#6890F0}.t-草{background:#78C850}.t-电{background:#F8D030;color:#5a4000}.t-冰{background:#98D8D8;color:#2a5a5a}.t-毒{background:#A040A0}.t-地{background:#E0C068;color:#5a4000}.t-翼{background:#A890F0}.t-幻{background:#F85888}.t-幽{background:#705898}.t-武{background:#C03028}.t-恶{background:#705848}.t-萌{background:#EE99AC}.t-机械{background:#B8B8D0;color:#444}.t-龙{background:#7038F8}.t-虫{background:#A8B820}.t-光{background:#FFD966;color:#5a4000}.t-普通{background:#A8A878}
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(74,55,40,.5); backdrop-filter: blur(4px); z-index: 50; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal {
+  width: min(620px, 92vw); max-height: 84vh; overflow: hidden;
+  background: var(--bg-page); border: 2px solid var(--border); border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
+}
+.modal-head, .modal-foot { padding: 12px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-foot { border-bottom: none; border-top: 1px solid var(--border); justify-content: flex-end; gap: 8px; }
+.modal-title { font-size: 14px; font-weight: 900; color: var(--text-primary); }
+.modal-close { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 18px; }
+.modal-body { flex: 1; overflow-y: auto; padding: 14px; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 11px; font-weight: 800; color: var(--text-secondary); margin-bottom: 5px; }
+.field input, .field select {
+  width: 100%; background: var(--bg-input); border: 1.5px solid var(--border); border-radius: var(--r-md);
+  padding: 7px 9px; color: var(--text-primary); outline: none; font-family: 'RocoBody', system-ui, sans-serif;
+}
+.json-area {
+  width: 100%; min-height: 260px; resize: vertical;
+  background: var(--bg-input); border: 1.5px solid var(--border); border-radius: var(--r-md);
+  padding: 10px; color: var(--text-primary); outline: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 11px; line-height: 1.55;
+}
+.iv-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.iv-grid label { display: flex; align-items: center; gap: 6px; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 6px; font-size: 11px; color: var(--text-primary); }
+.stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.stat { background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 6px 8px; display: flex; justify-content: space-between; font-size: 11px; }
+#skill-search { margin-bottom: 8px; }
+#skill-list { display: flex; flex-direction: column; gap: 5px; }
+.skill-row {
+  display: grid; grid-template-columns: minmax(90px, 1fr) 42px 42px 48px minmax(120px, 2fr);
+  gap: 6px; align-items: center; padding: 7px 8px; border-radius: var(--r-sm);
+  background: var(--bg-input); border: 1.5px solid var(--border); cursor: pointer;
+}
+.skill-row.selected { border-color: var(--primary); background: rgba(245,166,35,.12); }
+.skill-row span { font-size: 10px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skill-row .skill-name { color: var(--text-primary); font-weight: 800; font-size: 12px; }
+.selected-line { font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; }
+#loading { position: fixed; inset: 0; z-index: 80; background: var(--bg-page); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 13px; }
+#loading.hide { display: none; }
+@media (max-width: 980px) {
+  body { height: auto; overflow: auto; }
+  #main { grid-template-columns: 1fr; }
+  #teams { grid-template-columns: 1fr; }
+  #catalog, .team-panel { min-height: 420px; }
+}
+</style>
+</head>
+<body>
+<div id="loading">加载精灵数据…</div>
+<div id="topbar">
+  <h1><img class="logo" src="assets/img/logo.png" alt="洛克王国">手动模拟对战</h1>
+  <nav class="app-nav">
+    <a href="/dex">图鉴</a>
+    <a href="/skills">技能</a>
+    <a href="/mechanics">机制</a>
+    <a href="/storage">仓库</a>
+    <a href="/simulator" class="active">队伍</a>
+    <a href="/battle">对战</a>
+  </nav>
+  <div class="top-actions">
+    <button class="top-btn" onclick="loadSampleTeams()">载入示例</button>
+    <button class="top-btn" onclick="openJsonModal('export')">导出JSON</button>
+    <button class="top-btn" onclick="openJsonModal('import')">导入JSON</button>
+    <button id="start-btn" class="top-btn primary" onclick="startManualBattle()" disabled>开始模拟</button>
+  </div>
+</div>
+<div id="main">
+  <section id="catalog">
+    <div id="searchbar">
+      <input id="search-input" placeholder="搜索精灵、属性或特性…" autocomplete="off">
+      <span id="catalog-count">—</span>
+    </div>
+    <div id="poke-list"></div>
+  </section>
+  <section id="teams">
+    <div class="team-panel">
+      <div class="team-head">
+        <div><div class="team-title">🟦 我方队伍</div><div id="count-a" class="team-count">0 / 6</div></div>
+        <div class="team-tools"><button class="mini-btn" onclick="clearTeam('a')">清空</button></div>
+      </div>
+      <div id="slots-a" class="slots"></div>
+    </div>
+    <div class="team-panel">
+      <div class="team-head">
+        <div><div class="team-title">🟥 对方队伍</div><div id="count-b" class="team-count">0 / 6</div></div>
+        <div class="team-tools"><button class="mini-btn" onclick="clearTeam('b')">清空</button></div>
+      </div>
+      <div id="slots-b" class="slots"></div>
+    </div>
+  </section>
+</div>
+<div id="hint"></div>
+
+<div id="config-modal-bg" class="modal-bg">
+  <div class="modal">
+    <div class="modal-head">
+      <span id="config-title" class="modal-title">配置精灵</span>
+      <button class="modal-close" onclick="closeConfigModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>特性</label>
+        <input id="cfg-ability" autocomplete="off">
+      </div>
+      <div class="field">
+        <label>性格</label>
+        <select id="cfg-nature" onchange="calcAndDisplayStats()">
+          <option value="坦率">坦率（无修正）</option>
+          <option value="固执">固执（物攻 +20%, 魔攻 -10%）</option>
+          <option value="勇敢">勇敢（物攻 +20%, 速度 -10%）</option>
+          <option value="保守">保守（魔攻 +20%, 物攻 -10%）</option>
+          <option value="稳重">稳重（魔攻 +20%, 物防 -10%）</option>
+          <option value="冷静">冷静（魔攻 +20%, 速度 -10%）</option>
+          <option value="爽朗">爽朗（速度 +20%, 魔攻 -10%）</option>
+          <option value="急躁">急躁（速度 +20%, 物防 -10%）</option>
+          <option value="开朗">开朗（速度 +20%, 魔攻 -10%）</option>
+          <option value="顽皮">顽皮（物攻 +20%, 魔防 -10%）</option>
+          <option value="自大">自大（物防 +20%, 魔攻 -10%）</option>
+          <option value="谨慎">谨慎（物防 +20%, 魔攻 -10%）</option>
+          <option value="温和">温和（魔防 +20%, 物攻 -10%）</option>
+          <option value="沉着">沉着（魔防 +20%, 物攻 -10%）</option>
+          <option value="内敛">内敛（魔攻 +20%, 物攻 -10%）</option>
+          <option value="慢吞吞">慢吞吞（魔攻 +20%, 物防 -10%）</option>
+          <option value="害羞">害羞（魔攻 +20%, 魔防 -10%）</option>
+          <option value="认真">认真（无修正）</option>
+          <option value="勤奋">勤奋（无修正）</option>
+          <option value="实干">实干（无修正）</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>个体值 60 项</label>
+        <div class="iv-grid">
+          <label><input type="checkbox" data-iv="hp" onchange="onIvChange()">HP</label>
+          <label><input type="checkbox" data-iv="atk" onchange="onIvChange()">物攻</label>
+          <label><input type="checkbox" data-iv="def" onchange="onIvChange()">物防</label>
+          <label><input type="checkbox" data-iv="spatk" onchange="onIvChange()">魔攻</label>
+          <label><input type="checkbox" data-iv="spdef" onchange="onIvChange()">魔防</label>
+          <label><input type="checkbox" data-iv="speed" onchange="onIvChange()">速度</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>战斗属性预览</label>
+        <div class="stats-grid">
+          <div class="stat"><span>HP</span><b id="stat-hp">—</b></div>
+          <div class="stat"><span>物攻</span><b id="stat-atk">—</b></div>
+          <div class="stat"><span>物防</span><b id="stat-def">—</b></div>
+          <div class="stat"><span>魔攻</span><b id="stat-spatk">—</b></div>
+          <div class="stat"><span>魔防</span><b id="stat-spdef">—</b></div>
+          <div class="stat"><span>速度</span><b id="stat-speed">—</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="mini-btn" onclick="closeConfigModal()">取消</button>
+      <button class="top-btn primary" onclick="saveConfig()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="skill-modal-bg" class="modal-bg">
+  <div class="modal">
+    <div class="modal-head">
+      <span id="skill-title" class="modal-title">配置技能</span>
+      <button class="modal-close" onclick="closeSkillModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="selected-line" class="selected-line">已选：—</div>
+      <input id="skill-search" placeholder="搜索技能名称或描述…" autocomplete="off">
+      <div id="skill-list"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="mini-btn" onclick="closeSkillModal()">取消</button>
+      <button id="skill-save" class="top-btn primary" onclick="saveSkills()" disabled>保存技能</button>
+    </div>
+  </div>
+</div>
+
+<div id="json-modal-bg" class="modal-bg">
+  <div class="modal">
+    <div class="modal-head">
+      <span id="json-title" class="modal-title">队伍 JSON</span>
+      <button class="modal-close" onclick="closeJsonModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label id="json-label">JSON 内容</label>
+        <textarea id="json-text" class="json-area" spellcheck="false"></textarea>
+      </div>
+      <div id="json-error" style="font-size:11px;color:var(--hp-red);min-height:16px"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="mini-btn" onclick="closeJsonModal()">关闭</button>
+      <button id="json-apply" class="top-btn primary" onclick="applyJsonImport()">导入</button>
+    </div>
+  </div>
+</div>
+
+<div id="skill-tooltip" class="skill-tooltip"></div>
+
+<script>
+let allPokemon = [];
+let currentQuery = '';
+let teams = { a: new Array(6).fill(null), b: new Array(6).fill(null) };
+let configRef = null;
+let skillRef = null;
+let allSkills = [];
+let selectedSkills = [];
+let jsonMode = 'export';
+
+const SAMPLE_A = [
+  ['千棘盔', ['毒雾', '泡沫幻影', '疫病吐息', '打湿']],
+  ['影狸', ['嘲弄', '恶意逃离', '毒液渗透', '感染病']],
+  ['裘卡', ['阻断', '崩拳', '毒囊', '防御']],
+  ['琉璃水母', ['甩水', '天洪', '泡沫幻影', '以毒攻毒']],
+  ['迷迷箱怪', ['风墙', '啮合传递', '双星', '偷袭']],
+  ['海豹船长', ['力量增效', '水刃', '斩断', '听桥']],
+];
+const SAMPLE_B = [
+  ['燃薪虫', ['火焰护盾', '引燃', '倾泻', '抽枝']],
+  ['圣羽翼王', ['水刃', '力量增效', '疾风连袭', '扇风']],
+  ['翠顶夫人', ['力量增效', '水刃', '水环', '泡沫幻影']],
+  ['迷迷箱怪', ['双星', '啮合传递', '偷袭', '吓退']],
+  ['秩序鱿墨', ['风墙', '能量刃', '力量增效', '倾泻']],
+  ['声波缇塔', ['轴承支撑', '齿轮扭矩', '地刺', '啮合传递']],
+];
+
+function esc(s){ return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function typeBadge(el){ return `<span class="type-badge t-${esc(el)}">${esc(el || '普通')}</span>`; }
+function sideName(side){ return side === 'a' ? '我方' : '对方'; }
+function sideIcon(side){ return side === 'a' ? '🟦' : '🟥'; }
+function skillIconHtml(skill){
+  if(skill && skill.icon_url) return `<img class="skill-icon" src="${esc(skill.icon_url)}" alt="${esc(skill.name)}">`;
+  const name = skill && skill.name ? skill.name : '?';
+  return `<span class="skill-icon missing">${esc(name.slice(0,1))}</span>`;
+}
+function showSkillTooltip(skill, ev){
+  if(!skill) return;
+  const tip = document.getElementById('skill-tooltip');
+  const tags = (skill.effect_details && skill.effect_details.length ? skill.effect_details : skill.tags || [])
+    .slice(0, 6)
+    .map(t => `<span class="tag-pill">${esc(t)}</span>`)
+    .join('');
+  tip.innerHTML = `
+    <div class="tip-head">${skillIconHtml(skill)}
+      <div>
+        <div class="tip-title">${esc(skill.name)}</div>
+        <div class="tip-meta">
+          <span>${esc(skill.element)}</span><span>${esc(skill.category)}</span>
+          <span>耗${esc(skill.energy_cost)}</span><span>${skill.power > 0 ? '威' + esc(skill.power) : '无威力'}</span>
+        </div>
+      </div>
+    </div>
+    <div class="tip-desc">${esc(skill.description || skill.effect_summary || '暂无描述')}</div>
+    ${tags ? `<div class="tip-tags">${tags}</div>` : ''}`;
+  tip.classList.add('show');
+  moveSkillTooltip(ev);
+}
+function moveSkillTooltip(ev){
+  const tip = document.getElementById('skill-tooltip');
+  if(!tip.classList.contains('show')) return;
+  const pad = 14;
+  tip.style.left = Math.max(pad, Math.min(ev.clientX + 14, window.innerWidth - tip.offsetWidth - pad)) + 'px';
+  tip.style.top = Math.max(pad, Math.min(ev.clientY + 14, window.innerHeight - tip.offsetHeight - pad)) + 'px';
+}
+function hideSkillTooltip(){ document.getElementById('skill-tooltip').classList.remove('show'); }
+
+async function init(){
+  const res = await fetch('/api/pokemon/list?q=');
+  allPokemon = await res.json();
+  renderCatalog();
+  renderTeams();
+  document.getElementById('loading').classList.add('hide');
+}
+
+function renderCatalog(){
+  const lower = currentQuery.trim().toLowerCase();
+  let list = allPokemon;
+  if(lower){
+    list = list.filter(p =>
+      p.name.toLowerCase().includes(lower) ||
+      (p.element || '').includes(currentQuery) ||
+      (p.ability || '').includes(currentQuery)
+    );
+  } else {
+    list = list.slice(0, 120);
+  }
+  document.getElementById('catalog-count').textContent = `${list.length} / ${allPokemon.length}`;
+  const wrap = document.getElementById('poke-list');
+  wrap.innerHTML = '';
+  list.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'poke-card';
+    card.innerHTML = `
+      <div class="poke-name">${esc(p.name)}</div>
+      <div class="poke-meta">${typeBadge(p.element)}<span class="poke-ability">${esc(p.ability || '—')}</span></div>
+      <div class="add-row">
+        <button class="mini-btn" data-side="a">加入我方</button>
+        <button class="mini-btn" data-side="b">加入对方</button>
+      </div>`;
+    card.querySelectorAll('button').forEach(btn => {
+      btn.onclick = ev => {
+        ev.stopPropagation();
+        addPokemon(btn.dataset.side, p);
+      };
+    });
+    wrap.appendChild(card);
+  });
+}
+
+function addPokemon(side, p){
+  if(teams[side].filter(Boolean).some(item => item.name === p.name)){
+    showHint(`${sideName(side)}已包含 ${p.name}`);
+    return;
+  }
+  const idx = teams[side].findIndex(item => item === null);
+  if(idx < 0){
+    showHint(`${sideName(side)}队伍已满`);
+    return;
+  }
+  teams[side][idx] = {
+    name: p.name,
+    element: p.element,
+    ability: p.ability || '',
+    skills: [],
+    iv_config: null,
+    nature: '坦率',
+    base: p,
+  };
+  renderTeams();
+  openConfigModal(side, idx);
+}
+
+function renderTeams(){
+  ['a','b'].forEach(side => {
+    const slots = document.getElementById(`slots-${side}`);
+    slots.innerHTML = '';
+    teams[side].forEach((p, idx) => {
+      const div = document.createElement('div');
+      div.className = 'slot ' + (p ? (idx === 0 ? 'lead' : '') : 'empty');
+      if(!p){
+        div.innerHTML = `<span class="slot-num">${idx+1}</span><span style="padding-left:20px">空位</span>`;
+      } else {
+        const skills = p.skills.length
+          ? p.skills.map(s => `<span class="skill-tag">${esc(s)}</span>`).join('')
+          : '<span class="skill-tag" style="color:var(--hp-red)">未配置技能</span>';
+        div.innerHTML = `
+          <span class="slot-num">${idx+1}${idx === 0 ? ' 首发' : ''}</span>
+          <button class="slot-remove" data-act="remove">✕</button>
+          <div class="slot-main">${typeBadge(p.element)}<span class="slot-name">${esc(p.name)}</span></div>
+          <div class="slot-ability">特性：${esc(p.ability || '—')} · ${esc(p.nature || '坦率')}</div>
+          <div class="skill-tags">${skills}</div>
+          <div class="slot-actions">
+            <button class="slot-action" data-act="config">配置</button>
+            <button class="slot-action" data-act="skills">技能</button>
+            <button class="slot-action" data-act="up">↑</button>
+            <button class="slot-action" data-act="down">↓</button>
+          </div>`;
+        div.querySelector('[data-act="remove"]').onclick = () => removePokemon(side, idx);
+        div.querySelector('[data-act="config"]').onclick = () => openConfigModal(side, idx);
+        div.querySelector('[data-act="skills"]').onclick = () => openSkillModal(side, idx);
+        div.querySelector('[data-act="up"]').onclick = () => moveSlot(side, idx, -1);
+        div.querySelector('[data-act="down"]').onclick = () => moveSlot(side, idx, 1);
+      }
+      slots.appendChild(div);
+    });
+    document.getElementById(`count-${side}`).textContent = `${teams[side].filter(Boolean).length} / 6`;
+  });
+  updateStartButton();
+}
+
+function removePokemon(side, idx){
+  teams[side][idx] = null;
+  teams[side] = teams[side].filter(Boolean).concat(new Array(6).fill(null)).slice(0, 6);
+  renderTeams();
+}
+
+function moveSlot(side, idx, delta){
+  const next = idx + delta;
+  if(next < 0 || next >= 6 || !teams[side][idx]) return;
+  const tmp = teams[side][next];
+  teams[side][next] = teams[side][idx];
+  teams[side][idx] = tmp;
+  renderTeams();
+}
+
+function clearTeam(side){
+  teams[side] = new Array(6).fill(null);
+  renderTeams();
+}
+
+function openConfigModal(side, idx){
+  const p = teams[side][idx];
+  if(!p) return;
+  configRef = { side, idx };
+  document.getElementById('config-title').textContent = `配置 ${sideIcon(side)} ${p.name}`;
+  document.getElementById('cfg-ability').value = p.ability || '';
+  document.getElementById('cfg-nature').value = p.nature || '坦率';
+  const iv = p.iv_config || {};
+  document.querySelectorAll('#config-modal-bg [data-iv]').forEach(cb => {
+    cb.checked = (iv[cb.dataset.iv] || 0) === 60;
+  });
+  document.getElementById('config-modal-bg').classList.add('open');
+  calcAndDisplayStats();
+}
+
+function closeConfigModal(){
+  document.getElementById('config-modal-bg').classList.remove('open');
+  configRef = null;
+}
+
+function onIvChange(){
+  const checked = [...document.querySelectorAll('#config-modal-bg [data-iv]')].filter(cb => cb.checked);
+  if(checked.length > 3) checked[checked.length - 1].checked = false;
+  calcAndDisplayStats();
+}
+
+function currentIvConfig(){
+  const iv = { hp:0, atk:0, def:0, spatk:0, spdef:0, speed:0 };
+  document.querySelectorAll('#config-modal-bg [data-iv]').forEach(cb => {
+    iv[cb.dataset.iv] = cb.checked ? 60 : 0;
+  });
+  return iv;
+}
+
+async function calcAndDisplayStats(){
+  if(!configRef) return;
+  const p = teams[configRef.side][configRef.idx];
+  if(!p || !p.base) return;
+  const iv = currentIvConfig();
+  const nature = document.getElementById('cfg-nature').value;
+  const q = new URLSearchParams({
+    base_hp: p.base.base_hp || 0,
+    base_atk: p.base.base_atk || 0,
+    base_spatk: p.base.base_spatk || 0,
+    base_def: p.base.base_def || 0,
+    base_spdef: p.base.base_spdef || 0,
+    base_speed: p.base.base_speed || 0,
+    iv_hp: iv.hp,
+    iv_atk: iv.atk,
+    iv_spatk: iv.spatk,
+    iv_def: iv.def,
+    iv_spdef: iv.spdef,
+    iv_speed: iv.speed,
+    nature,
+  });
+  const res = await fetch(`/api/pokemon/calc-stats?${q.toString()}`);
+  const stats = await res.json();
+  for(const [key, id] of [['hp','stat-hp'],['atk','stat-atk'],['def','stat-def'],['spatk','stat-spatk'],['spdef','stat-spdef'],['speed','stat-speed']]){
+    document.getElementById(id).textContent = Math.round(stats[key] || 0);
+  }
+}
+
+function saveConfig(){
+  if(!configRef) return;
+  const p = teams[configRef.side][configRef.idx];
+  p.ability = document.getElementById('cfg-ability').value.trim();
+  p.nature = document.getElementById('cfg-nature').value;
+  p.iv_config = currentIvConfig();
+  closeConfigModal();
+  renderTeams();
+}
+
+async function openSkillModal(side, idx){
+  const p = teams[side][idx];
+  if(!p) return;
+  skillRef = { side, idx };
+  selectedSkills = [...(p.skills || [])];
+  document.getElementById('skill-title').textContent = `配置技能 ${sideIcon(side)} ${p.name}`;
+  document.getElementById('skill-search').value = '';
+  document.getElementById('skill-modal-bg').classList.add('open');
+  document.getElementById('skill-list').innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:12px">加载中…</div>';
+  const res = await fetch(`/api/pokemon/skills?name=${encodeURIComponent(p.name)}`);
+  allSkills = await res.json();
+  renderSkillList('');
+  renderSelectedSkills();
+}
+
+function closeSkillModal(){
+  document.getElementById('skill-modal-bg').classList.remove('open');
+  skillRef = null;
+  allSkills = [];
+  selectedSkills = [];
+}
+
+function renderSkillList(query){
+  const list = document.getElementById('skill-list');
+  const q = query.trim();
+  let skills = allSkills;
+  if(q) skills = skills.filter(s => s.name.includes(q) || (s.description || '').includes(q));
+  list.innerHTML = '';
+  skills.slice(0, 120).forEach(skill => {
+    const row = document.createElement('div');
+    row.className = 'skill-row' + (selectedSkills.includes(skill.name) ? ' selected' : '');
+    row.innerHTML = `
+      ${skillIconHtml(skill)}
+      <span class="skill-name">${esc(skill.name)}</span>
+      <span>${esc(skill.element)}</span>
+      <span>${esc(skill.category)}</span>
+      <span>耗${esc(skill.energy_cost)}</span>
+      <span>${esc(skill.description || skill.effect_summary || '')}</span>`;
+    row.onmouseenter = ev => showSkillTooltip(skill, ev);
+    row.onmousemove = moveSkillTooltip;
+    row.onmouseleave = hideSkillTooltip;
+    row.onclick = () => toggleSkill(skill.name);
+    list.appendChild(row);
+  });
+  if(!skills.length) list.innerHTML = '<div style="font-size:12px;color:var(--text-muted);padding:12px">没有匹配的技能</div>';
+}
+
+function toggleSkill(name){
+  const idx = selectedSkills.indexOf(name);
+  if(idx >= 0) selectedSkills.splice(idx, 1);
+  else if(selectedSkills.length < 4) selectedSkills.push(name);
+  else selectedSkills[3] = name;
+  renderSkillList(document.getElementById('skill-search').value);
+  renderSelectedSkills();
+}
+
+function renderSelectedSkills(){
+  document.getElementById('selected-line').textContent = `已选：${selectedSkills.join('、') || '—'} (${selectedSkills.length}/4)`;
+  document.getElementById('skill-save').disabled = selectedSkills.length < 1;
+}
+
+function saveSkills(){
+  if(!skillRef) return;
+  teams[skillRef.side][skillRef.idx].skills = [...selectedSkills];
+  closeSkillModal();
+  renderTeams();
+}
+
+function loadSampleTeams(){
+  fillSample('a', SAMPLE_A);
+  fillSample('b', SAMPLE_B);
+  renderTeams();
+  showHint('已载入示例队伍，可以直接开始模拟');
+}
+
+function openJsonModal(mode){
+  jsonMode = mode;
+  document.getElementById('json-error').textContent = '';
+  document.getElementById('json-modal-bg').classList.add('open');
+  const text = document.getElementById('json-text');
+  const apply = document.getElementById('json-apply');
+  if(mode === 'export'){
+    document.getElementById('json-title').textContent = '导出双方队伍';
+    document.getElementById('json-label').textContent = '复制这段 JSON 保存或分享';
+    text.value = JSON.stringify({
+      version: 1,
+      mode: 'manual',
+      team_a: serializeTeam('a'),
+      team_b: serializeTeam('b'),
+    }, null, 2);
+    text.readOnly = true;
+    apply.style.display = 'none';
+    setTimeout(() => text.select(), 50);
+  } else {
+    document.getElementById('json-title').textContent = '导入双方队伍';
+    document.getElementById('json-label').textContent = '粘贴导出的 JSON';
+    text.value = '';
+    text.readOnly = false;
+    apply.style.display = '';
+    setTimeout(() => text.focus(), 50);
+  }
+}
+
+function closeJsonModal(){
+  document.getElementById('json-modal-bg').classList.remove('open');
+}
+
+function applyJsonImport(){
+  const errEl = document.getElementById('json-error');
+  let payload;
+  try {
+    payload = JSON.parse(document.getElementById('json-text').value);
+  } catch(e) {
+    errEl.textContent = 'JSON 格式不正确';
+    return;
+  }
+  const teamA = payload.team_a || payload.playerTeam || payload.a;
+  const teamB = payload.team_b || payload.enemyTeam || payload.b;
+  if(!Array.isArray(teamA) || !Array.isArray(teamB)){
+    errEl.textContent = '需要包含 team_a 和 team_b 两组队伍';
+    return;
+  }
+  const parsedA = parseImportedTeam(teamA);
+  const parsedB = parseImportedTeam(teamB);
+  if(parsedA.error || parsedB.error){
+    errEl.textContent = parsedA.error || parsedB.error;
+    return;
+  }
+  teams.a = parsedA.team;
+  teams.b = parsedB.team;
+  closeJsonModal();
+  renderTeams();
+  showHint('导入完成');
+}
+
+function parseImportedTeam(list){
+  const result = new Array(6).fill(null);
+  for(let i = 0; i < Math.min(6, list.length); i++){
+    const entry = list[i] || {};
+    const name = entry.name;
+    const base = allPokemon.find(p => p.name === name);
+    if(!base) return { error: `未找到精灵：${name || '空'}` };
+    const skills = Array.isArray(entry.skills) ? entry.skills.filter(Boolean).slice(0, 4) : [];
+    result[i] = {
+      name,
+      element: base.element || '普通',
+      ability: entry.ability || base.ability || '',
+      skills,
+      iv_config: normalizeIvConfig(entry.iv_config),
+      nature: entry.nature || '坦率',
+      base,
+    };
+  }
+  return { team: result };
+}
+
+function normalizeIvConfig(iv){
+  const keys = ['hp','atk','def','spatk','spdef','speed'];
+  if(!iv) return null;
+  const out = {};
+  keys.forEach(k => out[k] = Number(iv[k] || 0) === 60 ? 60 : 0);
+  return out;
+}
+
+function fillSample(side, sample){
+  teams[side] = sample.map(([name, skills]) => {
+    const base = allPokemon.find(p => p.name === name) || {};
+    return {
+      name,
+      element: base.element || '普通',
+      ability: base.ability || '',
+      skills,
+      iv_config: { hp:60, atk:60, def:0, spatk:0, spdef:0, speed:60 },
+      nature: '坦率',
+      base,
+    };
+  });
+}
+
+function validate(){
+  for(const side of ['a','b']){
+    const list = teams[side].filter(Boolean);
+    if(list.length < 6) return `${sideName(side)}还需添加 ${6 - list.length} 只精灵`;
+    const missing = list.filter(p => !p.skills || p.skills.length < 1);
+    if(missing.length) return `${sideName(side)} ${missing.map(p=>p.name).join('、')} 未配置技能`;
+  }
+  return '';
+}
+
+function updateStartButton(){
+  const err = validate();
+  document.getElementById('start-btn').disabled = !!err;
+  document.getElementById('hint').textContent = err;
+}
+
+function showHint(text){
+  document.getElementById('hint').textContent = text;
+  setTimeout(updateStartButton, 2200);
+}
+
+function serializeTeam(side){
+  return teams[side].filter(Boolean).map(p => ({
+    name: p.name,
+    ability: p.ability,
+    skills: p.skills,
+    iv_config: p.iv_config,
+    nature: p.nature,
+  }));
+}
+
+function startManualBattle(){
+  const err = validate();
+  if(err){ showHint(err); return; }
+  sessionStorage.setItem('battleMode', 'manual');
+  sessionStorage.setItem('playerTeam', JSON.stringify(serializeTeam('a')));
+  sessionStorage.setItem('enemyTeam', JSON.stringify(serializeTeam('b')));
+  window.location.href = '/battle';
+}
+
+document.getElementById('search-input').addEventListener('input', ev => {
+  currentQuery = ev.target.value;
+  renderCatalog();
+});
+document.getElementById('skill-search').addEventListener('input', ev => renderSkillList(ev.target.value));
+init();
+</script>
+</body>
+</html>

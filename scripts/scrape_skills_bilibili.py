@@ -38,6 +38,8 @@ scripts/scrape_skills_bilibili.py
 
 输出文件:
     - data/skills_bilibili.csv: 爬取的技能数据
+    - data/skill_icons_manifest.csv: --icons-only 生成的图标清单
+    - data/skill_icons/: 本地技能图标
     - data/scrape_bilibili_progress.json: 爬取进度（用于断点续爬）
 
 对比 scrape_skills.py:
@@ -47,6 +49,7 @@ scripts/scrape_skills_bilibili.py
 
 import argparse
 import csv
+import html as html_lib
 import json
 import os
 import re
@@ -60,7 +63,9 @@ from typing import Dict, List, Optional
 # 项目根目录
 ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_CSV = ROOT / "data" / "skills_bilibili.csv"
+ICON_MANIFEST_CSV = ROOT / "data" / "skill_icons_manifest.csv"
 PROGRESS_FILE = ROOT / "data" / "scrape_bilibili_progress.json"
+SKILL_ICON_DIR = ROOT / "data" / "skill_icons"
 
 # 请求头
 HEADERS = {
@@ -73,14 +78,122 @@ HEADERS = {
     "Referer": "https://wiki.biligame.com/",
 }
 
-DELAY = 0.5  # 请求间隔秒数
+DELAY = 0.5  # 技能详情请求间隔秒数
+ICON_DELAY = 0.03  # 图标下载间隔秒数
 
 # 技能图鉴页面 URL
 SKILL_LIST_URL = "https://wiki.biligame.com/rocom/%E6%8A%80%E8%83%BD%E5%9B%BE%E9%89%B4"
+FIELDNAMES = [
+    '技能名', '属性', '分类', '耗能', '威力', '技能描述', '可学习精灵',
+    '技能图标', '技能图标文件', '属性图标', '分类图标', '技能组', 'Wiki地址',
+]
 
 
-def fetch_skill_list_from_wiki() -> List[str]:
-    """从 wiki.biligame.com/rocom/技能图鉴 获取所有技能名称列表"""
+def normalize_url(url: str) -> str:
+    """把 Wiki 中的相对/协议相对资源地址转成完整 URL。"""
+    if not url:
+        return ""
+    url = html_lib.unescape(url.strip())
+    if url.startswith("//"):
+        return "https:" + url
+    if url.startswith("/"):
+        return "https://wiki.biligame.com" + url
+    return url
+
+
+def get_full_img_url(url: str) -> str:
+    """
+    从缩略图 URL 获取原始图 URL。
+    缩略图: .../thumb/9/9b/file.png/35px-name.png
+    原图:   .../9/9b/file.png
+    """
+    url = normalize_url(url)
+    if "/thumb/" not in url:
+        return url
+    before, after = url.split("/thumb/", 1)
+    pieces = after.rsplit("/", 1)
+    if len(pieces) == 2:
+        return before + "/" + pieces[0]
+    return url
+
+
+def safe_filename(name: str, url: str = "") -> str:
+    """生成稳定的本地图标文件名。"""
+    safe_name = re.sub(r'[^\w\u4e00-\u9fff]+', '_', name).strip('_')
+    ext = Path(urllib.parse.urlparse(url).path).suffix.lower()
+    if ext not in {".png", ".jpg", ".jpeg", ".webp", ".gif"}:
+        ext = ".png"
+    return f"{safe_name or 'skill'}{ext}"
+
+
+def local_skill_icon_url(filename: str) -> str:
+    return f"/skill-icons/{urllib.parse.quote(filename)}" if filename else ""
+
+
+def extract_data_param(text: str, key: str) -> str:
+    match = re.search(rf'{key}="([^"]*)"', text)
+    return html_lib.unescape(match.group(1).strip()) if match else ""
+
+
+def extract_img_src(html: str, class_name: str) -> str:
+    """按 class 名提取图片 src，兼容 src 在 class 前后的两种写法。"""
+    for img_match in re.finditer(r'<img\b[^>]*>', html, re.DOTALL):
+        tag = img_match.group(0)
+        if class_name not in tag:
+            continue
+        src_match = re.search(r'\bsrc="([^"]+)"', tag)
+        if src_match:
+            return get_full_img_url(src_match.group(1))
+    return ""
+
+
+def parse_skill_catalog(html: str) -> List[Dict[str, str]]:
+    """
+    从技能图鉴页解析技能卡片元数据。
+
+    data-param0 目前 Wiki 多数为 0，保留为“技能组”原始字段，方便后续 Wiki
+    若补充分组时无需再改 CSV 结构。真正的精灵学习来源分组由
+    scripts/crawl_pokemon_skills.py 写入 pokemon_skill.learn_group。
+    """
+    entries: List[Dict[str, str]] = []
+    for card_html in re.split(r'(?=<div\s+class="divsort")', html):
+        if 'class="divsort"' not in card_html or 'rocom_skill_bg_img' not in card_html:
+            continue
+        div_match = re.search(r'<div\s+class="divsort"([^>]*)>', card_html)
+        attrs = div_match.group(1) if div_match else ""
+        link_match = re.search(r'<a\s+href="(/rocom/[^"]+)"\s+title="([^"]+)"', card_html)
+        if not link_match:
+            continue
+        name = html_lib.unescape(link_match.group(2).strip())
+        if not name or len(name) > 30:
+            continue
+        skill_icon = extract_img_src(card_html, "rocom_skill_bg_img")
+        attribute_icon = extract_img_src(card_html, "rocom_skill_attribute_icon")
+        entries.append({
+            "技能名": name,
+            "分类": extract_data_param(attrs, "data-param1"),
+            "属性": extract_data_param(attrs, "data-param2"),
+            "技能组": extract_data_param(attrs, "data-param0"),
+            "技能图标": skill_icon,
+            "技能图标文件": "",
+            "属性图标": attribute_icon,
+            "Wiki地址": normalize_url(link_match.group(1)),
+        })
+
+    # 去重并保持顺序
+    deduped: List[Dict[str, str]] = []
+    seen = set()
+    for entry in entries:
+        name = entry["技能名"]
+        if name in seen:
+            continue
+        seen.add(name)
+        deduped.append(entry)
+    return deduped
+
+
+def fetch_skill_catalog_from_wiki() -> List[Dict[str, str]]:
+    """从 wiki.biligame.com/rocom/技能图鉴 获取技能卡片元数据。"""
     print("正在从技能图鉴页面获取技能列表...")
 
     html = fetch(SKILL_LIST_URL)
@@ -88,17 +201,25 @@ def fetch_skill_list_from_wiki() -> List[str]:
         print("[ERROR] 无法获取技能图鉴页面")
         return []
 
-    # 提取所有技能链接的 title 属性
-    # 格式：href="/rocom/技能名" title="技能名"
+    catalog = parse_skill_catalog(html)
+    if catalog:
+        print(f"  共找到 {len(catalog)} 个技能卡片")
+        return catalog
+
+    # 兜底：旧版 title 链接提取
     skill_matches = re.findall(r'href="/rocom/[^"]+"\s+title="([^"]+)"', html)
-
-    # 去重并保持顺序
     unique_skills = list(dict.fromkeys(skill_matches))
+    catalog = [{"技能名": name} for name in unique_skills]
+    print(f"  共找到 {len(catalog)} 个技能链接（兜底模式）")
+    return catalog
 
-    # 过滤掉非技能项（如"首页"等）
-    # 根据实际数据，正常技能名长度为 2-11 个字符
+
+def fetch_skill_list_from_wiki() -> List[str]:
+    """从 wiki.biligame.com/rocom/技能图鉴 获取所有技能名称列表"""
+    catalog = fetch_skill_catalog_from_wiki()
     filtered_skills = []
-    for name in unique_skills:
+    for entry in catalog:
+        name = entry.get("技能名", "")
         # 排除明显的非技能项
         if name in ["首页", "图鉴", "技能图鉴"]:
             continue
@@ -113,7 +234,7 @@ def fetch_skill_list_from_wiki() -> List[str]:
             continue
         filtered_skills.append(name)
 
-    print(f"  共找到 {len(filtered_skills)} 个技能")
+    print(f"  过滤后 {len(filtered_skills)} 个技能")
     return filtered_skills
 
 
@@ -130,6 +251,77 @@ def fetch(url: str, retries: int = 3) -> str:
             else:
                 print(f"请求失败：{e}")
                 return ""
+
+
+def fetch_bytes(url: str, retries: int = 3) -> bytes:
+    """带重试的二进制 HTTP GET，用于下载图标。"""
+    url = normalize_url(url)
+    if not url:
+        return b""
+    for attempt in range(retries):
+        try:
+            headers = dict(HEADERS)
+            headers["Accept"] = "image/avif,image/webp,image/apng,image/png,image/*,*/*;q=0.8"
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return resp.read()
+        except Exception as e:
+            if attempt < retries - 1:
+                time.sleep(1 + attempt)
+            else:
+                print(f"下载失败：{url} ({e})")
+                return b""
+
+
+def download_skill_icon(entry: Dict[str, str], force: bool = False) -> str:
+    """下载单个技能图标，返回保存文件名。"""
+    icon_url = entry.get("技能图标", "")
+    name = entry.get("技能名", "")
+    if not icon_url or not name:
+        return ""
+
+    SKILL_ICON_DIR.mkdir(parents=True, exist_ok=True)
+    filename = safe_filename(name, icon_url)
+    path = SKILL_ICON_DIR / filename
+    if path.exists() and not force:
+        entry["技能图标文件"] = filename
+        return filename
+
+    data = fetch_bytes(icon_url)
+    if not data:
+        return ""
+    path.write_bytes(data)
+    entry["技能图标文件"] = filename
+    return filename
+
+
+def download_catalog_icons(catalog: List[Dict[str, str]], names: Optional[set] = None,
+                           force: bool = False, dry_run: bool = False) -> int:
+    """从技能图鉴卡片元数据批量下载技能图标。"""
+    targets = [entry for entry in catalog if (not names or entry.get("技能名") in names)]
+    if dry_run:
+        for entry in targets:
+            if entry.get("技能图标"):
+                entry["技能图标文件"] = safe_filename(entry.get("技能名", ""), entry.get("技能图标", ""))
+        print(f"  [dry-run] 将下载 {sum(1 for e in targets if e.get('技能图标'))} 个技能图标到 {SKILL_ICON_DIR}")
+        return 0
+
+    print(f"正在下载技能图标到 {SKILL_ICON_DIR} ...")
+    success = 0
+    failed = 0
+    for i, entry in enumerate(targets, start=1):
+        if not entry.get("技能图标"):
+            failed += 1
+            continue
+        filename = download_skill_icon(entry, force=force)
+        if filename:
+            success += 1
+        else:
+            failed += 1
+        if i % 50 == 0 or i == len(targets):
+            print(f"  图标进度 {i}/{len(targets)}，成功 {success}，失败 {failed}")
+        time.sleep(ICON_DELAY)
+    return success
 
 
 def extract_text(html: str, pattern: str) -> str:
@@ -175,15 +367,30 @@ def parse_skill_page(html: str, skill_name: str) -> Optional[Dict]:
         "威力": "",
         "技能描述": "",
         "可学习精灵": "",
+        "技能图标": "",
+        "技能图标文件": "",
+        "属性图标": "",
+        "分类图标": "",
+        "技能组": "",
+        "Wiki地址": f"https://wiki.biligame.com/rocom/{urllib.parse.quote(skill_name, safe='')}",
     }
+
+    # 技能图标：详情页顶部大图
+    icon_match = re.search(
+        r'class="rocom_skill_template_skillIcon"[^>]*>.*?<img[^>]*src="([^"]+)"',
+        html, re.DOTALL
+    )
+    if icon_match:
+        result["技能图标"] = get_full_img_url(icon_match.group(1))
 
     # 属性：从图片 alt 提取，如"图标 宠物 属性 冰.png" → "冰"
     attr_match = re.search(
-        r'class="rocom_skill_template_skillAttribute"[^>]*>.*?alt="图标 宠物 属性 (\w+)\.png"',
-        html
+        r'class="rocom_skill_template_skillAttribute"[^>]*>.*?<img[^>]*alt="图标 宠物 属性 ([^".]+)\.png"[^>]*src="([^"]+)"',
+        html, re.DOTALL
     )
     if attr_match:
         result["属性"] = attr_match.group(1)
+        result["属性图标"] = get_full_img_url(attr_match.group(2))
 
     # 耗能：rocom_skill_template_skillConsume_box 中的数字
     energy_match = re.search(
@@ -195,11 +402,12 @@ def parse_skill_page(html: str, skill_name: str) -> Optional[Dict]:
 
     # 分类：从图片 alt 提取，如"图标 技能 技能分类 魔攻.png" → "魔攻"
     sort_match = re.search(
-        r'class="rocom_skill_template_skillSort"[^>]*>.*?alt="图标 技能 技能分类 (\w+)\.png"',
+        r'class="rocom_skill_template_skillSort"[^>]*>.*?<img[^>]*alt="图标 技能 技能分类 ([^".]+)\.png"[^>]*src="([^"]+)"',
         html, re.DOTALL
     )
     if sort_match:
         result["分类"] = sort_match.group(1)
+        result["分类图标"] = get_full_img_url(sort_match.group(2))
 
     # 威力：rocom_skill_template_skillPower 中的 <b> 数字
     power_match = re.search(
@@ -239,7 +447,7 @@ def parse_skill_page(html: str, skill_name: str) -> Optional[Dict]:
     # 结构：<div class="rocom_canlearn_img_box"><a href="..." title="电企鹅"><img alt="..." .../></a></div>
     pet_matches = re.findall(
         r'class="rocom_canlearn_img_box"[^>]*>.*?<a[^>]*title="([^"]+)"',
-        html
+        html, re.DOTALL
     )
     if pet_matches:
         # 去重并保持顺序
@@ -249,7 +457,7 @@ def parse_skill_page(html: str, skill_name: str) -> Optional[Dict]:
     return result
 
 
-def scrape_skill(name: str) -> Optional[Dict]:
+def scrape_skill(name: str, catalog_entry: Optional[Dict[str, str]] = None) -> Optional[Dict]:
     """爬取单个技能"""
     encoded = urllib.parse.quote(name, safe='')
     url = f"https://wiki.biligame.com/rocom/{encoded}"
@@ -260,6 +468,10 @@ def scrape_skill(name: str) -> Optional[Dict]:
             return None
 
         data = parse_skill_page(html, name)
+        if data and catalog_entry:
+            for key in ["技能图标", "技能图标文件", "属性图标", "分类", "属性", "技能组", "Wiki地址"]:
+                if catalog_entry.get(key) and not data.get(key):
+                    data[key] = catalog_entry[key]
         return data
     except Exception as e:
         print(f"ERROR: {e}")
@@ -268,9 +480,8 @@ def scrape_skill(name: str) -> Optional[Dict]:
 
 def write_csv(results: List[Dict], path: Path) -> None:
     """写入 CSV 文件"""
-    fieldnames = ['技能名', '属性', '分类', '耗能', '威力', '技能描述', '可学习精灵']
     with open(path, 'w', newline='', encoding='utf-8-sig') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=FIELDNAMES, extrasaction="ignore")
         writer.writeheader()
         writer.writerows(results)
 
@@ -300,18 +511,35 @@ def main():
     parser.add_argument("--dry-run", action="store_true", help="只打印，不写入文件")
     parser.add_argument("--resume", action="store_true", help="从上次进度继续")
     parser.add_argument("--no-retry", action="store_true", help="不重试失败的条目（默认模式会自动重试直到全部成功）")
+    parser.add_argument("--icons-only", action="store_true", help="只下载技能图鉴页中的技能图标，不爬取详情页")
+    parser.add_argument("--skip-icons", action="store_true", help="不下载技能图标，仅写远程图标 URL")
+    parser.add_argument("--force-icons", action="store_true", help="强制重新下载已存在的技能图标")
     args = parser.parse_args()
 
-    # 从 Wiki 获取最新技能列表
-    all_skills = fetch_skill_list_from_wiki()
-    if not all_skills:
+    # 从 Wiki 获取最新技能列表及卡片元数据
+    catalog = fetch_skill_catalog_from_wiki()
+    if not catalog:
         print("[ERROR] 无法从 Wiki 获取技能列表，请检查网络连接或网站状态")
         sys.exit(1)
+    catalog_by_name = {entry["技能名"]: entry for entry in catalog}
+    all_skills = []
+    for entry in catalog:
+        name = entry.get("技能名", "")
+        if name in ["首页", "图鉴", "技能图鉴"]:
+            continue
+        if len(name) < 2 or len(name) > 15:
+            continue
+        if '[' in name or ']' in name:
+            continue
+        if "版本" in name or "页面" in name:
+            continue
+        all_skills.append(name)
+    print(f"  过滤后 {len(all_skills)} 个技能")
 
     # 测试模式
     if args.test:
         print(f"=== 测试爬取：{args.test} ===")
-        data = scrape_skill(args.test)
+        data = scrape_skill(args.test, catalog_by_name.get(args.test))
         if data:
             print(f"技能名：{data['技能名']}")
             print(f"属性：{data['属性']}")
@@ -319,6 +547,15 @@ def main():
             print(f"耗能：{data['耗能']}")
             print(f"威力：{data['威力']}")
             print(f"描述：{data['技能描述']}")
+            print(f"技能图标：{data.get('技能图标', '')}")
+            if not args.skip_icons:
+                filename = download_skill_icon(data, force=args.force_icons)
+                data["技能图标文件"] = filename
+            print(f"技能图标文件：{data.get('技能图标文件', '')}")
+            print(f"属性图标：{data.get('属性图标', '')}")
+            print(f"分类图标：{data.get('分类图标', '')}")
+            print(f"技能组：{data.get('技能组', '')}")
+            print(f"Wiki地址：{data.get('Wiki地址', '')}")
             pets = data.get('可学习精灵', '')
             if pets:
                 print(f"可学习精灵：{pets[:50]}..." if len(pets) > 50 else f"可学习精灵：{pets}")
@@ -329,6 +566,41 @@ def main():
     # 限制数量
     if args.limit > 0:
         all_skills = all_skills[:args.limit]
+    target_names = set(all_skills)
+
+    if not args.skip_icons:
+        download_catalog_icons(
+            catalog,
+            names=target_names,
+            force=args.force_icons,
+            dry_run=args.dry_run,
+        )
+
+    if args.icons_only:
+        icon_rows = []
+        for entry in catalog:
+            if entry.get("技能名") not in target_names:
+                continue
+            icon_rows.append({
+                "技能名": entry.get("技能名", ""),
+                "属性": entry.get("属性", ""),
+                "分类": entry.get("分类", ""),
+                "耗能": "",
+                "威力": "",
+                "技能描述": "",
+                "可学习精灵": "",
+                "技能图标": entry.get("技能图标", ""),
+                "技能图标文件": entry.get("技能图标文件", ""),
+                "属性图标": entry.get("属性图标", ""),
+                "分类图标": entry.get("分类图标", ""),
+                "技能组": entry.get("技能组", ""),
+                "Wiki地址": entry.get("Wiki地址", ""),
+            })
+        if not args.dry_run:
+            write_csv(icon_rows, ICON_MANIFEST_CSV)
+        print(f"图标清单保存在：{ICON_MANIFEST_CSV}")
+        print(f"技能图标保存在：{SKILL_ICON_DIR}")
+        return
 
     # 加载进度
     done_names = set()
@@ -355,7 +627,7 @@ def main():
                 progress = f"[{i+1}/{total}]"
                 print(f"{progress} {name}...", end=" ", flush=True)
 
-                data = scrape_skill(name)
+                data = scrape_skill(name, catalog_by_name.get(name))
                 if data and data.get("技能描述"):
                     # 检查是否已存在，存在则更新
                     existing_idx = next((idx for idx, r in enumerate(results) if r["技能名"] == name), None)

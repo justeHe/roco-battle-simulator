@@ -12,8 +12,8 @@ python -u -c "print('Python works!')" 2>&1
 echo === Step 3: Test sys.path ===
 python -u -c "import sys; sys.path.insert(0, r'.'); print('Path OK'); from src.models import BattleState; print('Import OK')" 2>&1
 
-echo === Step 4: Run Battle ===
-python -u -c "import sys; sys.path.insert(0, r'.'); from src.main import run_battle; run_battle(simulations=50, verbose=True)" 2>&1
+echo === Step 4: Start Local Web Simulator ===
+python run_web.py 2>&1
 
 echo === All Done ===
 pause

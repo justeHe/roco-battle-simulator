@@ -422,15 +422,31 @@ def ability_auto_switch(state: BattleState, team: str, reason: str,
         })
         new_pokemon = team_list[state.current_a]
     else:
-        # AI 侧：自动选 alive[0]（可扩展 switch_cb_b）
+        # B 方：自动选 alive[0]（可扩展 switch_cb_b）
         if switch_cb_b and len(alive) > 1:
             chosen = switch_cb_b(state, team_list, alive)
-            new_idx = chosen if chosen in alive else alive[0]
+            if chosen is None:
+                state.current_b = alive[0]
+                state.switch_this_turn_b = True
+                state.pending_switch_requests = [
+                    r for r in state.pending_switch_requests if r["team"] != "b"
+                ]
+                state.pending_switch_requests.append({
+                    "team": "b",
+                    "reason": reason,
+                    "alive": alive,
+                })
+                new_pokemon = team_list[state.current_b]
+            else:
+                new_idx = chosen if chosen in alive else alive[0]
+                state.current_b = new_idx
+                state.switch_this_turn_b = True
+                new_pokemon = team_list[new_idx]
         else:
             new_idx = alive[0]
-        state.current_b = new_idx
-        state.switch_this_turn_b = True
-        new_pokemon = team_list[new_idx]
+            state.current_b = new_idx
+            state.switch_this_turn_b = True
+            new_pokemon = team_list[new_idx]
 
     _apply_mark_on_enter(state, team, new_pokemon)
     # 触发新精灵入场特性
@@ -452,7 +468,7 @@ def auto_switch(state: BattleState, switch_cb_a=None, switch_cb_b=None) -> None:
 
     A方（玩家）死亡：先用 alive[0] 占位，同时写入 pending_switch_requests
     让 server.py 在回合结束后弹出选人面板（异步等待玩家选择）。
-    B方（AI）死亡：调用 switch_cb_b 让 AI 选择，无 callback 则选 alive[0]。
+    B 方死亡：调用 switch_cb_b 选择，无 callback 则选 alive[0]。
     """
     if state.team_a[state.current_a].is_fainted:
         alive = [i for i, p in enumerate(state.team_a) if not p.is_fainted]
@@ -483,7 +499,15 @@ def auto_switch(state: BattleState, switch_cb_a=None, switch_cb_b=None) -> None:
             ]
             if switch_cb_b and len(alive) > 1:
                 chosen = switch_cb_b(state, state.team_b, alive)
-                state.current_b = chosen if chosen in alive else alive[0]
+                if chosen is None:
+                    state.current_b = alive[0]
+                    state.pending_switch_requests.append({
+                        "team": "b",
+                        "reason": "fainted",
+                        "alive": alive,
+                    })
+                else:
+                    state.current_b = chosen if chosen in alive else alive[0]
             else:
                 state.current_b = alive[0]
             # 印记入场效果
@@ -974,7 +998,7 @@ def execute_full_turn(state: BattleState, action_a: Action, action_b: Action,
     - 应对无视速度和先手等级
 
     switch_cb_a/b: 被动换人回调 (state, team_list, alive_indices) -> int
-      精灵倒下后让玩家/AI选择下一只上场精灵。
+      精灵倒下后让对应一方选择下一只上场精灵。
     """
     # 湿润印记：回合开始时应用全队能耗减少
     _trigger_battle_start_effects(state)
@@ -1707,7 +1731,7 @@ def _handle_post_skill_switches(state, current, enemy, result, team, team_list, 
                     "alive": alive,
                 })
             else:
-                # AI方被逼退 → AI随机选
+                # B 方被逼退 → 默认选择第一只可上场精灵
                 new_idx = random.choice(alive)
                 state.current_b = new_idx
 
@@ -1727,7 +1751,7 @@ def _handle_post_skill_switches(state, current, enemy, result, team, team_list, 
                     "alive": alive,
                 })
             else:
-                # AI方脱离 → AI随机选
+                # B 方脱离 → 默认选择第一只可上场精灵
                 new_idx = random.choice(alive)
                 state.current_b = new_idx
 
@@ -1745,7 +1769,7 @@ def _handle_post_skill_switches(state, current, enemy, result, team, team_list, 
                     "alive": alive,
                 })
             else:
-                # AI方被逼退 → AI随机选
+                # B 方被逼退 → 默认选择第一只可上场精灵
                 new_idx = random.choice(alive)
                 state.current_b = new_idx
 
@@ -1866,4 +1890,3 @@ def check_winner(state: BattleState) -> Optional[str]:
     if state.mp_b <= 0:
         return "a"
     return None
-

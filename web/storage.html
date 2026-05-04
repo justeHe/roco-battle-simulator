@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洛克王国 · 仓库</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+.toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+.toolbar .roco-input { flex: 1; min-width: 220px; }
+.storage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.preset-card { background: var(--bg-input); border: 2px solid var(--border); border-radius: var(--r-md); padding: 12px; }
+.preset-head { display: flex; justify-content: space-between; gap: 8px; align-items: start; }
+.preset-name { font-size: 15px; font-weight: 900; }
+.preset-meta { color: var(--text-secondary); font-size: 11px; margin-top: 4px; }
+.skill-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 9px; }
+.skill-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 10px; color: var(--text-secondary); }
+.actions { display: flex; gap: 6px; margin-top: 10px; }
+.small-btn { border: 1px solid var(--border); border-radius: var(--r-pill); background: var(--bg-card); color: var(--text-primary); font-family: inherit; font-size: 11px; padding: 5px 10px; cursor: pointer; }
+.small-btn:hover { border-color: var(--primary); }
+.empty { background: var(--bg-card); border: 1px dashed var(--border-strong); border-radius: var(--r-lg); padding: 34px; text-align: center; color: var(--text-secondary); }
+</style>
+</head>
+<body>
+<div class="page-shell">
+  <header class="roco-topbar">
+    <img class="logo" src="assets/img/logo.png" alt="洛克王国">
+    <div class="title">精灵仓库</div>
+    <nav class="app-nav">
+      <a href="/dex">图鉴</a>
+      <a href="/skills">技能</a>
+      <a href="/mechanics">机制</a>
+      <a href="/storage" class="active">仓库</a>
+      <a href="/simulator">队伍</a>
+      <a href="/battle">对战</a>
+    </nav>
+  </header>
+  <main class="page-main">
+    <div class="toolbar">
+      <input id="q" class="roco-input" placeholder="搜索仓库精灵、技能或来源队伍" autocomplete="off">
+      <button class="roco-btn" onclick="importFromTeams()">从已保存队伍同步</button>
+      <button class="roco-btn" onclick="exportStorage()">导出仓库</button>
+    </div>
+    <section id="grid" class="storage-grid"></section>
+  </main>
+</div>
+<script>
+const STORAGE_KEY = 'nrc_spirit_storage';
+const TEAM_KEY = 'nrc_teams';
+let presets = [];
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function load(){
+  try { presets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { presets = []; }
+  render();
+}
+function save(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+}
+function keyOf(p){ return `${p.name}|${(p.skills||[]).join(',')}|${p.ability||''}|${p.nature||''}`; }
+function importFromTeams(){
+  let teams = [];
+  try { teams = JSON.parse(localStorage.getItem(TEAM_KEY) || '[]'); } catch { teams = []; }
+  const seen = new Set(presets.map(keyOf));
+  teams.forEach(team => {
+    (team.pokemon || []).forEach(p => {
+      if(!p || !p.name) return;
+      const item = {
+        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        source: team.name || '队伍',
+        name: p.name,
+        element: p.element || '',
+        ability: p.ability || '',
+        nature: p.nature || '坦率',
+        iv_config: p.iv_config || null,
+        skills: Array.isArray(p.skills) ? p.skills : [],
+      };
+      const key = keyOf(item);
+      if(!seen.has(key)){
+        presets.push(item);
+        seen.add(key);
+      }
+    });
+  });
+  save();
+  render();
+}
+function removePreset(id){
+  presets = presets.filter(p => p.id !== id);
+  save();
+  render();
+}
+function exportStorage(){
+  const blob = new Blob([JSON.stringify({spirits: presets}, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'nrc_spirit_storage.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function filtered(){
+  const q = document.getElementById('q').value.trim();
+  if(!q) return presets;
+  return presets.filter(p => [p.name,p.element,p.ability,p.source,...(p.skills||[])].some(v => String(v||'').includes(q)));
+}
+function render(){
+  const rows = filtered();
+  const grid = document.getElementById('grid');
+  if(!rows.length){
+    grid.innerHTML = '<div class="empty">仓库还是空的。先在队伍页保存队伍，再点“从已保存队伍同步”。</div>';
+    return;
+  }
+  grid.innerHTML = rows.map(p => `
+    <article class="preset-card">
+      <div class="preset-head">
+        <div>
+          <div class="preset-name">${esc(p.name)}</div>
+          <div class="preset-meta">${esc(p.element || '未知')} · ${esc(p.nature || '坦率')} · ${esc(p.source || '仓库')}</div>
+          <div class="preset-meta">特性：${esc(p.ability || '未配置')}</div>
+        </div>
+        <button class="small-btn" onclick="removePreset('${esc(p.id)}')">删除</button>
+      </div>
+      <div class="skill-list">${(p.skills||[]).map(s => `<span class="skill-chip">${esc(s)}</span>`).join('') || '<span class="skill-chip">未配置技能</span>'}</div>
+    </article>
+  `).join('');
+}
+document.getElementById('q').addEventListener('input', render);
+load();
+</script>
+</body>
+</html>

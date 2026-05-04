@@ -464,7 +464,7 @@ def test_weather_turn_expiration():
 # ─────────────────────────────────────────
 
 def test_deep_copy_preserves_switch_flags():
-    """deep_copy 必须保留 switch_this_turn_a/b，否则 MCTS 状态复制会出错"""
+    """deep_copy 必须保留 switch_this_turn_a/b，否则模拟分支状态复制会出错"""
     state = BattleState(
         team_a=[make_pokemon("A1"), make_pokemon("A2")],
         team_b=[make_pokemon("B1"), make_pokemon("B2")],

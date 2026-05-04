@@ -13,13 +13,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def open_browser():
     time.sleep(1.5)
-    webbrowser.open("http://localhost:8765/battle")
+    webbrowser.open("http://localhost:8765/dex")
 
 if __name__ == "__main__":
     print("=" * 50)
     print("  洛克王国战斗模拟器 - Web图形界面")
     print("=" * 50)
-    print("  地址: http://localhost:8765/battle")
+    print("  地址: http://localhost:8765/dex")
     print("  按 Ctrl+C 退出")
     print("=" * 50)
 
