@@ -142,6 +142,17 @@ body { min-height: 100vh; }
   gap: 8px;
   margin-bottom: 6px;
 }
+.ability-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(255,255,255,.72);
+  padding: 3px;
+}
+.ability-text { min-width: 0; }
 .ability-label { color: var(--text-secondary); font-size: 10px; font-weight: 800; }
 .ability-name { color: var(--primary-dark); font-size: 13px; font-weight: 900; }
 .ability-desc { color: var(--text-primary); font-size: 12px; line-height: 1.65; }
@@ -475,7 +486,13 @@ async function showDetail(name, updateUrl=true){
           <div class="info-item"><div class="info-label">种族值合计</div><div class="info-value">${esc(p.base_total || 0)}</div></div>
         </div>
         <div class="ability-box">
-          <div class="ability-head"><span class="ability-label">特性效果</span><span class="ability-name">${esc(ability.name)}</span></div>
+          <div class="ability-head">
+            ${p.ability_icon_url ? `<img class="ability-icon" src="${esc(p.ability_icon_url)}" alt="${esc(ability.name)}">` : ''}
+            <div class="ability-text">
+              <div class="ability-label">特性效果</div>
+              <div class="ability-name">${esc(ability.name)}</div>
+            </div>
+          </div>
           <div class="ability-desc">${esc(ability.effect)}</div>
         </div>
       </div>
