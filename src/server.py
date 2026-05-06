@@ -36,6 +36,7 @@ _SKILL_ICON_CACHE: dict = {}
 _SKILL_META_ICON_CACHE: Optional[dict] = None
 _SPIRIT_ICON_META_CACHE: Optional[dict] = None
 _MECHANICS_CACHE: Optional[list[dict]] = None
+_ABILITY_ICON_CACHE: Optional[dict[str, str]] = None
 
 _MECHANIC_EXCLUDED_TITLES = {
     "传说印记",
@@ -172,6 +173,45 @@ def _build_skill_meta_icon_cache() -> dict:
 def _get_skill_meta_icon_url(kind: str, name: str) -> str:
     cache = _build_skill_meta_icon_cache()
     return cache.get(kind, {}).get(name or "", "")
+
+
+def _build_ability_icon_cache() -> dict[str, str]:
+    """读取本地特性图标清单，生成 特性名 -> /ability-icons URL。"""
+    global _ABILITY_ICON_CACHE
+    if _ABILITY_ICON_CACHE is not None:
+        return _ABILITY_ICON_CACHE
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    manifest = os.path.join(root, "data", "ability_icons_manifest.csv")
+    icon_dir = os.path.join(root, "data", "ability_icons")
+    cache: dict[str, str] = {}
+
+    if os.path.exists(manifest):
+        with open(manifest, newline="", encoding="utf-8-sig") as f:
+            for row in csv.DictReader(f):
+                name = (row.get("特性名") or "").strip()
+                local_url = (row.get("本地URL") or "").strip()
+                filename = (row.get("图标文件") or "").strip()
+                if name and not local_url and filename:
+                    local_url = f"/ability-icons/{urllib.parse.quote(filename)}"
+                if name and local_url:
+                    cache[name] = local_url
+
+    if os.path.exists(icon_dir):
+        for fname in os.listdir(icon_dir):
+            if not fname.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg")):
+                continue
+            stem, _ = os.path.splitext(fname)
+            cache.setdefault(stem, f"/ability-icons/{urllib.parse.quote(fname)}")
+
+    _ABILITY_ICON_CACHE = cache
+    return _ABILITY_ICON_CACHE
+
+
+def _get_ability_icon_url(name: str) -> str:
+    if not name:
+        return ""
+    return _build_ability_icon_cache().get(name, "")
 
 
 def _skill_metadata_cache() -> dict:
@@ -1917,6 +1957,7 @@ async def api_pokemon_list(q: str = ""):
             "icon_url": _get_icon_url(r["name"]) or meta.get("icon_url", ""),
             "ability": ability_name,
             "ability_effect": ability_effect,
+            "ability_icon_url": _get_ability_icon_url(ability_name),
             "evo_stage": r["evo_stage"] or meta.get("stage", ""),
             "form_type": meta.get("form_type", ""),
             "form": meta.get("form", ""),
@@ -1962,6 +2003,7 @@ async def api_pokemon_detail(name: str):
         "element_icons": _element_icon_payload(r["element"]),
         "ability": ability_name,
         "ability_effect": ability_effect,
+        "ability_icon_url": _get_ability_icon_url(ability_name),
         "ability_full": r["ability"] or "",
         "evo_stage": r["evo_stage"] or meta.get("stage", ""),
         "form_type": meta.get("form_type", ""),
@@ -2234,6 +2276,7 @@ async def api_mechanics_list():
             item = abilities_by_key.setdefault(key, {
                 "name": ability_name or "未命名特性",
                 "effect": ability_effect,
+                "icon_url": _get_ability_icon_url(ability_name),
                 "pokemon": [],
             })
             meta = _get_spirit_icon_meta(row["name"])
@@ -2370,6 +2413,10 @@ if os.path.exists(SKILL_ICONS_DIR):
 SKILL_META_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_meta_icons")
 if os.path.exists(SKILL_META_ICONS_DIR):
     app.mount("/skill-meta-icons", StaticFiles(directory=SKILL_META_ICONS_DIR), name="skill-meta-icons")
+
+ABILITY_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "ability_icons")
+if os.path.exists(ABILITY_ICONS_DIR):
+    app.mount("/ability-icons", StaticFiles(directory=ABILITY_ICONS_DIR), name="ability-icons")
 
 MECHANIC_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "mechanic_icons")
 if os.path.exists(MECHANIC_ICONS_DIR):
