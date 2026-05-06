@@ -66,6 +66,8 @@ OUTPUT_CSV = ROOT / "data" / "skills_bilibili.csv"
 ICON_MANIFEST_CSV = ROOT / "data" / "skill_icons_manifest.csv"
 PROGRESS_FILE = ROOT / "data" / "scrape_bilibili_progress.json"
 SKILL_ICON_DIR = ROOT / "data" / "skill_icons"
+SKILL_META_ICON_DIR = ROOT / "data" / "skill_meta_icons"
+META_ICON_MANIFEST_CSV = ROOT / "data" / "skill_meta_icons_manifest.csv"
 
 # 请求头
 HEADERS = {
@@ -128,6 +130,18 @@ def safe_filename(name: str, url: str = "") -> str:
 
 def local_skill_icon_url(filename: str) -> str:
     return f"/skill-icons/{urllib.parse.quote(filename)}" if filename else ""
+
+
+def local_meta_icon_url(kind: str, filename: str) -> str:
+    return f"/skill-meta-icons/{kind}/{urllib.parse.quote(filename)}" if filename else ""
+
+
+def safe_meta_filename(name: str, url: str = "") -> str:
+    safe_name = re.sub(r'[^\w\u4e00-\u9fff]+', '_', name).strip('_')
+    ext = Path(urllib.parse.urlparse(url).path).suffix.lower()
+    if ext not in {".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg"}:
+        ext = ".png"
+    return f"{safe_name or 'icon'}{ext}"
 
 
 def extract_data_param(text: str, key: str) -> str:
@@ -293,6 +307,101 @@ def download_skill_icon(entry: Dict[str, str], force: bool = False) -> str:
     path.write_bytes(data)
     entry["技能图标文件"] = filename
     return filename
+
+
+def download_meta_icon(kind: str, name: str, url: str, force: bool = False) -> str:
+    """下载技能元信息图标（属性/分类），返回保存文件名。"""
+    if not name or not url:
+        return ""
+    icon_dir = SKILL_META_ICON_DIR / kind
+    icon_dir.mkdir(parents=True, exist_ok=True)
+    filename = safe_meta_filename(name, url)
+    path = icon_dir / filename
+    if path.exists() and not force:
+        return filename
+    data = fetch_bytes(url)
+    if not data:
+        return ""
+    path.write_bytes(data)
+    return filename
+
+
+def write_energy_icon(force: bool = False) -> str:
+    """Wiki 的耗能是样式化数字块，这里保存一个本地等价 SVG 图标。"""
+    icon_dir = SKILL_META_ICON_DIR / "misc"
+    icon_dir.mkdir(parents=True, exist_ok=True)
+    path = icon_dir / "energy.svg"
+    if path.exists() and not force:
+        return path.name
+    path.write_text(
+        """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+<defs><linearGradient id="g" x1="10" y1="4" x2="38" y2="44" gradientUnits="userSpaceOnUse"><stop stop-color="#ffe07a"/><stop offset="1" stop-color="#f5a623"/></linearGradient></defs>
+<rect x="7" y="7" width="34" height="34" rx="10" fill="url(#g)" stroke="#8a5a00" stroke-width="3"/>
+<path d="M26 11 15 27h8l-2 10 12-17h-8l1-9Z" fill="#fff8cf" stroke="#8a5a00" stroke-linejoin="round" stroke-width="2"/>
+</svg>
+""",
+        encoding="utf-8",
+    )
+    return path.name
+
+
+def collect_category_icon_entries(catalog: List[Dict[str, str]]) -> Dict[str, str]:
+    """通过少量详情页收集物攻/魔攻/状态/防御等分类图标。"""
+    category_icons: Dict[str, str] = {}
+    for entry in catalog:
+        category = entry.get("分类", "")
+        if not category or category in category_icons:
+            continue
+        data = scrape_skill(entry.get("技能名", ""), entry)
+        if data and data.get("分类") and data.get("分类图标"):
+            category_icons[data["分类"]] = data["分类图标"]
+        time.sleep(DELAY)
+    return category_icons
+
+
+def download_meta_icons(catalog: List[Dict[str, str]], force: bool = False,
+                        dry_run: bool = False) -> List[Dict[str, str]]:
+    """下载系别、技能分类和耗能图标，返回清单行。"""
+    rows: List[Dict[str, str]] = []
+    element_icons: Dict[str, str] = {}
+    for entry in catalog:
+        element = entry.get("属性", "")
+        icon_url = entry.get("属性图标", "")
+        if element and icon_url and element not in element_icons:
+            element_icons[element] = icon_url
+
+    print(f"正在整理 {len(element_icons)} 个系别图标...")
+    for element, icon_url in sorted(element_icons.items()):
+        filename = safe_meta_filename(element, icon_url) if dry_run else download_meta_icon("elements", element, icon_url, force)
+        rows.append({
+            "类型": "element",
+            "名称": element,
+            "远程URL": icon_url,
+            "本地文件": filename,
+            "本地URL": local_meta_icon_url("elements", filename),
+        })
+
+    print("正在从技能详情页整理分类图标...")
+    category_icons = collect_category_icon_entries(catalog)
+    for category, icon_url in sorted(category_icons.items()):
+        filename = safe_meta_filename(category, icon_url) if dry_run else download_meta_icon("categories", category, icon_url, force)
+        rows.append({
+            "类型": "category",
+            "名称": category,
+            "远程URL": icon_url,
+            "本地文件": filename,
+            "本地URL": local_meta_icon_url("categories", filename),
+        })
+
+    energy_file = "energy.svg" if dry_run else write_energy_icon(force)
+    rows.append({
+        "类型": "misc",
+        "名称": "耗能",
+        "远程URL": "",
+        "本地文件": energy_file,
+        "本地URL": local_meta_icon_url("misc", energy_file),
+    })
+    return rows
 
 
 def download_catalog_icons(catalog: List[Dict[str, str]], names: Optional[set] = None,
@@ -512,6 +621,7 @@ def main():
     parser.add_argument("--resume", action="store_true", help="从上次进度继续")
     parser.add_argument("--no-retry", action="store_true", help="不重试失败的条目（默认模式会自动重试直到全部成功）")
     parser.add_argument("--icons-only", action="store_true", help="只下载技能图鉴页中的技能图标，不爬取详情页")
+    parser.add_argument("--meta-icons-only", action="store_true", help="只下载系别、技能分类和耗能图标")
     parser.add_argument("--skip-icons", action="store_true", help="不下载技能图标，仅写远程图标 URL")
     parser.add_argument("--force-icons", action="store_true", help="强制重新下载已存在的技能图标")
     args = parser.parse_args()
@@ -567,6 +677,17 @@ def main():
     if args.limit > 0:
         all_skills = all_skills[:args.limit]
     target_names = set(all_skills)
+
+    if args.meta_icons_only:
+        rows = download_meta_icons(catalog, force=args.force_icons, dry_run=args.dry_run)
+        if not args.dry_run:
+            with open(META_ICON_MANIFEST_CSV, "w", newline="", encoding="utf-8-sig") as f:
+                writer = csv.DictWriter(f, fieldnames=["类型", "名称", "远程URL", "本地文件", "本地URL"])
+                writer.writeheader()
+                writer.writerows(rows)
+        print(f"技能元图标清单保存在：{META_ICON_MANIFEST_CSV}")
+        print(f"技能元图标保存在：{SKILL_META_ICON_DIR}")
+        return
 
     if not args.skip_icons:
         download_catalog_icons(

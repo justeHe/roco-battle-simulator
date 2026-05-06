@@ -56,6 +56,7 @@ body { min-height: 100vh; }
 .type-pill {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   height: 18px;
   padding: 0 7px;
   border-radius: 5px;
@@ -65,6 +66,7 @@ body { min-height: 100vh; }
   font-weight: 800;
   color: var(--text-secondary);
 }
+.type-icon { width: 15px; height: 15px; object-fit: contain; display: inline-block; }
 .detail {
   min-height: calc(100vh - 90px);
   background: var(--bg-card);
@@ -198,6 +200,7 @@ body { min-height: 100vh; }
 }
 .skill-name { font-size: 13px; font-weight: 900; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .skill-meta { margin-top: 3px; display: flex; gap: 4px; flex-wrap: wrap; color: var(--text-secondary); font-size: 10px; }
+.skill-meta img { width: 14px; height: 14px; object-fit: contain; display: inline-block; vertical-align: middle; }
 .level-badge {
   color: var(--primary-dark);
   background: rgba(245,166,35,.12);
@@ -255,6 +258,7 @@ body { min-height: 100vh; }
 let allPokemon = [];
 let selected = '';
 let selectedVariantName = '';
+let didInitialSelect = false;
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function numValue(no){
@@ -262,14 +266,19 @@ function numValue(no){
   return m ? Number(m[0]) : 9999;
 }
 function cleanType(v){ return String(v || '').replace(/[，]/g, ',').split(',').map(x => x.trim()).filter(Boolean); }
-function typePills(value){
+function typePills(value, icons=[]){
   const types = cleanType(value);
-  return (types.length ? types : ['未知']).map(t => `<span class="type-pill">${esc(t)}</span>`).join('');
+  const iconMap = new Map((icons || []).map(item => [item.name, item.icon_url]));
+  return (types.length ? types : ['未知']).map(t => {
+    const icon = iconMap.get(t);
+    return `<span class="type-pill">${icon ? `<img class="type-icon" src="${esc(icon)}" alt="${esc(t)}">` : ''}${esc(t)}</span>`;
+  }).join('');
 }
 function baseName(name){ return String(name || '').replace(/（异色）$/, ''); }
 function iconHtml(src, name, cls='poke-icon'){
   return src ? `<img class="${cls}" src="${esc(src)}" alt="${esc(name)}">` : `<div class="${cls}"></div>`;
 }
+function metaIcon(src, label){ return src ? `<img src="${esc(src)}" alt="${esc(label)}">` : ''; }
 function abilityParts(p){
   if(p.ability_effect) return { name: p.ability || '暂无', effect: p.ability_effect };
   const full = String(p.ability_full || '').trim();
@@ -280,6 +289,12 @@ function abilityParts(p){
   return { name: p.ability || '暂无', effect: '暂无效果描述' };
 }
 
+function isLeaderPokemon(p){
+  if(p.is_leader) return true;
+  const text = [p.evo_stage, p.form_type, p.form].filter(Boolean).join(' ');
+  return text.includes('首领');
+}
+
 async function loadPokemon(){
   const res = await fetch('/api/pokemon/list?q=');
   allPokemon = await res.json();
@@ -287,7 +302,10 @@ async function loadPokemon(){
   const elements = [...new Set(allPokemon.flatMap(p => cleanType(p.element)))].sort();
   document.getElementById('element').innerHTML = '<option value="">全部属性</option>' + elements.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('');
   renderList();
-  if(allPokemon[0]) showDetail(allPokemon[0].name);
+  const queryName = new URLSearchParams(location.search).get('pokemon') || new URLSearchParams(location.search).get('name');
+  const target = queryName && allPokemon.some(p => p.name === queryName) ? queryName : allPokemon[0]?.name;
+  didInitialSelect = true;
+  if(target) showDetail(target, false);
 }
 
 function filtered(){
@@ -310,13 +328,15 @@ function renderList(){
       <div>
         <div class="poke-name">${esc(p.name)}</div>
         <div class="poke-meta">${esc(p.number || 'NO.???')} · ${esc(p.evo_stage || '形态未知')} · BST ${esc(p.base_total || 0)}</div>
-        <div class="poke-meta">${esc(p.element || '未知')}</div>
+        <div class="poke-meta">${typePills(p.element, p.element_icons)}</div>
       </div>
     </article>
   `).join('') || '<div class="empty-text">没有匹配的精灵</div>';
   document.querySelectorAll('.poke-card').forEach(card => {
     card.onclick = () => showDetail(card.dataset.name);
   });
+  const active = document.querySelector('.poke-card.active');
+  if(active && didInitialSelect) active.scrollIntoView({ block: 'nearest' });
 }
 
 function statRows(p){
@@ -363,9 +383,9 @@ function skillCard(skill){
       <div>
         <div class="skill-name">${esc(skill.name)}</div>
         <div class="skill-meta">
-          <span>${esc(skill.element || '未知')}</span>
-          <span>${esc(skill.category || '')}</span>
-          <span>耗${esc(skill.energy_cost ?? '-')}</span>
+          <span>${metaIcon(skill.attribute_icon_url, skill.element)}${esc(skill.element || '未知')}</span>
+          <span>${metaIcon(skill.category_icon_url, skill.category)}${esc(skill.category || '')}</span>
+          <span>${metaIcon(skill.energy_icon_url, '耗能')}耗${esc(skill.energy_cost ?? '-')}</span>
           ${skill.power ? `<span>威${esc(skill.power)}</span>` : ''}
         </div>
       </div>
@@ -411,10 +431,11 @@ function bindVariantButtons(){
   });
 }
 
-async function showDetail(name){
+async function showDetail(name, updateUrl=true){
   selected = name;
   selectedVariantName = name;
   renderList();
+  if(updateUrl) history.replaceState(null, '', `/dex?pokemon=${encodeURIComponent(name)}`);
   const detailEl = document.getElementById('detail');
   detailEl.innerHTML = '<div class="detail-empty">加载中...</div>';
 
@@ -428,7 +449,9 @@ async function showDetail(name){
   }
   const p = await detailRes.json();
   const skills = await skillsRes.json();
-  const grouped = groupSkills(skills);
+  const leader = isLeaderPokemon(p);
+  const visibleSkills = leader ? skills.filter(skill => classifySkill(skill) !== 'bloodline') : skills;
+  const grouped = groupSkills(visibleSkills);
   const portrait = p.icon_url || (p.variants && p.variants[0] && p.variants[0].icon_url) || '';
   const ability = abilityParts(p);
 
@@ -444,7 +467,7 @@ async function showDetail(name){
           <span class="dex-no">${esc(p.number || 'NO.???')}</span>
         </div>
         <div id="variant-name" class="detail-sub">${esc(selectedVariantName)}</div>
-        <div class="detail-tags" style="margin-top:10px">${typePills(p.element)}</div>
+        <div class="detail-tags" style="margin-top:10px">${typePills(p.element, p.element_icons)}</div>
         <div class="info-grid">
           <div class="info-item"><div class="info-label">阶段</div><div class="info-value">${esc(p.evo_stage || '未知')}</div></div>
           <div class="info-item"><div class="info-label">形态</div><div class="info-value">${esc(p.form || p.form_type || '默认')}</div></div>
@@ -464,11 +487,11 @@ async function showDetail(name){
     </section>
 
     <section class="detail-section">
-      <div class="section-head"><h3>技能</h3><span class="section-count">${skills.length} 个</span></div>
+      <div class="section-head"><h3>技能</h3><span class="section-count">${visibleSkills.length} 个</span></div>
       <div class="skill-tabs">
         ${skillGroup('本身可学技能', grouped.level)}
         ${skillGroup('技能石技能', grouped.stone)}
-        ${skillGroup('血脉招式', grouped.bloodline)}
+        ${leader ? '' : skillGroup('血脉招式', grouped.bloodline)}
       </div>
     </section>
   `;

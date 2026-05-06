@@ -7,133 +7,210 @@
 <link rel="stylesheet" href="theme.css">
 <style>
 body { min-height: 100vh; }
-.toolbar {
+.skill-dex-layout {
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) 150px 150px;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 390px;
+  grid-template-columns: 350px minmax(0, 1fr);
   gap: 14px;
   align-items: start;
 }
-.skill-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 10px;
-  align-content: start;
-}
-.skill-card {
-  min-height: 104px;
-  background: var(--bg-input);
+.skill-sidebar {
+  background: var(--bg-card);
   border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px;
+  position: sticky;
+  top: 14px;
+  height: calc(100vh - 90px);
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.filter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.list-summary { font-size: 11px; color: var(--text-secondary); margin: 0 2px 8px; }
+.skill-sidebar-list { overflow-y: auto; padding-right: 4px; display: block; }
+.skill-row {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  width: 100%;
+  min-height: 66px;
+  margin-bottom: 6px;
+  background: var(--bg-input);
+  border: 2px solid transparent;
   border-radius: var(--r-md);
-  padding: 10px;
+  padding: 8px;
   cursor: pointer;
-  transition: transform .15s, border-color .15s, box-shadow .15s;
+  transition: border-color .15s, background .15s, transform .15s, box-shadow .15s;
 }
-.skill-card:hover,
-.skill-card.active {
-  border-color: var(--primary);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+.skill-row:hover { border-color: var(--primary); transform: translateY(-1px); }
+.skill-row.active { border-color: var(--primary); background: rgba(255,255,255,.7); box-shadow: var(--shadow-sm); }
+.skill-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,.72);
+  border: 1px solid var(--border);
 }
-.skill-top { display: flex; gap: 9px; align-items: flex-start; }
-.skill-name { font-size: 14px; font-weight: 900; color: var(--text-primary); }
-.skill-meta { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.skill-icon.big { width: 84px; height: 84px; }
+.skill-icon.missing {
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: var(--text-secondary);
+}
+.skill-name { font-size: 14px; font-weight: 900; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.skill-meta { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
 .chip {
   display: inline-flex;
   align-items: center;
-  height: 18px;
-  padding: 0 7px;
+  gap: 4px;
+  min-height: 20px;
+  padding: 2px 7px;
   border-radius: 5px;
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
   background: var(--bg-card);
   color: var(--text-secondary);
   border: 1px solid var(--border);
 }
-.type-chip { color: #fff; border: none; }
-.desc {
-  margin-top: 8px;
-  color: var(--text-secondary);
-  font-size: 11px;
-  line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
+.chip.strong { color: var(--text-primary); }
+.meta-icon { width: 18px; height: 18px; object-fit: contain; display: inline-block; flex: 0 0 auto; }
+.meta-icon.large { width: 24px; height: 24px; }
 .detail {
-  position: sticky;
-  top: 14px;
+  min-height: calc(100vh - 90px);
   background: var(--bg-card);
   border: 2px solid var(--border);
   border-radius: var(--r-lg);
-  padding: 16px;
+  padding: 18px;
   box-shadow: var(--shadow-sm);
 }
-.detail-empty {
-  color: var(--text-secondary);
+.detail-empty { color: var(--text-secondary); line-height: 1.7; padding: 20px; }
+.detail-hero {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.detail-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.detail-title { font-size: 28px; line-height: 1.1; color: var(--text-primary); font-weight: 900; }
+.learner-total {
+  color: var(--primary-dark);
+  background: rgba(245,166,35,.12);
+  border: 1px solid rgba(245,166,35,.3);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.info-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.info-item {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 10px;
+}
+.info-label { color: var(--text-secondary); font-size: 10px; font-weight: 800; margin-bottom: 4px; }
+.info-value { color: var(--text-primary); font-size: 13px; font-weight: 900; display: flex; align-items: center; gap: 5px; min-height: 18px; }
+.detail-section { margin-top: 18px; }
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.section-head h3 { font-size: 16px; color: var(--text-primary); }
+.section-count { font-size: 11px; color: var(--text-secondary); font-weight: 800; }
+.description-box {
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 10px;
   font-size: 13px;
   line-height: 1.7;
 }
-.detail-head {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-.detail .skill-icon { width: 54px; height: 54px; }
-.detail-title { font-size: 20px; font-weight: 900; color: var(--text-primary); }
-.detail-section { margin-top: 14px; }
-.detail-section h3 {
-  font-size: 12px;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-}
-.effect-list, .learner-list { display: flex; flex-wrap: wrap; gap: 5px; }
-.learner {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 7px;
-  border-radius: var(--r-sm);
-  background: rgba(255,255,255,.55);
+.learner-groups { display: grid; gap: 12px; }
+.learner-group {
   border: 1px solid var(--border);
-  font-size: 11px;
+  background: rgba(255,255,255,.38);
+  border-radius: var(--r-md);
+  padding: 10px;
+}
+.learner-group-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 900;
+  margin-bottom: 8px;
 }
-.learner img { width: 24px; height: 24px; object-fit: contain; }
-.source-link {
-  color: var(--primary-dark);
+.learner-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.learner-card {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px;
   text-decoration: none;
-  font-size: 12px;
-  font-weight: 800;
+  color: inherit;
+  transition: border-color .15s, transform .15s;
 }
+.learner-card:hover { border-color: var(--primary); transform: translateY(-1px); }
+.learner-card img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 5px;
+  background: rgba(255,255,255,.7);
+  border: 1px solid var(--border);
+}
+.learner-name { font-size: 13px; font-weight: 900; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.learner-meta { margin-top: 3px; color: var(--text-secondary); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.method-badge {
+  color: var(--primary-dark);
+  background: rgba(245,166,35,.12);
+  border: 1px solid rgba(245,166,35,.26);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.empty-state { color: var(--text-secondary); font-size: 12px; padding: 8px; }
+.source-link { color: var(--primary-dark); text-decoration: none; font-size: 12px; font-weight: 900; }
 .source-link:hover { text-decoration: underline; }
-.t-普通{background:#A8A878}.t-火{background:#F08030}.t-水{background:#6890F0}
-.t-草{background:#78C850}.t-电{background:#F8D030;color:#5a4000}.t-冰{background:#98D8D8;color:#2a5a5a}
-.t-武{background:#C03028}.t-毒{background:#A040A0}.t-地{background:#E0C068;color:#5a4000}
-.t-翼{background:#A890F0}.t-幻{background:#F85888}.t-虫{background:#A8B820}
-.t-幽{background:#705898}.t-龙{background:#7038F8}.t-恶{background:#705848}
-.t-机械{background:#B8B8D0;color:#444}.t-萌{background:#EE99AC}.t-光{background:#FFD966;color:#5a4000}
-.empty-state {
-  grid-column: 1 / -1;
-  padding: 36px;
-  text-align: center;
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border-radius: var(--r-lg);
-  border: 1px dashed var(--border-strong);
+@media(max-width:980px) {
+  .skill-dex-layout { grid-template-columns: 1fr; }
+  .skill-sidebar { position: static; height: 430px; min-height: 0; }
+  .detail { min-height: auto; }
 }
-@media (max-width: 900px) {
-  .toolbar, .layout { grid-template-columns: 1fr; }
-  .detail { position: static; }
+@media(max-width:720px) {
+  .filter-row, .detail-hero, .info-grid { grid-template-columns: 1fr; }
+  .detail-title-row { flex-direction: column; }
 }
 </style>
 </head>
@@ -153,120 +230,140 @@ body { min-height: 100vh; }
   </header>
 
   <main class="page-main">
-    <div class="toolbar">
-      <input id="q" class="roco-input" placeholder="搜索技能名称、描述、属性或分类" autocomplete="off">
-      <select id="element" class="roco-select">
-        <option value="">全部属性</option>
-      </select>
-      <select id="category" class="roco-select">
-        <option value="">全部分类</option>
-      </select>
-    </div>
-
-    <div class="layout">
-      <section id="skill-list" class="skill-list"></section>
-      <aside id="detail" class="detail">
-        <div class="detail-empty">选择一个技能查看完整效果、实现标签和可学习精灵。</div>
+    <div class="skill-dex-layout">
+      <aside class="skill-sidebar">
+        <div class="toolbar">
+          <input id="q" class="roco-input" placeholder="搜索技能名称、描述、属性或分类" autocomplete="off">
+          <div class="filter-row">
+            <select id="element" class="roco-select"><option value="">全部属性</option></select>
+            <select id="category" class="roco-select"><option value="">全部分类</option></select>
+          </div>
+        </div>
+        <div id="summary" class="list-summary">加载中...</div>
+        <section id="skill-list" class="skill-sidebar-list"></section>
       </aside>
+
+      <section id="detail" class="detail">
+        <div class="detail-empty">选择一个技能查看完整效果和可学习精灵。</div>
+      </section>
     </div>
   </main>
 </div>
 
 <script>
-const TYPE_CLASS = {
-  普通:'t-普通',火:'t-火',水:'t-水',草:'t-草',电:'t-电',冰:'t-冰',武:'t-武',
-  毒:'t-毒',地:'t-地',翼:'t-翼',幻:'t-幻',虫:'t-虫',幽:'t-幽',龙:'t-龙',
-  恶:'t-恶',机械:'t-机械',萌:'t-萌',光:'t-光',
-};
+let allSkills = [];
 let skills = [];
 let selectedName = '';
+let didInitialSelect = false;
 
 function esc(v){
   return String(v ?? '').replace(/[&<>"']/g, ch => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   }[ch]));
 }
-
-function iconHtml(skill, big=false){
-  if(skill.icon_url){
-    return `<img class="skill-icon" src="${esc(skill.icon_url)}" alt="${esc(skill.name)}">`;
-  }
-  return `<span class="skill-icon missing">${esc((skill.name || '?').slice(0,1))}</span>`;
+function iconImg(src, label, cls='meta-icon'){
+  return src ? `<img class="${cls}" src="${esc(src)}" alt="${esc(label)}">` : '';
+}
+function skillIcon(skill, cls='skill-icon'){
+  if(skill.icon_url) return `<img class="${cls}" src="${esc(skill.icon_url)}" alt="${esc(skill.name)}">`;
+  return `<span class="${cls} missing">${esc((skill.name || '?').slice(0,1))}</span>`;
+}
+function metaChip(icon, label, value, strong=false){
+  return `<span class="chip ${strong ? 'strong' : ''}">${iconImg(icon, label)}${esc(value)}</span>`;
+}
+function methodKind(group){
+  const text = String(group || '');
+  if(text.includes('血脉')) return 'bloodline';
+  if(text.includes('技能石') || text.includes('可学')) return 'stone';
+  return 'level';
+}
+function methodTitle(group){
+  const kind = methodKind(group);
+  if(kind === 'bloodline') return '血脉可学习精灵';
+  if(kind === 'stone') return '技能石可学习精灵';
+  return '升级可学习精灵';
+}
+function methodBadge(row){
+  const kind = methodKind(row.learn_group);
+  if(kind === 'bloodline') return '血脉';
+  if(kind === 'stone') return '技能石';
+  return row.learn_level || '升级';
 }
 
 async function loadSkills(){
-  const params = new URLSearchParams();
+  if(!allSkills.length){
+    const res = await fetch('/api/skills/list');
+    allSkills = await res.json();
+  }
   const q = document.getElementById('q').value.trim();
   const element = document.getElementById('element').value;
   const category = document.getElementById('category').value;
-  if(q) params.set('q', q);
-  if(element) params.set('element', element);
-  if(category) params.set('category', category);
-  const res = await fetch(`/api/skills/list?${params.toString()}`);
-  skills = await res.json();
+  skills = allSkills.filter(skill => {
+    const hay = [skill.name, skill.description, skill.element, skill.category, skill.effect_summary].filter(Boolean).join(' ');
+    const okQ = !q || hay.includes(q);
+    const okElement = !element || skill.element === element;
+    const okCategory = !category || skill.category === category;
+    return okQ && okElement && okCategory;
+  });
   renderFilters();
   renderList();
-  const initialSkill = new URLSearchParams(location.search).get('skill');
-  if(initialSkill && !selectedName && skills.some(s => s.name === initialSkill)) {
-    showDetail(initialSkill);
-  } else if(selectedName && skills.some(s => s.name === selectedName)) {
-    showDetail(selectedName);
-  } else if(skills[0]) {
-    showDetail(skills[0].name);
-  } else {
-    document.getElementById('detail').innerHTML = '<div class="detail-empty">没有匹配的技能。</div>';
-  }
+  selectInitialSkill();
 }
 
 function renderFilters(){
-  const elements = [...new Set(skills.map(s => s.element).filter(Boolean))].sort();
-  const categories = [...new Set(skills.map(s => s.category).filter(Boolean))].sort();
-  fillSelect('element', '全部属性', elements);
-  fillSelect('category', '全部分类', categories);
+  const currentElement = document.getElementById('element').value;
+  const currentCategory = document.getElementById('category').value;
+  const elements = [...new Set(allSkills.map(s => s.element).filter(Boolean))].sort();
+  const categories = [...new Set(allSkills.map(s => s.category).filter(Boolean))].sort();
+  document.getElementById('element').innerHTML = '<option value="">全部属性</option>' + elements.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('');
+  document.getElementById('category').innerHTML = '<option value="">全部分类</option>' + categories.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  if(elements.includes(currentElement)) document.getElementById('element').value = currentElement;
+  if(categories.includes(currentCategory)) document.getElementById('category').value = currentCategory;
 }
 
-function fillSelect(id, label, values){
-  const el = document.getElementById(id);
-  const current = el.value;
-  el.innerHTML = `<option value="">${label}</option>` + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
-  if(values.includes(current)) el.value = current;
+function selectInitialSkill(){
+  const querySkill = new URLSearchParams(location.search).get('skill');
+  const target = (!didInitialSelect && querySkill && skills.some(s => s.name === querySkill)) ? querySkill
+    : (selectedName && skills.some(s => s.name === selectedName)) ? selectedName
+    : skills[0]?.name;
+  didInitialSelect = true;
+  if(target) showDetail(target, false);
+  else document.getElementById('detail').innerHTML = '<div class="detail-empty">没有匹配的技能。</div>';
 }
 
 function renderList(){
   const list = document.getElementById('skill-list');
+  document.getElementById('summary').textContent = `${skills.length} / ${allSkills.length} 个技能`;
   if(!skills.length){
     list.innerHTML = '<div class="empty-state">没有匹配的技能</div>';
     return;
   }
-  list.innerHTML = skills.map(skill => {
-    const tags = (skill.effect_tags || []).slice(0, 3).map(t => `<span class="chip">${esc(t)}</span>`).join('');
-    return `
-      <article class="skill-card ${skill.name === selectedName ? 'active' : ''}" data-name="${esc(skill.name)}">
-        <div class="skill-top">
-          ${iconHtml(skill)}
-          <div>
-            <div class="skill-name">${esc(skill.name)}</div>
-            <div class="skill-meta">
-              <span class="chip type-chip ${TYPE_CLASS[skill.element] || ''}">${esc(skill.element)}</span>
-              <span class="chip">${esc(skill.category)}</span>
-              <span class="chip">耗${esc(skill.energy_cost)}</span>
-              <span class="chip">${skill.power > 0 ? '威' + esc(skill.power) : '无威力'}</span>
-              <span class="chip">${esc(skill.learners_count || 0)}只可学</span>
-              ${tags}
-            </div>
-          </div>
+  list.innerHTML = skills.map(skill => `
+    <article class="skill-row ${skill.name === selectedName ? 'active' : ''}" data-name="${esc(skill.name)}">
+      ${skillIcon(skill)}
+      <div>
+        <div class="skill-name">${esc(skill.name)}</div>
+        <div class="skill-meta">
+          ${metaChip(skill.attribute_icon_url, skill.element, skill.element, true)}
+          ${metaChip(skill.category_icon_url, skill.category, skill.category, true)}
+          ${metaChip(skill.energy_icon_url, '耗能', `耗${skill.energy_cost}`)}
+          <span class="chip">${skill.power > 0 ? '威' + esc(skill.power) : '无威力'}</span>
+          <span class="chip">${esc(skill.learners_count || 0)}只</span>
         </div>
-        <div class="desc">${esc(skill.description || skill.effect_summary || '暂无描述')}</div>
-      </article>`;
-  }).join('');
-  list.querySelectorAll('.skill-card').forEach(card => {
-    card.onclick = () => showDetail(card.dataset.name);
+      </div>
+    </article>
+  `).join('');
+  list.querySelectorAll('.skill-row').forEach(card => {
+    card.onclick = () => showDetail(card.dataset.name, true);
   });
+  const active = list.querySelector('.skill-row.active');
+  if(active) active.scrollIntoView({ block: 'nearest' });
 }
 
-async function showDetail(name){
+async function showDetail(name, updateUrl=true){
   selectedName = name;
   renderList();
+  if(updateUrl) history.replaceState(null, '', `/skills?skill=${encodeURIComponent(name)}`);
   const detail = document.getElementById('detail');
   detail.innerHTML = '<div class="detail-empty">加载中...</div>';
   const res = await fetch(`/api/skills/detail?name=${encodeURIComponent(name)}`);
@@ -275,66 +372,80 @@ async function showDetail(name){
     return;
   }
   const skill = await res.json();
-  const effectTags = (skill.effect_tags || []).map(t => `<span class="chip">${esc(t)}</span>`).join('');
-  const effectDetails = (skill.effect_details || []).map(t => `<span class="chip">${esc(t)}</span>`).join('');
-  const groups = groupLearners(skill.learners || []);
+  const learners = skill.learners || [];
+
   detail.innerHTML = `
-    <div class="detail-head">
-      ${iconHtml(skill, true)}
+    <div class="detail-hero">
+      ${skillIcon(skill, 'skill-icon big')}
       <div>
-        <div class="detail-title">${esc(skill.name)}</div>
-        <div class="skill-meta">
-          <span class="chip type-chip ${TYPE_CLASS[skill.element] || ''}">${esc(skill.element)}</span>
-          <span class="chip">${esc(skill.category)}</span>
-          <span class="chip">耗${esc(skill.energy_cost)}</span>
-          <span class="chip">${skill.power > 0 ? '威' + esc(skill.power) : '无威力'}</span>
+        <div class="detail-title-row">
+          <div class="detail-title">${esc(skill.name)}</div>
+          <span class="learner-total">${learners.length} 只可学</span>
+        </div>
+        <div class="skill-meta" style="margin-top:10px">
+          ${metaChip(skill.attribute_icon_url, skill.element, skill.element, true)}
+          ${metaChip(skill.category_icon_url, skill.category, skill.category, true)}
+          ${metaChip(skill.energy_icon_url, '耗能', `耗能 ${skill.energy_cost}`, true)}
+          <span class="chip strong">${skill.power > 0 ? '威力 ' + esc(skill.power) : '无威力'}</span>
           ${skill.source ? `<span class="chip">${esc(skill.source)}</span>` : ''}
+        </div>
+        <div class="info-grid">
+          <div class="info-item"><div class="info-label">系别</div><div class="info-value">${iconImg(skill.attribute_icon_url, skill.element, 'meta-icon large')}${esc(skill.element || '未知')}</div></div>
+          <div class="info-item"><div class="info-label">类型</div><div class="info-value">${iconImg(skill.category_icon_url, skill.category, 'meta-icon large')}${esc(skill.category || '未知')}</div></div>
+          <div class="info-item"><div class="info-label">耗能</div><div class="info-value">${iconImg(skill.energy_icon_url, '耗能', 'meta-icon large')}${esc(skill.energy_cost ?? '-')}</div></div>
+          <div class="info-item"><div class="info-label">威力</div><div class="info-value">${skill.power > 0 ? esc(skill.power) : '无'}</div></div>
         </div>
       </div>
     </div>
-    <div class="detail-section">
-      <h3>技能描述</h3>
-      <div class="desc" style="-webkit-line-clamp:unset">${esc(skill.description || '暂无描述')}</div>
-    </div>
-    <div class="detail-section">
-      <h3>效果标签</h3>
-      <div class="effect-list">${effectDetails || effectTags || '<span class="chip">暂无结构化效果</span>'}</div>
-    </div>
-    <div class="detail-section">
-      <h3>可学习精灵</h3>
-      ${groups || '<div class="detail-empty">暂无可学习精灵数据。</div>'}
-    </div>
-    ${skill.wiki_url ? `<div class="detail-section"><a class="source-link" href="${esc(skill.wiki_url)}" target="_blank" rel="noreferrer">查看 Wiki 原页</a></div>` : ''}
+
+    <section class="detail-section">
+      <div class="section-head"><h3>技能描述</h3></div>
+      <div class="description-box">${esc(skill.description || skill.effect_summary || '暂无描述')}</div>
+    </section>
+
+    <section class="detail-section">
+      <div class="section-head"><h3>可学习精灵</h3><span class="section-count">${learners.length} 只</span></div>
+      <div class="learner-groups">${renderLearnerGroups(learners)}</div>
+    </section>
+
+    ${skill.wiki_url ? `<div class="detail-section"><a class="source-link" href="${esc(skill.wiki_url)}" target="_blank" rel="noreferrer">Wiki 原页</a></div>` : ''}
   `;
 }
 
-function groupLearners(learners){
-  if(!learners.length) return '';
-  const map = new Map();
-  learners.forEach(p => {
-    const key = p.learn_group || '可学习';
-    if(!map.has(key)) map.set(key, []);
-    map.get(key).push(p);
-  });
-  return [...map.entries()].map(([group, rows]) => `
-    <div class="detail-section">
-      <h3>${esc(group)} · ${rows.length}</h3>
-      <div class="learner-list">
-        ${rows.map(p => `
-          <span class="learner">
-            ${p.icon_url ? `<img src="${esc(p.icon_url)}" alt="${esc(p.name)}">` : ''}
-            ${esc(p.name)}
-          </span>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
+function renderLearnerGroups(learners){
+  if(!learners.length) return '<div class="empty-state">暂无可学习精灵数据。</div>';
+  const ordered = [
+    ['level', '升级可学习精灵'],
+    ['stone', '技能石可学习精灵'],
+    ['bloodline', '血脉可学习精灵'],
+  ];
+  return ordered.map(([kind, title]) => {
+    const rows = learners.filter(row => methodKind(row.learn_group) === kind);
+    if(!rows.length) return '';
+    return `
+      <section class="learner-group">
+        <div class="learner-group-title"><span>${esc(title)}</span><span>${rows.length}</span></div>
+        <div class="learner-list">
+          ${rows.map(row => `
+            <a class="learner-card" href="/dex?pokemon=${encodeURIComponent(row.name)}" title="${esc(row.learn_group || '')}">
+              ${row.icon_url ? `<img src="${esc(row.icon_url)}" alt="${esc(row.name)}">` : '<span></span>'}
+              <div>
+                <div class="learner-name">${esc(row.name)}</div>
+                <div class="learner-meta">${esc(row.number || 'NO.???')} · ${esc(row.element || '未知')} · BST ${esc(row.base_total || 0)}</div>
+              </div>
+              <span class="method-badge">${esc(methodBadge(row))}</span>
+            </a>
+          `).join('')}
+        </div>
+      </section>
+    `;
+  }).join('') || '<div class="empty-state">暂无可学习精灵数据。</div>';
 }
 
 let timer = 0;
 document.getElementById('q').addEventListener('input', () => {
   clearTimeout(timer);
-  timer = setTimeout(loadSkills, 180);
+  timer = setTimeout(loadSkills, 160);
 });
 document.getElementById('element').addEventListener('change', loadSkills);
 document.getElementById('category').addEventListener('change', loadSkills);

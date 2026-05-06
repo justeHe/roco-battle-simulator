@@ -33,6 +33,7 @@ STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 _db_loaded = False
 _skill_meta_cache: Optional[dict] = None
 _SKILL_ICON_CACHE: dict = {}
+_SKILL_META_ICON_CACHE: Optional[dict] = None
 _SPIRIT_ICON_META_CACHE: Optional[dict] = None
 
 def _ensure_loaded():
@@ -97,6 +98,36 @@ def _build_skill_icon_cache():
 def _get_skill_icon_url(name: str) -> str:
     _build_skill_icon_cache()
     return _SKILL_ICON_CACHE.get(_safe_skill_icon_stem(name), "")
+
+
+def _build_skill_meta_icon_cache() -> dict:
+    """扫描本地 data/skill_meta_icons，生成系别/分类/耗能图标映射。"""
+    global _SKILL_META_ICON_CACHE
+    if _SKILL_META_ICON_CACHE is not None:
+        return _SKILL_META_ICON_CACHE
+
+    root = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data",
+        "skill_meta_icons",
+    )
+    cache = {"elements": {}, "categories": {}, "misc": {}}
+    for kind in cache:
+        icon_dir = os.path.join(root, kind)
+        if not os.path.exists(icon_dir):
+            continue
+        for fname in os.listdir(icon_dir):
+            if not fname.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg")):
+                continue
+            stem, _ = os.path.splitext(fname)
+            cache[kind][stem] = f"/skill-meta-icons/{kind}/{urllib.parse.quote(fname)}"
+    _SKILL_META_ICON_CACHE = cache
+    return cache
+
+
+def _get_skill_meta_icon_url(kind: str, name: str) -> str:
+    cache = _build_skill_meta_icon_cache()
+    return cache.get(kind, {}).get(name or "", "")
 
 
 def _skill_metadata_cache() -> dict:
@@ -588,6 +619,17 @@ def _split_ability_text(value: str) -> tuple[str, str]:
     return parts[0].strip(), parts[1].strip()
 
 
+def _split_element_names(value: str) -> list[str]:
+    return [x.strip() for x in re.split(r"[,，/、]", value or "") if x.strip()]
+
+
+def _element_icon_payload(value: str) -> list[dict]:
+    return [
+        {"name": name, "icon_url": _get_skill_meta_icon_url("elements", name)}
+        for name in _split_element_names(value)
+    ]
+
+
 def _build_spirit_icon_meta_cache() -> dict:
     """读取本地图鉴立绘清单，补充编号、形态和同编号变体信息。"""
     global _SPIRIT_ICON_META_CACHE
@@ -629,6 +671,16 @@ def _build_spirit_icon_meta_cache() -> dict:
 def _get_spirit_icon_meta(name: str) -> dict:
     cache = _build_spirit_icon_meta_cache()
     return cache["by_name"].get(name, {})
+
+
+def _is_leader_form(name: str, evo_stage: str = "") -> bool:
+    meta = _get_spirit_icon_meta(name)
+    text = " ".join([
+        evo_stage or "",
+        meta.get("form_type", ""),
+        meta.get("form", ""),
+    ])
+    return "首领" in text
 
 
 def _get_spirit_variants(number: str) -> list[dict]:
@@ -707,8 +759,9 @@ def serialize_skill(s, current_energy, cooldown=0):
         "energy_cost": s.energy_cost,
         "description": meta["description"],
         "icon_url":    meta["icon_url"],
-        "attribute_icon_url": meta["attribute_icon_url"],
-        "category_icon_url":  meta["category_icon_url"],
+        "attribute_icon_url": _get_skill_meta_icon_url("elements", s.skill_type.value) or meta["attribute_icon_url"],
+        "category_icon_url":  _get_skill_meta_icon_url("categories", s.category.value) or meta["category_icon_url"],
+        "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
         "skill_group": meta["skill_group"],
         "wiki_url":    meta["wiki_url"],
         "can_use":     current_energy >= s.energy_cost and cooldown <= 0,
@@ -1493,17 +1546,20 @@ async def api_pokemon_list(q: str = ""):
         ability_name, ability_effect = _split_ability_text(r["ability"])
         meta = _get_spirit_icon_meta(r["name"])
         number = _normalize_spirit_no(r["spirit_no"] or meta.get("number", ""))
+        is_leader = _is_leader_form(r["name"], r["evo_stage"])
         result.append({
             "id":      r["id"],
             "name":    r["name"],
             "number":  number,
             "element": r["element"],
+            "element_icons": _element_icon_payload(r["element"]),
             "icon_url": _get_icon_url(r["name"]) or meta.get("icon_url", ""),
             "ability": ability_name,
             "ability_effect": ability_effect,
             "evo_stage": r["evo_stage"] or meta.get("stage", ""),
             "form_type": meta.get("form_type", ""),
             "form": meta.get("form", ""),
+            "is_leader": is_leader,
             "base_total": r["base_total"],
             "base_hp":    r["base_hp"],
             "base_atk":   r["base_atk"],
@@ -1536,17 +1592,20 @@ async def api_pokemon_detail(name: str):
     meta = _get_spirit_icon_meta(r["name"])
     number = _normalize_spirit_no(r["spirit_no"] or meta.get("number", ""))
     variants = _get_spirit_variants(number)
+    is_leader = _is_leader_form(r["name"], r["evo_stage"])
     return JSONResponse({
         "id": r["id"],
         "name": r["name"],
         "number": number,
         "element": r["element"],
+        "element_icons": _element_icon_payload(r["element"]),
         "ability": ability_name,
         "ability_effect": ability_effect,
         "ability_full": r["ability"] or "",
         "evo_stage": r["evo_stage"] or meta.get("stage", ""),
         "form_type": meta.get("form_type", ""),
         "form": meta.get("form", ""),
+        "is_leader": is_leader,
         "icon_url": _get_icon_url(r["name"]) or meta.get("icon_url", ""),
         "base_total": r["base_total"],
         "base_hp": r["base_hp"],
@@ -1568,11 +1627,11 @@ async def api_pokemon_skills(name: str):
     c = conn.cursor()
 
     # 精确匹配 → 前缀匹配（取进化阶段最高的）
-    c.execute("SELECT id FROM pokemon WHERE name = ?", (name,))
+    c.execute("SELECT id, name, evo_stage FROM pokemon WHERE name = ?", (name,))
     row = c.fetchone()
     if not row:
         c.execute(
-            "SELECT id FROM pokemon WHERE name LIKE ? ORDER BY evo_stage DESC LIMIT 1",
+            "SELECT id, name, evo_stage FROM pokemon WHERE name LIKE ? ORDER BY evo_stage DESC LIMIT 1",
             (f"{name}%",),
         )
         row = c.fetchone()
@@ -1580,6 +1639,8 @@ async def api_pokemon_skills(name: str):
         return JSONResponse([])
 
     pokemon_id = row["id"]
+    exclude_bloodline = _is_leader_form(row["name"], row["evo_stage"])
+    learn_filter = "AND COALESCE(ps.learn_group, '') NOT LIKE '%血脉%'" if exclude_bloodline else ""
     c.execute(
         "SELECT DISTINCT s.name, s.element, s.category, s.energy_cost, s.power, s.description, "
         "s.icon_url, s.attribute_icon_url, s.category_icon_url, s.skill_group, s.wiki_url, "
@@ -1587,8 +1648,11 @@ async def api_pokemon_skills(name: str):
         "COALESCE(ps.learn_level, '') AS learn_level "
         "FROM skill s "
         "JOIN pokemon_skill ps ON ps.skill_id = s.id "
-        "WHERE ps.pokemon_id = ? "
-        "ORDER BY ps.learn_group, ps.learn_level, s.energy_cost, s.name",
+        f"WHERE ps.pokemon_id = ? {learn_filter} "
+        "ORDER BY CASE "
+        "WHEN ps.learn_group LIKE '%血脉%' THEN 3 "
+        "WHEN ps.learn_group LIKE '%技能石%' OR ps.learn_group LIKE '%可学%' THEN 2 "
+        "ELSE 1 END, ps.learn_level, s.energy_cost, s.name",
         (pokemon_id,),
     )
     rows = c.fetchall()
@@ -1606,8 +1670,9 @@ async def api_pokemon_skills(name: str):
             "power":       r["power"],
             "description": r["description"] or "",
             "icon_url":    local_icon or r["icon_url"] or "",
-            "attribute_icon_url": r["attribute_icon_url"] or "",
-            "category_icon_url": r["category_icon_url"] or "",
+            "attribute_icon_url": _get_skill_meta_icon_url("elements", r["element"]) or r["attribute_icon_url"] or "",
+            "category_icon_url": _get_skill_meta_icon_url("categories", r["category"]) or r["category_icon_url"] or "",
+            "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
             "skill_group": r["skill_group"] or "",
             "learn_group": r["learn_group"] or "",
             "learn_level": r["learn_level"] or "",
@@ -1664,8 +1729,9 @@ async def api_skills_list(q: str = "", element: str = "", category: str = ""):
             "power": r["power"],
             "description": r["description"] or "",
             "icon_url": local_icon or r["icon_url"] or "",
-            "attribute_icon_url": r["attribute_icon_url"] or "",
-            "category_icon_url": r["category_icon_url"] or "",
+            "attribute_icon_url": _get_skill_meta_icon_url("elements", r["element"]) or r["attribute_icon_url"] or "",
+            "category_icon_url": _get_skill_meta_icon_url("categories", r["category"]) or r["category_icon_url"] or "",
+            "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
             "skill_group": r["skill_group"] or "",
             "wiki_url": r["wiki_url"] or "",
             "source": r["source"] or "",
@@ -1698,23 +1764,36 @@ async def api_skill_detail(name: str):
     effect_view = _skill_effect_display(skill)
     local_icon = _get_skill_icon_url(r["name"])
     c.execute("""
-        SELECT p.name, p.element, p.base_total, COALESCE(ps.learn_group, '') AS learn_group
+        SELECT p.name, p.element, p.base_total, p.spirit_no, p.evo_stage,
+               COALESCE(ps.learn_group, '') AS learn_group,
+               COALESCE(ps.learn_level, '') AS learn_level
         FROM pokemon p
         JOIN pokemon_skill ps ON ps.pokemon_id = p.id
         JOIN skill s ON s.id = ps.skill_id
         WHERE s.name = ?
-        ORDER BY ps.learn_group, p.name
+        ORDER BY CASE
+            WHEN ps.learn_group LIKE '%血脉%' THEN 3
+            WHEN ps.learn_group LIKE '%技能石%' OR ps.learn_group LIKE '%可学%' THEN 2
+            ELSE 1
+        END, ps.learn_level, p.name
     """, (name,))
-    learners = [
-        {
+    learners = []
+    for row in c.fetchall():
+        is_leader = _is_leader_form(row["name"], row["evo_stage"])
+        if is_leader and "血脉" in (row["learn_group"] or ""):
+            continue
+        meta = _get_spirit_icon_meta(row["name"])
+        number = _normalize_spirit_no(row["spirit_no"] or meta.get("number", ""))
+        learners.append({
             "name": row["name"],
+            "number": number,
             "element": row["element"],
             "base_total": row["base_total"],
+            "is_leader": is_leader,
             "learn_group": row["learn_group"] or "可学习",
-            "icon_url": _get_icon_url(row["name"]),
-        }
-        for row in c.fetchall()
-    ]
+            "learn_level": row["learn_level"] or "",
+            "icon_url": _get_icon_url(row["name"]) or meta.get("icon_url", ""),
+        })
     return JSONResponse({
         "id": r["id"],
         "name": r["name"],
@@ -1724,8 +1803,9 @@ async def api_skill_detail(name: str):
         "power": r["power"],
         "description": r["description"] or "",
         "icon_url": local_icon or r["icon_url"] or "",
-        "attribute_icon_url": r["attribute_icon_url"] or "",
-        "category_icon_url": r["category_icon_url"] or "",
+        "attribute_icon_url": _get_skill_meta_icon_url("elements", r["element"]) or r["attribute_icon_url"] or "",
+        "category_icon_url": _get_skill_meta_icon_url("categories", r["category"]) or r["category_icon_url"] or "",
+        "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
         "skill_group": r["skill_group"] or "",
         "wiki_url": r["wiki_url"] or "",
         "source": r["source"] or "",
@@ -1837,6 +1917,10 @@ if os.path.exists(ICONS_DIR):
 SKILL_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_icons")
 if os.path.exists(SKILL_ICONS_DIR):
     app.mount("/skill-icons", StaticFiles(directory=SKILL_ICONS_DIR), name="skill-icons")
+
+SKILL_META_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_meta_icons")
+if os.path.exists(SKILL_META_ICONS_DIR):
+    app.mount("/skill-meta-icons", StaticFiles(directory=SKILL_META_ICONS_DIR), name="skill-meta-icons")
 
 if __name__ == "__main__":
     import uvicorn
