@@ -35,6 +35,50 @@ _skill_meta_cache: Optional[dict] = None
 _SKILL_ICON_CACHE: dict = {}
 _SKILL_META_ICON_CACHE: Optional[dict] = None
 _SPIRIT_ICON_META_CACHE: Optional[dict] = None
+_MECHANICS_CACHE: Optional[list[dict]] = None
+
+_MECHANIC_EXCLUDED_TITLES = {
+    "传说印记",
+    "命定印记",
+    "帕尔印记",
+    "技能石/湿润印记",
+    "迟缓印记",
+}
+
+_POSITIVE_MARKS = ["湿润印记", "龙噬印记", "蓄势印记", "风起印记", "蓄电印记", "光合印记", "攻击印记"]
+_NEGATIVE_MARKS = ["减速印记", "降灵印记", "星陨印记", "中毒印记", "棘刺印记"]
+_BATTLE_MARKS = _POSITIVE_MARKS + _NEGATIVE_MARKS
+
+_MECHANIC_SKILL_ICON_MAP = {
+    "光合印记": "光合作用",
+    "攻击印记": "主场优势",
+    "湿润印记": "打湿",
+    "蓄势印记": "蓄势待发",
+    "风起印记": "风起",
+    "龙噬印记": "龙威",
+    "蓄电印记": "增程电池",
+    "减速印记": "速冻",
+    "中毒印记": "疫病吐息",
+    "降灵印记": "降灵",
+    "星陨印记": "星轨裂变",
+    "棘刺印记": "棘刺",
+}
+
+_MECHANIC_ELEMENT_ICON_MAP = {
+    "中毒": "毒",
+    "灼烧": "火",
+    "冰冻": "冰",
+    "萌化": "萌",
+    "奉献": "虫",
+    "迅捷": "翼",
+    "传动": "机械",
+}
+
+_MECHANIC_LOCAL_ICON_MAP = {
+    "印记": "/mechanic-icons/%E5%8D%B0%E8%AE%B0.svg",
+    "机制": "/mechanic-icons/%E6%9C%BA%E5%88%B6.svg",
+    "状态": "/mechanic-icons/%E7%8A%B6%E6%80%81.svg",
+}
 
 def _ensure_loaded():
     global _db_loaded
@@ -628,6 +672,323 @@ def _element_icon_payload(value: str) -> list[dict]:
         {"name": name, "icon_url": _get_skill_meta_icon_url("elements", name)}
         for name in _split_element_names(value)
     ]
+
+
+def _clean_mechanic_body(text: str) -> str:
+    body = (text or "").replace("\r\n", "\n").replace("\r", "\n")
+    body = re.sub(r"\n==\s*参考资料\s*==[\s\S]*$", "", body)
+    body = body.replace("<references />", "")
+    body = body.replace("**", "")
+    body = body.replace("`", "")
+    replacements = {
+        "nextTurn": "回合开始",
+        "buildMoveRequest": "出招请求构建",
+        "|request|": "出招请求",
+        "disabled / energyCost UI 字段": "可用状态和能耗显示",
+        "disabled": "可用状态",
+        "energyCost": "能耗",
+        "budget": "剩余移动次数",
+        "wrap(S+1)": "下一格",
+        "wrap": "环绕",
+        "chain": "连锁",
+        "forceSwitch": "强制换宠",
+        "priority desc → speed desc → 随机 tiebreak": "先按优先级，再按速度，仍相同则随机",
+        "priority": "优先级",
+        "attacker": "攻击方",
+        "getStat('spe')": "当前速度",
+        "counter": "应对",
+        "lead": "首发",
+        "no-op": "不触发",
+        "moveSlots": "技能槽",
+        "meta-move": "引用型技能",
+        "MoveAction": "技能动作",
+        "moveid": "技能编号",
+        "slot.mods": "技能槽修正",
+        "shift": "移动",
+        "grant 招": "累积奉献的技能",
+        "Grant 招": "累积奉献的技能",
+        "STAB": "本系加成",
+        "basePower": "基础威力",
+        "mods": "修正",
+        "UI": "界面",
+    }
+    for src, dst in replacements.items():
+        body = body.replace(src, dst)
+    body = re.sub(r"（[A-Za-z0-9_\- /|().:+]+）", "", body)
+    body = re.sub(r"\(([A-Za-z0-9_\- /|().:+]+)\)", "", body)
+    body = "\n".join(line[1:].strip() if line.lstrip().startswith(">") else line for line in body.split("\n"))
+    body = body.replace("[[防御姿态]]", "[[防御]]")
+    return body.strip()
+
+
+def _manual_mechanic_entries() -> list[dict]:
+    return [
+        {
+            "id": "蓄电印记",
+            "title": "蓄电印记",
+            "category": "印记",
+            "polarity": "positive",
+            "meta": "正面印记",
+            "body": """== 蓄电印记 ==
+'''蓄电印记''' 是战斗中的一种[[印记|正面印记]]。
+
+=== 基础效果 ===
+* 攻击技能获得进发：本次威力+10。
+
+=== 机制说明 ===
+* 属于正面印记，同一阵营同时只能存在1种正面印记，新正面印记会覆盖旧正面印记。
+* 常驻战场，直到被其他正面印记覆盖或被驱散。
+
+=== 可施加该印记的技能 ===
+* [[增程电池]]：自己获得1层蓄电印记。""",
+            "is_overview": False,
+        },
+        {
+            "id": "减速印记",
+            "title": "减速印记",
+            "category": "印记",
+            "polarity": "negative",
+            "meta": "负面印记",
+            "body": """== 减速印记 ==
+'''减速印记''' 是战斗中的一种[[印记|负面印记]]。
+
+=== 基础效果 ===
+* 速度-10。
+
+=== 机制说明 ===
+* 属于负面印记，同一阵营同时只能存在1种负面印记，新负面印记会覆盖旧负面印记。
+* 常驻战场，直到被其他负面印记覆盖或被驱散。
+
+=== 可施加该印记的技能 ===
+* [[速冻]]：敌方获得2层减速印记。
+* [[冰蛋壳]]：减伤60%，应对攻击：敌方获得2层减速印记。""",
+            "is_overview": False,
+        },
+    ]
+
+
+def _override_mechanic_entry(entry: dict) -> dict:
+    item = dict(entry)
+    title = item.get("title", "")
+
+    if title == "状态":
+        item["body"] = """== 状态 ==
+'''状态''' 是挂在精灵身上的战斗效果。
+
+=== 永久状态 ===
+* 换宠不消失，留在原精灵身上，下次上场仍然存在。
+* 当前包含：[[冰冻]]、[[萌化]]。
+
+=== 临时状态 ===
+* 换宠会清除，部分效果也会被反场或驱散类技能清除。
+* 当前包含：[[灼烧]]、[[中毒]]、[[防御]]、[[能力等级]]。
+
+=== 与印记的区别 ===
+* 印记挂在阵营上，每方一正一负两个槽位，与当前是哪只精灵在场无关。
+* 状态挂在精灵身上，通常跟着精灵自身结算。"""
+
+    if title == "防御姿态":
+        item.update({
+            "id": "防御",
+            "title": "防御",
+            "category": "状态",
+            "polarity": "positive",
+            "meta": "防御状态",
+            "body": """== 防御 ==
+'''防御''' 是由防御类技能产生的本回合减伤状态。
+
+=== 基础效果 ===
+* 减伤比例由技能决定，常见为50%、60%、70%、80%，部分技能可以完全免伤。
+* 防御成立时，可以触发技能描述中的“应对防御”或“应对攻击”分支。
+
+=== 冷却规则 ===
+* 每使用一次防御技能，会产生1回合冷却。
+* 这一回合必须按该精灵自己的回合计算。
+* 如果使用防御后换下，再换该精灵上场，上场后的该精灵回合才会推进冷却。
+
+=== 关联口径 ===
+* 技能或特性描述中出现“防御”的，都会列在本页下方。""",
+        })
+
+    if title == "能力等级":
+        item["body"] = """== 能力等级 ==
+'''能力等级''' 用来描述物攻、魔攻、物防、魔防、速度这五项能力的百分比变化。
+
+=== 技能造成的临时能力变化 ===
+* 技能描述中的物攻、魔攻、物防、魔防、速度、双攻、双防变化属于临时状态。
+* 临时状态会被换宠、反场、驱散类技能清除。
+* 每1级按10%理解，例如物攻+30%视为物攻临时提高3级。
+* 正负方向可以抵消，具体结算以当前在场精灵身上的临时变化为准。
+
+=== 特性造成的永久五维变化 ===
+* 精灵特性导致的五维变化属于永久状态。
+* 永久状态不会因为换宠、反场或驱散类技能消除。
+* 如果特性写明“行动后降低”“首回合”等持续条件，则按特性描述结算。
+
+=== 页面关联 ===
+* 下方技能列表展示会造成临时五维变化的技能。
+* 下方特性精灵展示会造成永久五维变化的特性来源。"""
+
+    item["body"] = _clean_mechanic_body(item.get("body", ""))
+    return item
+
+
+def _prepare_mechanics_entries(raw_entries: list[dict]) -> list[dict]:
+    entries = []
+    seen = set()
+    for raw in raw_entries:
+        title = raw.get("title", "")
+        if title in _MECHANIC_EXCLUDED_TITLES:
+            continue
+        item = _override_mechanic_entry(raw)
+        if item["title"] in seen:
+            continue
+        seen.add(item["title"])
+        entries.append(item)
+
+    for item in _manual_mechanic_entries():
+        if item["title"] not in seen:
+            entries.append(_override_mechanic_entry(item))
+            seen.add(item["title"])
+
+    cat_order = {"印记": 0, "状态": 1, "关键词": 2}
+    pol_order = {"positive": 0, "negative": 1, "system": 2}
+    entries.sort(key=lambda e: (
+        cat_order.get(e.get("category"), 9),
+        0 if e.get("is_overview") else 1,
+        pol_order.get(e.get("polarity"), 2),
+        _BATTLE_MARKS.index(e["title"]) if e.get("title") in _BATTLE_MARKS else 99,
+        e.get("title", ""),
+    ))
+    return entries
+
+
+def _mechanics_entries() -> list[dict]:
+    global _MECHANICS_CACHE
+    if _MECHANICS_CACHE is not None:
+        return _MECHANICS_CACHE
+    path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data",
+        "mechanics_entries.json",
+    )
+    if not os.path.exists(path):
+        _MECHANICS_CACHE = []
+        return _MECHANICS_CACHE
+    with open(path, encoding="utf-8") as f:
+        raw_entries = json.load(f)
+        _MECHANICS_CACHE = _prepare_mechanics_entries(raw_entries)
+    return _MECHANICS_CACHE
+
+
+def _wiki_link_targets(text: str) -> set[str]:
+    targets = set()
+    for raw in re.findall(r"\[\[([^\]]+)\]\]", text or ""):
+        page = raw.split("|", 1)[0].strip()
+        display = raw.split("|", 1)[-1].strip()
+        if page:
+            targets.add(page)
+        if display:
+            targets.add(display)
+    return targets
+
+
+def _mechanic_exact_keywords(entry: dict) -> list[str]:
+    title = entry.get("title", "")
+    aliases = {
+        "冰冻": ["冰冻", "冻结"],
+        "防御": ["防御"],
+    }
+    if entry.get("is_overview"):
+        if title == "印记":
+            return ["印记"]
+        return []
+    words = aliases.get(title, [title])
+    return [w for w in dict.fromkeys(words) if w]
+
+
+def _text_mentions_any(text: str, words: list[str]) -> bool:
+    return any(w and w in (text or "") for w in words)
+
+
+def _strip_mark_suffix_mentions(text: str, title: str) -> str:
+    return (text or "").replace(f"{title}印记", "")
+
+
+def _has_stat_change(text: str) -> bool:
+    if not text:
+        return False
+    stat = r"(物攻|魔攻|物防|魔防|速度|双攻|双防|攻防|攻防速|全属性|全能力)"
+    sign = r"[+\-＋－]"
+    return bool(
+        re.search(stat + r"(?:和" + stat + r")?" + sign + r"\d+", text)
+        or re.search(r"提升\d+%?(?:攻防|双攻|双防|物攻|魔攻|物防|魔防|速度)", text)
+        or re.search(r"(?:攻防|双攻|双防|物攻|魔攻|物防|魔防|速度)" + r".{0,8}" + sign + r"\d+", text)
+    )
+
+
+def _contains_specific_mark(text: str) -> bool:
+    return any(mark in (text or "") for mark in _BATTLE_MARKS)
+
+
+def _mechanic_skill_matches(entry: dict, description: str) -> bool:
+    title = entry.get("title", "")
+    category = entry.get("category", "")
+    if not description or entry.get("is_overview"):
+        return title == "印记" and "印记" in (description or "")
+    if title == "能力等级":
+        return _has_stat_change(description)
+    if category == "印记":
+        return title in description
+    if title in {"中毒", "灼烧", "萌化"}:
+        return title in _strip_mark_suffix_mentions(description, title)
+    return _text_mentions_any(description, _mechanic_exact_keywords(entry))
+
+
+def _mechanic_ability_matches(entry: dict, ability_text: str) -> bool:
+    title = entry.get("title", "")
+    category = entry.get("category", "")
+    if not ability_text:
+        return False
+    if title == "能力等级":
+        return _has_stat_change(ability_text)
+    if category == "印记":
+        if title == "印记":
+            return "印记" in ability_text
+        if title in ability_text:
+            return True
+        if "所有印记" in ability_text:
+            return True
+        if "正面印记" in ability_text or "负面印记" in ability_text:
+            return (
+                ("正面印记" in ability_text and entry.get("polarity") == "positive")
+                or ("负面印记" in ability_text and entry.get("polarity") == "negative")
+            )
+        return "印记" in ability_text and not _contains_specific_mark(ability_text)
+    if title in {"中毒", "灼烧", "萌化"}:
+        return title in _strip_mark_suffix_mentions(ability_text, title)
+    return _text_mentions_any(ability_text, _mechanic_exact_keywords(entry))
+
+
+def _mechanic_icon_url(entry: dict) -> str:
+    title = entry.get("title", "")
+    if title in _MECHANIC_LOCAL_ICON_MAP:
+        return _MECHANIC_LOCAL_ICON_MAP[title]
+    skill_name = _MECHANIC_SKILL_ICON_MAP.get(title)
+    if skill_name:
+        icon = _get_skill_icon_url(skill_name)
+        if icon:
+            return icon
+    element = _MECHANIC_ELEMENT_ICON_MAP.get(title)
+    if element:
+        icon = _get_skill_meta_icon_url("elements", element)
+        if icon:
+            return icon
+    if title == "防御":
+        return _get_skill_meta_icon_url("categories", "防御")
+    if title == "能力等级":
+        return _get_skill_meta_icon_url("categories", "状态")
+    return ""
 
 
 def _build_spirit_icon_meta_cache() -> dict:
@@ -1817,6 +2178,94 @@ async def api_skill_detail(name: str):
     })
 
 
+@app.get("/api/mechanics/list")
+async def api_mechanics_list():
+    """机制百科：本地词条 + 自动关联技能/特性精灵。"""
+    _ensure_loaded()
+    from src.skill_db import _get_conn
+    conn = _get_conn()
+    c = conn.cursor()
+
+    c.execute("""
+        SELECT id, name, element, category, energy_cost, power, description,
+               icon_url, attribute_icon_url, category_icon_url
+        FROM skill
+        ORDER BY element, energy_cost, name
+    """)
+    skills = c.fetchall()
+    skill_names = {r["name"] for r in skills}
+
+    c.execute("""
+        SELECT name, element, ability, base_total, spirit_no, evo_stage
+        FROM pokemon
+        WHERE COALESCE(ability, '') <> '' AND ability <> ':'
+        ORDER BY name
+    """)
+    pokemon_rows = c.fetchall()
+
+    entries = []
+    for entry in _mechanics_entries():
+        related_skills = []
+        for r in skills:
+            description = r["description"] or ""
+            if _mechanic_skill_matches(entry, description):
+                related_skills.append({
+                    "name": r["name"],
+                    "element": r["element"],
+                    "category": r["category"],
+                    "energy_cost": r["energy_cost"],
+                    "power": r["power"],
+                    "description": r["description"] or "",
+                    "icon_url": _get_skill_icon_url(r["name"]) or r["icon_url"] or "",
+                    "attribute_icon_url": _get_skill_meta_icon_url("elements", r["element"]) or r["attribute_icon_url"] or "",
+                    "category_icon_url": _get_skill_meta_icon_url("categories", r["category"]) or r["category_icon_url"] or "",
+                    "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
+                })
+
+        abilities_by_key: dict[tuple[str, str], dict] = {}
+        for row in pokemon_rows:
+            ability_name, ability_effect = _split_ability_text(row["ability"])
+            if not ability_name and not ability_effect:
+                continue
+            hay = " ".join([ability_name, ability_effect])
+            if not _mechanic_ability_matches(entry, hay):
+                continue
+            key = (ability_name, ability_effect)
+            item = abilities_by_key.setdefault(key, {
+                "name": ability_name or "未命名特性",
+                "effect": ability_effect,
+                "pokemon": [],
+            })
+            meta = _get_spirit_icon_meta(row["name"])
+            number = _normalize_spirit_no(row["spirit_no"] or meta.get("number", ""))
+            item["pokemon"].append({
+                "name": row["name"],
+                "number": number,
+                "element": row["element"],
+                "element_icons": _element_icon_payload(row["element"]),
+                "base_total": row["base_total"],
+                "icon_url": _get_icon_url(row["name"]) or meta.get("icon_url", ""),
+                "is_leader": _is_leader_form(row["name"], row["evo_stage"]),
+            })
+
+        related_abilities = sorted(
+            abilities_by_key.values(),
+            key=lambda item: (item["name"], item["pokemon"][0]["name"] if item["pokemon"] else ""),
+        )
+
+        payload = dict(entry)
+        payload["icon_url"] = _mechanic_icon_url(entry)
+        payload["related_skills"] = related_skills
+        payload["related_abilities"] = related_abilities
+        entries.append(payload)
+
+    return JSONResponse({
+        "entries": entries,
+        "skill_names": sorted(skill_names),
+        "mechanic_titles": [e.get("title", "") for e in entries],
+    })
+
+
 @app.get("/api/pokemon/calc-stats")
 async def api_calc_combat_stats(
     base_hp: int, base_atk: int, base_spatk: int,
@@ -1921,6 +2370,10 @@ if os.path.exists(SKILL_ICONS_DIR):
 SKILL_META_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_meta_icons")
 if os.path.exists(SKILL_META_ICONS_DIR):
     app.mount("/skill-meta-icons", StaticFiles(directory=SKILL_META_ICONS_DIR), name="skill-meta-icons")
+
+MECHANIC_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "mechanic_icons")
+if os.path.exists(MECHANIC_ICONS_DIR):
+    app.mount("/mechanic-icons", StaticFiles(directory=MECHANIC_ICONS_DIR), name="mechanic-icons")
 
 if __name__ == "__main__":
     import uvicorn

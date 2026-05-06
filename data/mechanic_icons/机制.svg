@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="机制">
+  <defs>
+    <linearGradient id="mech-a" x1="12" y1="9" x2="52" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8ed7ff"/>
+      <stop offset="1" stop-color="#4d79d8"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#edf3fb"/>
+  <path d="M35.5 9 39 16.5c1.8.5 3.4 1.2 4.9 2.1l7.9-2.7 4.8 8.3-6.1 5.4c.1.9.2 1.8.2 2.8s-.1 1.9-.2 2.8l6.1 5.4-4.8 8.3-7.9-2.7c-1.5.9-3.1 1.6-4.9 2.1L35.5 56h-9.6l-3.5-7.7c-1.7-.5-3.4-1.2-4.8-2.1l-8 2.7-4.8-8.3 6.1-5.4c-.1-.9-.2-1.8-.2-2.8s.1-1.9.2-2.8l-6.1-5.4 4.8-8.3 8 2.7c1.4-.9 3.1-1.6 4.8-2.1L25.9 9h9.6Z" fill="url(#mech-a)" stroke="#2f559d" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="30.7" cy="32.5" r="10" fill="#fff8db" stroke="#2f559d" stroke-width="3"/>
+  <circle cx="30.7" cy="32.5" r="3.2" fill="#2f559d"/>
+</svg>
