@@ -41,15 +41,37 @@ def get_all_pokemon(conn):
     return [(r["id"], r["name"]) for r in c.fetchall()]
 
 
+def get_pokemon_missing_skill_metadata(conn):
+    """获取已有技能关联但缺少学习分组/等级的精灵。"""
+    c = conn.cursor()
+    c.execute(
+        """
+        SELECT p.id, p.name
+        FROM pokemon p
+        JOIN pokemon_skill ps ON ps.pokemon_id = p.id
+        GROUP BY p.id, p.name
+        HAVING SUM(CASE WHEN COALESCE(ps.learn_group, '') <> '' THEN 1 ELSE 0 END) = 0
+        ORDER BY p.id
+        """
+    )
+    return [(r["id"], r["name"]) for r in c.fetchall()]
+
+
 def ensure_schema(conn):
     """确保精灵-技能关联表能记录学习来源分组。"""
     c = conn.cursor()
     c.execute("PRAGMA table_info(pokemon_skill)")
     columns = {r["name"] for r in c.fetchall()}
+    changed = False
     if "learn_group" not in columns:
         c.execute("ALTER TABLE pokemon_skill ADD COLUMN learn_group TEXT DEFAULT ''")
+        changed = True
+    if "learn_level" not in columns:
+        c.execute("ALTER TABLE pokemon_skill ADD COLUMN learn_level TEXT DEFAULT ''")
+        changed = True
+    if changed:
         conn.commit()
-        print("[OK] pokemon_skill.learn_group column added")
+    print("[OK] pokemon_skill learn metadata columns checked")
 
 
 def get_skill_id(conn, name: str):
@@ -82,43 +104,50 @@ def get_existing_skills_for_pokemon(conn, pokemon_id: int):
     return {r["skill_id"] for r in c.fetchall()}
 
 
-def upsert_pokemon_skill(conn, pokemon_id: int, skill_id: int, learn_group: str = ""):
+def upsert_pokemon_skill(conn, pokemon_id: int, skill_id: int,
+                         learn_group: str = "", learn_level: str = ""):
     """插入精灵-技能关联，并记录技能组/学习来源。"""
     c = conn.cursor()
     c.execute(
-        "INSERT OR IGNORE INTO pokemon_skill (pokemon_id, skill_id, learn_group) VALUES (?, ?, ?)",
-        (pokemon_id, skill_id, learn_group)
+        "INSERT OR IGNORE INTO pokemon_skill (pokemon_id, skill_id, learn_group, learn_level) "
+        "VALUES (?, ?, ?, ?)",
+        (pokemon_id, skill_id, learn_group, learn_level)
     )
-    if learn_group:
+    if learn_group or learn_level:
         c.execute(
-            "UPDATE pokemon_skill SET learn_group = ? "
-            "WHERE pokemon_id = ? AND skill_id = ? AND COALESCE(learn_group, '') != ?",
-            (learn_group, pokemon_id, skill_id, learn_group)
+            "UPDATE pokemon_skill SET learn_group = ?, learn_level = ? "
+            "WHERE pokemon_id = ? AND skill_id = ?",
+            (learn_group, learn_level, pokemon_id, skill_id)
         )
 
 
 # ── 爬取单只精灵的技能 ──
-def crawl_pokemon_skills(name: str, session: requests.Session) -> dict:
+def crawl_pokemon_skills(name: str, session: requests.Session, retries: int = 0,
+                         retry_delay: float = 1.5) -> dict:
     """
-    返回 {
-        "精灵技能": [...],
-        "血脉技能": [...],
-        "可学技能石": [...],
-    }
-    每个列表元素是技能名字符串。
+    返回 {tab_name: [{"name": skill_name, "level": "LV1"}]}。
     """
     encoded_name = quote(name, safe='')
     url = BASE_URL + encoded_name
-    try:
-        r = session.get(url, headers=HEADERS, timeout=20)
-        if r.status_code != 200:
-            return {}
-        r.encoding = 'utf-8'
-    except Exception as e:
-        print(f"  ❌ 请求失败: {e}")
+    text = ""
+    for attempt in range(retries + 1):
+        try:
+            r = session.get(url, headers=HEADERS, timeout=20)
+            if r.status_code == 200:
+                r.encoding = 'utf-8'
+                text = r.text
+                if 'rocom_sprite_skill_tabBox' in text:
+                    break
+        except Exception as e:
+            if attempt >= retries:
+                print(f"  ❌ 请求失败: {e}")
+                return {}
+        if attempt < retries:
+            time.sleep(retry_delay)
+    if not text:
         return {}
 
-    soup = BeautifulSoup(r.text, 'lxml')
+    soup = BeautifulSoup(text, 'lxml')
     result = {}
 
     # 找技能 tabBox
@@ -132,8 +161,28 @@ def crawl_pokemon_skills(name: str, session: requests.Session) -> dict:
         title = tab.get('title', '').strip()
         if not title:
             continue
-        skill_divs = tab.find_all('div', class_='rocom_sprite_skillName')
-        skills = list(dict.fromkeys(s.get_text(strip=True) for s in skill_divs))  # 去重保序
+        skill_items = []
+        seen = set()
+        for box in tab.find_all('div', class_='rocom_sprite_skill_box'):
+            name_el = box.find('div', class_='rocom_sprite_skillName')
+            if not name_el:
+                continue
+            skill_name = name_el.get_text(strip=True)
+            if not skill_name or skill_name in seen:
+                continue
+            level_el = box.find('div', class_='rocom_sprite_skill_level')
+            level = level_el.get_text(" ", strip=True).replace("\xa0", " ") if level_el else ""
+            skill_items.append({"name": skill_name, "level": level})
+            seen.add(skill_name)
+
+        if not skill_items:
+            skill_divs = tab.find_all('div', class_='rocom_sprite_skillName')
+            for s in skill_divs:
+                skill_name = s.get_text(strip=True)
+                if skill_name and skill_name not in seen:
+                    skill_items.append({"name": skill_name, "level": ""})
+                    seen.add(skill_name)
+        skills = skill_items
         if skills:
             result[title] = skills
 
@@ -145,6 +194,9 @@ def main():
     parser = argparse.ArgumentParser(description="爬取 Wiki 精灵技能数据")
     parser.add_argument("--test", metavar="NAME", help="只测试一只精灵（如 '圣羽翼王'）")
     parser.add_argument("--limit", type=int, default=0, help="限制爬取数量（0=全部）")
+    parser.add_argument("--delay", type=float, default=DELAY, help="每只精灵请求后的间隔秒数")
+    parser.add_argument("--retries", type=int, default=2, help="技能页为空时重试次数")
+    parser.add_argument("--missing-only", action="store_true", help="只补齐缺少技能分组的精灵")
     parser.add_argument("--dry-run", action="store_true", help="只打印，不写入DB")
     parser.add_argument("--resume", metavar="FILE", help="从上次保存的进度文件继续")
     args = parser.parse_args()
@@ -156,15 +208,16 @@ def main():
     # ── 测试模式 ──
     if args.test:
         print(f"=== 测试爬取: {args.test} ===")
-        result = crawl_pokemon_skills(args.test, session)
+        result = crawl_pokemon_skills(args.test, session, retries=args.retries)
         total = sum(len(v) for v in result.values())
         print(f"共 {total} 个技能:")
         for tab_name, skills in result.items():
-            print(f"  [{tab_name}]({len(skills)}个): {skills}")
+            preview = [f"{s['level'] or '-'} {s['name']}" for s in skills]
+            print(f"  [{tab_name}]({len(skills)}个): {preview}")
         return
 
     # ── 全量爬取 ──
-    all_pokemon = get_all_pokemon(conn)
+    all_pokemon = get_pokemon_missing_skill_metadata(conn) if args.missing_only else get_all_pokemon(conn)
     if args.limit > 0:
         all_pokemon = all_pokemon[:args.limit]
 
@@ -172,7 +225,7 @@ def main():
     print(f"共 {total_pokemon} 只精灵需要处理")
 
     # 进度存储
-    progress_file = "data/crawl_progress.json"
+    progress_file = args.resume or "data/crawl_progress.json"
     done_names = set()
     if args.resume and os.path.exists(progress_file):
         with open(progress_file) as f:
@@ -191,12 +244,12 @@ def main():
 
         print(f"[{i+1}/{total_pokemon}] {pname}...", end=" ", flush=True)
 
-        skills_data = crawl_pokemon_skills(pname, session)
+        skills_data = crawl_pokemon_skills(pname, session, retries=args.retries)
         if not skills_data:
             print("(无技能页面)")
             stats["skipped"] += 1
             done_list.append(pname)
-            time.sleep(DELAY * 0.5)
+            time.sleep(args.delay * 0.5)
             continue
 
         total_skills = sum(len(v) for v in skills_data.values())
@@ -205,18 +258,20 @@ def main():
         if not args.dry_run:
             existing = get_existing_skills_for_pokemon(conn, pid)
             new_relations = 0
-            for tab_name, skill_names in skills_data.items():
-                for sk_name in skill_names:
+            for tab_name, skill_items in skills_data.items():
+                for item in skill_items:
+                    sk_name = item["name"]
+                    learn_level = item.get("level", "")
                     sk_id = get_skill_id(conn, sk_name)
                     if sk_id is None:
                         # 技能不在DB里，跳过（不自动新增，避免引入脏数据）
                         continue
                     if sk_id not in existing:
-                        upsert_pokemon_skill(conn, pid, sk_id, tab_name)
+                        upsert_pokemon_skill(conn, pid, sk_id, tab_name, learn_level)
                         new_relations += 1
                         existing.add(sk_id)
                     else:
-                        upsert_pokemon_skill(conn, pid, sk_id, tab_name)
+                        upsert_pokemon_skill(conn, pid, sk_id, tab_name, learn_level)
             conn.commit()
             if new_relations > 0:
                 print(f"(+{new_relations}条关联)", end=" ")
@@ -232,7 +287,7 @@ def main():
                 json.dump({"done": done_list}, f, ensure_ascii=False)
             print(f"  → 进度已保存 ({i+1}/{total_pokemon})")
 
-        time.sleep(DELAY)
+        time.sleep(args.delay)
 
     # 最终保存进度
     with open(progress_file, "w") as f:

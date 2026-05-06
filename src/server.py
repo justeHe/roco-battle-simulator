@@ -4,6 +4,7 @@
 
 import sys
 import os
+import csv
 import json
 import re
 import urllib.parse
@@ -32,6 +33,7 @@ STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file
 _db_loaded = False
 _skill_meta_cache: Optional[dict] = None
 _SKILL_ICON_CACHE: dict = {}
+_SPIRIT_ICON_META_CACHE: Optional[dict] = None
 
 def _ensure_loaded():
     global _db_loaded
@@ -67,6 +69,8 @@ def _ensure_metadata_schema():
     ps_cols = columns("pokemon_skill")
     if "learn_group" not in ps_cols:
         c.execute("ALTER TABLE pokemon_skill ADD COLUMN learn_group TEXT DEFAULT ''")
+    if "learn_level" not in ps_cols:
+        c.execute("ALTER TABLE pokemon_skill ADD COLUMN learn_level TEXT DEFAULT ''")
 
     conn.commit()
 
@@ -559,11 +563,77 @@ def _build_icon_cache():
             name = m.group(2)
             # 只存第一个（原始形态优先）
             if name not in _ICON_CACHE:
-                _ICON_CACHE[name] = f"/icons/{fname}"
+                _ICON_CACHE[name] = f"/icons/{urllib.parse.quote(fname)}"
 
 def _get_icon_url(name: str) -> str:
     _build_icon_cache()
     return _ICON_CACHE.get(name, "")
+
+
+def _normalize_spirit_no(value: str) -> str:
+    if not value:
+        return ""
+    m = re.search(r"(\d+)", str(value))
+    return f"NO.{int(m.group(1)):03d}" if m else str(value)
+
+
+def _split_ability_text(value: str) -> tuple[str, str]:
+    """把数据库里的“特性名:效果描述”拆成前端可直接展示的两段。"""
+    text = (value or "").strip()
+    if not text:
+        return "", ""
+    parts = re.split(r"[:：]", text, 1)
+    if len(parts) == 1:
+        return parts[0].strip(), ""
+    return parts[0].strip(), parts[1].strip()
+
+
+def _build_spirit_icon_meta_cache() -> dict:
+    """读取本地图鉴立绘清单，补充编号、形态和同编号变体信息。"""
+    global _SPIRIT_ICON_META_CACHE
+    if _SPIRIT_ICON_META_CACHE is not None:
+        return _SPIRIT_ICON_META_CACHE
+
+    manifest = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data",
+        "spirit_icons_manifest.csv",
+    )
+    by_name: dict[str, dict] = {}
+    by_number: dict[str, list[dict]] = {}
+    if os.path.exists(manifest):
+        with open(manifest, newline="", encoding="utf-8-sig") as f:
+            for row in csv.DictReader(f):
+                filename = row.get("图片文件名", "")
+                local_url = row.get("本地URL") or (f"/icons/{urllib.parse.quote(filename)}" if filename else "")
+                item = {
+                    "number": row.get("编号", ""),
+                    "name": row.get("名字", ""),
+                    "stage": row.get("阶段", ""),
+                    "element": row.get("属性", ""),
+                    "form_type": row.get("形态分类", ""),
+                    "form": row.get("形态", ""),
+                    "has_variant": row.get("是否有异色", ""),
+                    "icon_url": local_url,
+                    "wiki_url": row.get("详情页URL", ""),
+                }
+                if item["name"]:
+                    by_name[item["name"]] = item
+                if item["number"]:
+                    by_number.setdefault(item["number"], []).append(item)
+
+    _SPIRIT_ICON_META_CACHE = {"by_name": by_name, "by_number": by_number}
+    return _SPIRIT_ICON_META_CACHE
+
+
+def _get_spirit_icon_meta(name: str) -> dict:
+    cache = _build_spirit_icon_meta_cache()
+    return cache["by_name"].get(name, {})
+
+
+def _get_spirit_variants(number: str) -> list[dict]:
+    cache = _build_spirit_icon_meta_cache()
+    return cache["by_number"].get(_normalize_spirit_no(number), [])
 
 # ═══════════════════════════════════════
 
@@ -1406,7 +1476,7 @@ async def api_pokemon_list(q: str = ""):
     if q:
         c.execute(
             "SELECT id, name, element, ability, base_hp, base_atk, base_spatk, "
-            "base_def, base_spdef, base_speed, base_total "
+            "base_def, base_spdef, base_speed, base_total, evo_stage, spirit_no "
             "FROM pokemon WHERE name LIKE ? OR element LIKE ? "
             "ORDER BY name",
             (f"%{q}%", f"%{q}%"),
@@ -1414,20 +1484,26 @@ async def api_pokemon_list(q: str = ""):
     else:
         c.execute(
             "SELECT id, name, element, ability, base_hp, base_atk, base_spatk, "
-            "base_def, base_spdef, base_speed, base_total "
+            "base_def, base_spdef, base_speed, base_total, evo_stage, spirit_no "
             "FROM pokemon ORDER BY name"
         )
     rows = c.fetchall()
     result = []
     for r in rows:
-        # 提取简短特性名（去掉冒号后的描述）
-        ability_short = r["ability"].split(":")[0].split("：")[0] if r["ability"] else ""
+        ability_name, ability_effect = _split_ability_text(r["ability"])
+        meta = _get_spirit_icon_meta(r["name"])
+        number = _normalize_spirit_no(r["spirit_no"] or meta.get("number", ""))
         result.append({
             "id":      r["id"],
             "name":    r["name"],
+            "number":  number,
             "element": r["element"],
-            "icon_url": _get_icon_url(r["name"]),
-            "ability": ability_short,
+            "icon_url": _get_icon_url(r["name"]) or meta.get("icon_url", ""),
+            "ability": ability_name,
+            "ability_effect": ability_effect,
+            "evo_stage": r["evo_stage"] or meta.get("stage", ""),
+            "form_type": meta.get("form_type", ""),
+            "form": meta.get("form", ""),
             "base_total": r["base_total"],
             "base_hp":    r["base_hp"],
             "base_atk":   r["base_atk"],
@@ -1437,6 +1513,50 @@ async def api_pokemon_list(q: str = ""):
             "base_speed": r["base_speed"],
         })
     return JSONResponse(result)
+
+
+@app.get("/api/pokemon/detail")
+async def api_pokemon_detail(name: str):
+    """精灵图鉴详情：基础数据 + 本地形态立绘列表。"""
+    _ensure_loaded()
+    from src.pokemon_db import _get_conn
+    conn = _get_conn()
+    c = conn.cursor()
+    c.execute(
+        "SELECT id, name, element, ability, base_hp, base_atk, base_spatk, "
+        "base_def, base_spdef, base_speed, base_total, evo_stage, spirit_no "
+        "FROM pokemon WHERE name = ?",
+        (name,),
+    )
+    r = c.fetchone()
+    if not r:
+        return JSONResponse({"error": "pokemon_not_found"}, status_code=404)
+
+    ability_name, ability_effect = _split_ability_text(r["ability"])
+    meta = _get_spirit_icon_meta(r["name"])
+    number = _normalize_spirit_no(r["spirit_no"] or meta.get("number", ""))
+    variants = _get_spirit_variants(number)
+    return JSONResponse({
+        "id": r["id"],
+        "name": r["name"],
+        "number": number,
+        "element": r["element"],
+        "ability": ability_name,
+        "ability_effect": ability_effect,
+        "ability_full": r["ability"] or "",
+        "evo_stage": r["evo_stage"] or meta.get("stage", ""),
+        "form_type": meta.get("form_type", ""),
+        "form": meta.get("form", ""),
+        "icon_url": _get_icon_url(r["name"]) or meta.get("icon_url", ""),
+        "base_total": r["base_total"],
+        "base_hp": r["base_hp"],
+        "base_atk": r["base_atk"],
+        "base_spatk": r["base_spatk"],
+        "base_def": r["base_def"],
+        "base_spdef": r["base_spdef"],
+        "base_speed": r["base_speed"],
+        "variants": variants,
+    })
 
 
 @app.get("/api/pokemon/skills")
@@ -1463,11 +1583,12 @@ async def api_pokemon_skills(name: str):
     c.execute(
         "SELECT DISTINCT s.name, s.element, s.category, s.energy_cost, s.power, s.description, "
         "s.icon_url, s.attribute_icon_url, s.category_icon_url, s.skill_group, s.wiki_url, "
-        "COALESCE(ps.learn_group, '') AS learn_group "
+        "COALESCE(ps.learn_group, '') AS learn_group, "
+        "COALESCE(ps.learn_level, '') AS learn_level "
         "FROM skill s "
         "JOIN pokemon_skill ps ON ps.skill_id = s.id "
         "WHERE ps.pokemon_id = ? "
-        "ORDER BY ps.learn_group, s.energy_cost, s.name",
+        "ORDER BY ps.learn_group, ps.learn_level, s.energy_cost, s.name",
         (pokemon_id,),
     )
     rows = c.fetchall()
@@ -1489,6 +1610,7 @@ async def api_pokemon_skills(name: str):
             "category_icon_url": r["category_icon_url"] or "",
             "skill_group": r["skill_group"] or "",
             "learn_group": r["learn_group"] or "",
+            "learn_level": r["learn_level"] or "",
             "wiki_url": r["wiki_url"] or "",
             "tags":        effect_view["tags"],
             "effect_details": effect_view["details"],

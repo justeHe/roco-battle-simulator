@@ -77,6 +77,7 @@ def create_tables(conn):
         pokemon_id  INTEGER NOT NULL,
         skill_id    INTEGER NOT NULL,
         learn_group TEXT DEFAULT '',
+        learn_level TEXT DEFAULT '',
         PRIMARY KEY (pokemon_id, skill_id),
         FOREIGN KEY (pokemon_id) REFERENCES pokemon(id),
         FOREIGN KEY (skill_id)   REFERENCES skill(id)
