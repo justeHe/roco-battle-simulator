@@ -37,6 +37,8 @@ _SKILL_META_ICON_CACHE: Optional[dict] = None
 _SPIRIT_ICON_META_CACHE: Optional[dict] = None
 _MECHANICS_CACHE: Optional[list[dict]] = None
 _ABILITY_ICON_CACHE: Optional[dict[str, str]] = None
+_EGG_GROUPS_CACHE: Optional[dict] = None
+_EGG_MEASUREMENTS_CACHE: Optional[dict] = None
 
 _MECHANIC_EXCLUDED_TITLES = {
     "传说印记",
@@ -212,6 +214,173 @@ def _get_ability_icon_url(name: str) -> str:
     if not name:
         return ""
     return _build_ability_icon_cache().get(name, "")
+
+
+def _egg_groups_data() -> dict:
+    """读取本地蛋组数据。"""
+    global _EGG_GROUPS_CACHE
+    if _EGG_GROUPS_CACHE is not None:
+        return _EGG_GROUPS_CACHE
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(root, "data", "egg_groups.json")
+    if not os.path.exists(path):
+        _EGG_GROUPS_CACHE = {"ok": True, "groups": [], "cards": []}
+        return _EGG_GROUPS_CACHE
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    data.setdefault("groups", [])
+    data.setdefault("cards", [])
+    _EGG_GROUPS_CACHE = data
+    return _EGG_GROUPS_CACHE
+
+
+def _egg_card_search_text(card: dict) -> str:
+    rep = card.get("representative") or {}
+    parts = [
+        card.get("group_display", ""),
+        card.get("group_description", ""),
+        card.get("mother_family", ""),
+        card.get("family_chain", ""),
+        card.get("family_key", ""),
+        rep.get("display_name", ""),
+        rep.get("page_name", ""),
+        rep.get("class_name", ""),
+        rep.get("type_name", ""),
+        rep.get("hatch_status_text", ""),
+        " ".join(card.get("family_members") or []),
+    ]
+    return " ".join(str(p or "") for p in parts).casefold()
+
+
+def _egg_group_map(data: dict) -> dict[int, dict]:
+    return {
+        int(group.get("group_id")): group
+        for group in data.get("groups", [])
+        if group.get("group_id") is not None
+    }
+
+
+def _egg_measurements_data() -> dict:
+    """读取本地孵蛋尺寸反查数据。"""
+    global _EGG_MEASUREMENTS_CACHE
+    if _EGG_MEASUREMENTS_CACHE is not None:
+        return _EGG_MEASUREMENTS_CACHE
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(root, "data", "egg_measurements.json")
+    if not os.path.exists(path):
+        _EGG_MEASUREMENTS_CACHE = {"total": 0, "totalPets": 0, "groups": []}
+        return _EGG_MEASUREMENTS_CACHE
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    data.setdefault("groups", [])
+    _EGG_MEASUREMENTS_CACHE = data
+    return _EGG_MEASUREMENTS_CACHE
+
+
+def _parse_measure_range(value: str) -> tuple[Optional[float], Optional[float]]:
+    nums = re.findall(r"\d+(?:\.\d+)?", str(value or ""))
+    if not nums:
+        return None, None
+    if len(nums) == 1:
+        val = float(nums[0])
+        return val, val
+    first = float(nums[0])
+    second = float(nums[1])
+    return min(first, second), max(first, second)
+
+
+def _range_item_payload(item: dict) -> dict:
+    diameter_min, diameter_max = _parse_measure_range(item.get("eggDiameter", ""))
+    weight_min, weight_max = _parse_measure_range(item.get("eggWeight", ""))
+    return {
+        "id": item.get("id"),
+        "eggDiameter": item.get("eggDiameter", ""),
+        "eggWeight": item.get("eggWeight", ""),
+        "diameter_min": diameter_min,
+        "diameter_max": diameter_max,
+        "weight_min": weight_min,
+        "weight_max": weight_max,
+    }
+
+
+def _hatch_pet_icon_url(pet_id: str, pet_name: str) -> str:
+    cache = _build_spirit_icon_meta_cache()
+    number = _normalize_spirit_no(pet_id)
+    variants = cache["by_number"].get(number, [])
+    for item in variants:
+        if item.get("name") == pet_name:
+            return item.get("icon_url", "")
+    for item in variants:
+        if str(item.get("name", "")).startswith(pet_name):
+            return item.get("icon_url", "")
+    return _get_icon_url(pet_name) or (variants[0].get("icon_url", "") if variants else "")
+
+
+def _resolve_hatch_pet_meta(pet_id: str, pet_name: str) -> dict:
+    cache = _build_spirit_icon_meta_cache()
+    by_name = cache.get("by_name", {})
+    number = _normalize_spirit_no(pet_id)
+    variants = cache.get("by_number", {}).get(number, [])
+
+    meta = by_name.get(pet_name)
+    if meta:
+        return {
+            "dex_name": meta.get("name") or pet_name,
+            "icon_url": meta.get("icon_url", ""),
+            "number": number or meta.get("number", ""),
+            "element": meta.get("element", ""),
+        }
+
+    for item in variants:
+        item_name = str(item.get("name", ""))
+        if item_name.startswith(pet_name) or pet_name in item_name:
+            return {
+                "dex_name": item_name,
+                "icon_url": item.get("icon_url", ""),
+                "number": number,
+                "element": item.get("element", ""),
+            }
+
+    if variants:
+        item = variants[0]
+        return {
+            "dex_name": item.get("name") or pet_name,
+            "icon_url": item.get("icon_url", ""),
+            "number": number,
+            "element": item.get("element", ""),
+        }
+
+    return {
+        "dex_name": pet_name,
+        "icon_url": _hatch_pet_icon_url(pet_id, pet_name),
+        "number": number,
+        "element": "",
+    }
+
+
+def _measurement_matches(value: float, minimum: Optional[float], maximum: Optional[float]) -> bool:
+    if minimum is None or maximum is None:
+        return False
+    epsilon = 1e-9
+    return minimum - epsilon <= value <= maximum + epsilon
+
+
+def _range_score(diameter: float, weight: float, item: dict) -> tuple[float, float]:
+    dmin = item.get("diameter_min")
+    dmax = item.get("diameter_max")
+    wmin = item.get("weight_min")
+    wmax = item.get("weight_max")
+    dspan = (dmax - dmin) if dmin is not None and dmax is not None else 9999.0
+    wspan = (wmax - wmin) if wmin is not None and wmax is not None else 9999.0
+    area = dspan * wspan
+    mid_d = ((dmin + dmax) / 2) if dmin is not None and dmax is not None else diameter
+    mid_w = ((wmin + wmax) / 2) if wmin is not None and wmax is not None else weight
+    distance = abs(diameter - mid_d) + abs(weight - mid_w)
+    return area, distance
 
 
 def _skill_metadata_cache() -> dict:
@@ -2309,6 +2478,125 @@ async def api_mechanics_list():
     })
 
 
+@app.get("/api/egg-groups")
+async def api_egg_groups():
+    """本地蛋组分类。"""
+    data = _egg_groups_data()
+    return JSONResponse({
+        "ok": True,
+        "groups": data.get("groups", []),
+        "updated_at": data.get("updated_at", ""),
+        "source": data.get("source", ""),
+    })
+
+
+@app.get("/api/egg-group-members")
+async def api_egg_group_members(group_id: int = 0, q: str = "", page: int = 1, page_size: int = 30):
+    """本地蛋组母族查询，group_id=0 表示全部蛋组。"""
+    data = _egg_groups_data()
+    group_map = _egg_group_map(data)
+    cards = list(data.get("cards", []))
+
+    if group_id:
+        cards = [card for card in cards if int(card.get("group_id") or 0) == group_id]
+
+    tokens = [token.casefold() for token in re.split(r"\s+", q.strip()) if token.strip()]
+    if tokens:
+        cards = [
+            card for card in cards
+            if all(token in _egg_card_search_text(card) for token in tokens)
+        ]
+
+    cards.sort(key=lambda card: (
+        int(card.get("group_id") or 0),
+        str(card.get("mother_family") or ""),
+        str(card.get("family_chain") or ""),
+    ))
+
+    page_size = max(1, min(int(page_size or 30), 60))
+    total_count = len(cards)
+    total_pages = max(1, (total_count + page_size - 1) // page_size)
+    page = max(1, min(int(page or 1), total_pages))
+    start = (page - 1) * page_size
+    page_cards = cards[start:start + page_size]
+
+    return JSONResponse({
+        "ok": True,
+        "group": group_map.get(group_id) if group_id else None,
+        "groups": data.get("groups", []),
+        "cards": page_cards,
+        "query": q,
+        "page": page,
+        "page_size": page_size,
+        "total_count": total_count,
+        "total_pages": total_pages,
+    })
+
+
+@app.get("/api/hatch-query")
+async def api_hatch_query(diameter: float, weight: float):
+    """根据蛋的直径和体重，用区间数据反查候选精灵。"""
+    data = _egg_measurements_data()
+    rows = []
+
+    for group in data.get("groups", []):
+        pet_id = str(group.get("petId") or "").strip()
+        pet_name = str(group.get("pet") or "").strip()
+        matched_ranges = []
+        best_area = 9999.0
+        best_distance = 9999.0
+
+        for item in group.get("rangeItems") or []:
+            payload = _range_item_payload(item)
+            if not _measurement_matches(diameter, payload["diameter_min"], payload["diameter_max"]):
+                continue
+            if not _measurement_matches(weight, payload["weight_min"], payload["weight_max"]):
+                continue
+            matched_ranges.append(payload)
+            area, distance = _range_score(diameter, weight, payload)
+            best_area = min(best_area, area)
+            best_distance = min(best_distance, distance)
+
+        if not matched_ranges:
+            continue
+
+        pet_meta = _resolve_hatch_pet_meta(pet_id, pet_name)
+        rows.append({
+            "pet_id": pet_id,
+            "name": pet_name,
+            "dex_name": pet_meta["dex_name"],
+            "number": pet_meta["number"],
+            "element": pet_meta["element"],
+            "icon_url": pet_meta["icon_url"],
+            "match_count": len(matched_ranges),
+            "matched_ranges": matched_ranges,
+            "score_area": best_area,
+            "score_distance": best_distance,
+        })
+
+    rows.sort(key=lambda row: (row["score_area"], row["score_distance"], row["number"], row["name"]))
+
+    return JSONResponse({
+        "ok": True,
+        "diameter": diameter,
+        "weight": weight,
+        "total_count": len(rows),
+        "rows": rows,
+        "source": data.get("source", ""),
+    })
+
+
+@app.get("/api/hatch-query/meta")
+async def api_hatch_query_meta():
+    data = _egg_measurements_data()
+    return JSONResponse({
+        "ok": True,
+        "total_pets": data.get("totalPets", 0),
+        "total_measurements": data.get("total", 0),
+        "source": data.get("source", ""),
+    })
+
+
 @app.get("/api/pokemon/calc-stats")
 async def api_calc_combat_stats(
     base_hp: int, base_atk: int, base_spatk: int,
@@ -2381,6 +2669,10 @@ async def skills_page():
 async def mechanics_page():
     return FileResponse(os.path.join(STATIC_DIR, "mechanics.html"))
 
+@app.get("/tools")
+async def tools_page():
+    return FileResponse(os.path.join(STATIC_DIR, "tools.html"))
+
 @app.get("/storage")
 async def storage_page():
     return FileResponse(os.path.join(STATIC_DIR, "storage.html"))
@@ -2417,6 +2709,10 @@ if os.path.exists(SKILL_META_ICONS_DIR):
 ABILITY_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "ability_icons")
 if os.path.exists(ABILITY_ICONS_DIR):
     app.mount("/ability-icons", StaticFiles(directory=ABILITY_ICONS_DIR), name="ability-icons")
+
+EGG_GROUP_AVATARS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "egg_group_avatars")
+if os.path.exists(EGG_GROUP_AVATARS_DIR):
+    app.mount("/egg-group-avatars", StaticFiles(directory=EGG_GROUP_AVATARS_DIR), name="egg-group-avatars")
 
 MECHANIC_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "mechanic_icons")
 if os.path.exists(MECHANIC_ICONS_DIR):

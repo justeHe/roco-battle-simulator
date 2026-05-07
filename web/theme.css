@@ -206,6 +206,28 @@ body > * { position: relative; z-index: 1; }
   background: rgba(255,255,255,0.78);
   transform: translateY(-1px);
 }
+@media(max-width:720px) {
+  .roco-topbar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 14px;
+  }
+  .roco-topbar .logo { height: 28px; }
+  .roco-topbar .title,
+  .roco-topbar h1 {
+    font-size: 16px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .roco-topbar .app-nav {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+  .app-nav a { flex: 0 0 auto; }
+}
 .page-shell {
   min-height: 100vh;
   display: flex;

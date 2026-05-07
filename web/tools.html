@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>洛克王国 · 工具</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+body { min-height: 100vh; }
+.tools-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+.tools-sidebar {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 12px;
+  position: sticky;
+  top: 14px;
+  box-shadow: var(--shadow-sm);
+}
+.tools-kicker {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 900;
+  margin: 2px 4px 10px;
+}
+.tool-link {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border: 2px solid transparent;
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+  padding: 10px;
+  text-align: left;
+  cursor: pointer;
+}
+.tool-link + .tool-link { margin-top: 8px; }
+.tool-link.active {
+  border-color: var(--primary);
+  background: rgba(255,255,255,.74);
+  box-shadow: var(--shadow-sm);
+}
+.tool-link strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+.tool-link span {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.tool-badge {
+  border: 1px solid rgba(245,166,35,.38);
+  border-radius: var(--r-pill);
+  color: var(--primary-dark);
+  background: rgba(245,166,35,.12);
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 900;
+}
+.tool-surface {
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  min-height: calc(100vh - 96px);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.tool-panel[hidden] { display: none; }
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255,255,255,.74), rgba(255,255,255,.36));
+}
+.panel-head h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 20px;
+  line-height: 1.2;
+}
+.panel-head p {
+  margin: 5px 0 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+.panel-count {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 800;
+}
+.query-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 180px 86px;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.query-bar .roco-input,
+.query-bar .roco-select { width: 100%; }
+.group-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.group-pill {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+}
+.group-pill:hover,
+.group-pill.active { border-color: var(--primary); background: rgba(255,255,255,.72); }
+.group-pill strong { display: block; font-size: 12px; font-weight: 900; }
+.group-pill span { color: var(--text-secondary); font-size: 10px; }
+.result-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px 4px;
+}
+.result-head h2 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--text-primary);
+}
+.result-head span {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+}
+.member-grid,
+.hatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 10px;
+  padding: 12px 16px 16px;
+}
+.member-card,
+.hatch-card {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 10px;
+  background: var(--bg-input);
+  border: 2px solid transparent;
+  border-radius: var(--r-md);
+  padding: 10px;
+  min-height: 110px;
+  transition: border-color .15s, transform .15s, background .15s;
+}
+.member-card:hover,
+.hatch-card:hover {
+  border-color: var(--primary);
+  background: rgba(255,255,255,.72);
+  transform: translateY(-1px);
+}
+.member-avatar,
+.hatch-avatar {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,.7);
+  padding: 4px;
+}
+.member-title,
+.hatch-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+.member-title a,
+.hatch-title a {
+  color: var(--primary-dark);
+  font-size: 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+.member-title a:hover,
+.hatch-title a:hover { text-decoration: underline; }
+.group-tag,
+.status-tag,
+.range-tag {
+  flex: 0 0 auto;
+  border-radius: var(--r-pill);
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 900;
+}
+.group-tag {
+  color: var(--primary-dark);
+  background: rgba(245,166,35,.12);
+  border: 1px solid rgba(245,166,35,.32);
+}
+.status-tag,
+.range-tag {
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+.status-tag.ok {
+  color: var(--hp-green);
+  border-color: rgba(92,184,92,.36);
+  background: rgba(92,184,92,.08);
+}
+.member-meta,
+.hatch-meta {
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.55;
+  margin-top: 4px;
+}
+.chain-row,
+.range-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+.chain-chip,
+.range-chip {
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 10px;
+  padding: 2px 5px;
+}
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 16px;
+}
+.page-btn {
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+.page-btn.active,
+.page-btn:hover:not(:disabled) { border-color: var(--primary); background: rgba(255,255,255,.78); }
+.page-btn:disabled { opacity: .42; cursor: not-allowed; }
+.empty-state {
+  margin: 16px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-lg);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  padding: 34px;
+  text-align: center;
+  font-size: 13px;
+}
+.hatch-form {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.hatch-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 110px;
+  gap: 8px;
+}
+.field-stack label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+.field-stack .roco-input { width: 100%; }
+.hint-line {
+  padding: 10px 16px 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.hatch-card {
+  grid-template-columns: 66px minmax(0, 1fr);
+  min-height: 128px;
+}
+.hatch-avatar {
+  width: 66px;
+  height: 66px;
+}
+.hatch-subline {
+  color: var(--text-secondary);
+  font-size: 11px;
+  margin-top: 4px;
+}
+@media(max-width:860px) {
+  .tools-layout { grid-template-columns: 1fr; }
+  .tools-sidebar { position: static; }
+  .query-bar,
+  .hatch-form-grid { grid-template-columns: 1fr; }
+  .panel-head { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+<div class="page-shell">
+  <header class="roco-topbar">
+    <img class="logo" src="assets/img/logo.png" alt="洛克王国">
+    <div class="title">工具</div>
+    <nav class="app-nav">
+      <a href="/dex">图鉴</a>
+      <a href="/skills">技能</a>
+      <a href="/mechanics">机制</a>
+      <a href="/tools" class="active">工具</a>
+      <a href="/storage">仓库</a>
+      <a href="/simulator">队伍</a>
+      <a href="/battle">对战</a>
+    </nav>
+  </header>
+
+  <main class="page-main">
+    <div class="tools-layout">
+      <aside class="tools-sidebar">
+        <div class="tools-kicker">工具列表</div>
+        <button class="tool-link" type="button" data-tool="egg-group">
+          <span><strong>蛋组查询器</strong><span>母族 / 蛋组</span></span>
+          <b class="tool-badge">资料</b>
+        </button>
+        <button class="tool-link" type="button" data-tool="hatch-query">
+          <span><strong>孵蛋查询器</strong><span>直径 / 体重</span></span>
+          <b class="tool-badge">反查</b>
+        </button>
+      </aside>
+
+      <section class="tool-surface">
+        <section id="panel-egg-group" class="tool-panel">
+          <div class="panel-head">
+            <div>
+              <h1>蛋组查询器</h1>
+              <p>按母族、形态或蛋组检索本地蛋组资料。</p>
+            </div>
+            <div id="egg-tool-count" class="panel-count">加载中...</div>
+          </div>
+
+          <div class="query-bar">
+            <input id="egg-q" class="roco-input" placeholder="搜索母族、精灵、形态或蛋组" autocomplete="off">
+            <select id="egg-group-select" class="roco-select">
+              <option value="0">全部蛋组</option>
+            </select>
+            <button id="egg-search-btn" class="roco-btn" type="button">查询</button>
+          </div>
+
+          <div id="egg-group-strip" class="group-strip"></div>
+          <div id="egg-result"></div>
+        </section>
+
+        <section id="panel-hatch-query" class="tool-panel" hidden>
+          <div class="panel-head">
+            <div>
+              <h1>孵蛋查询器</h1>
+              <p>输入蛋的直径和体重，按本地区间数据反查候选精灵。</p>
+            </div>
+            <div id="hatch-tool-count" class="panel-count">加载中...</div>
+          </div>
+
+          <div class="hint-line">仅使用区间数据匹配，不使用精确测量点参与筛选。</div>
+          <div class="hatch-form">
+            <div class="hatch-form-grid">
+              <div class="field-stack">
+                <label for="hatch-diameter">蛋直径 (m)</label>
+                <input id="hatch-diameter" class="roco-input" type="number" min="0" step="0.001" placeholder="例如 0.35">
+              </div>
+              <div class="field-stack">
+                <label for="hatch-weight">蛋体重 (kg)</label>
+                <input id="hatch-weight" class="roco-input" type="number" min="0" step="0.001" placeholder="例如 7.64">
+              </div>
+              <div class="field-stack">
+                <label>&nbsp;</label>
+                <button id="hatch-search-btn" class="roco-btn" type="button" style="width:100%">反查</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="hatch-result"></div>
+        </section>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+const toolPanels = {
+  'egg-group': document.getElementById('panel-egg-group'),
+  'hatch-query': document.getElementById('panel-hatch-query'),
+};
+const toolLinks = [...document.querySelectorAll('[data-tool]')];
+const currentParams = new URLSearchParams(window.location.search);
+let currentTool = currentParams.get('tool') || 'egg-group';
+if(!toolPanels[currentTool]) currentTool = 'egg-group';
+
+const eggState = { q: '', groupId: 0, page: 1, pageSize: 24, groups: [], payload: null, timer: null, inited: false };
+const hatchState = { inited: false, payload: null };
+
+const eggEls = {
+  q: document.getElementById('egg-q'),
+  groupSelect: document.getElementById('egg-group-select'),
+  groupStrip: document.getElementById('egg-group-strip'),
+  result: document.getElementById('egg-result'),
+  count: document.getElementById('egg-tool-count'),
+};
+const hatchEls = {
+  diameter: document.getElementById('hatch-diameter'),
+  weight: document.getElementById('hatch-weight'),
+  result: document.getElementById('hatch-result'),
+  count: document.getElementById('hatch-tool-count'),
+};
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function toFixedText(value){
+  const num = Number(value);
+  if(!Number.isFinite(num)) return '';
+  return num.toFixed(3).replace(/\.?0+$/, '');
+}
+function parsePositive(el){
+  const value = Number(el.value);
+  return Number.isFinite(value) && value > 0 ? value : null;
+}
+
+function setTool(tool, updateUrl = true){
+  currentTool = toolPanels[tool] ? tool : 'egg-group';
+  toolLinks.forEach(button => button.classList.toggle('active', button.dataset.tool === currentTool));
+  Object.entries(toolPanels).forEach(([key, panel]) => panel.hidden = key !== currentTool);
+  if(updateUrl){
+    const next = new URL(window.location.href);
+    next.searchParams.set('tool', currentTool);
+    history.replaceState(null, '', next.toString());
+  }
+  if(currentTool === 'egg-group') initEggTool();
+  if(currentTool === 'hatch-query') initHatchTool();
+}
+
+function eggPageName(card){
+  const rep = card.representative || {};
+  return rep.page_name || rep.display_name || card.mother_family || '';
+}
+function eggHatchable(card){
+  const rep = card.representative || {};
+  return Number(card.can_hatch_member_count || 0) > 0 && !String(rep.hatch_status_text || '').includes('暂不');
+}
+function eggCurrentGroupName(){
+  if(!eggState.groupId) return '全部蛋组';
+  const group = eggState.groups.find(g => Number(g.group_id) === Number(eggState.groupId));
+  return group ? group.group_display : '当前蛋组';
+}
+
+async function loadEggGroups(){
+  const res = await fetch('/api/egg-groups');
+  const payload = await res.json();
+  eggState.groups = Array.isArray(payload.groups) ? payload.groups : [];
+  eggEls.count.textContent = `${eggState.groups.length} 个蛋组`;
+  eggEls.groupSelect.innerHTML = '<option value="0">全部蛋组</option>' + eggState.groups.map(group =>
+    `<option value="${esc(group.group_id)}">${esc(group.group_display)}（${esc(group.folded_count || group.member_count || 0)}）</option>`
+  ).join('');
+  renderEggGroupStrip();
+}
+
+function renderEggGroupStrip(){
+  eggEls.groupStrip.innerHTML = [
+    `<button class="group-pill ${eggState.groupId ? '' : 'active'}" data-gid="0"><strong>全部蛋组</strong><span>${eggState.groups.length} 组</span></button>`,
+    ...eggState.groups.map(group => `
+      <button class="group-pill ${Number(group.group_id) === Number(eggState.groupId) ? 'active' : ''}" data-gid="${esc(group.group_id)}">
+        <strong>${esc(group.group_display)}</strong>
+        <span>${esc(group.folded_count || 0)} 母族 / ${esc(group.member_count || 0)} 精灵</span>
+      </button>
+    `),
+  ].join('');
+}
+
+async function loadEggMembers(){
+  eggEls.result.innerHTML = '<div class="empty-state">加载中...</div>';
+  const params = new URLSearchParams({
+    group_id: String(eggState.groupId || 0),
+    q: eggState.q,
+    page: String(eggState.page),
+    page_size: String(eggState.pageSize),
+  });
+  const res = await fetch(`/api/egg-group-members?${params.toString()}`);
+  eggState.payload = await res.json();
+  renderEggGroupStrip();
+  renderEggResult();
+}
+
+function renderEggResult(){
+  const payload = eggState.payload || {};
+  const cards = Array.isArray(payload.cards) ? payload.cards : [];
+  const total = Number(payload.total_count || 0);
+  const page = Number(payload.page || 1);
+  const totalPages = Number(payload.total_pages || 1);
+  const title = eggState.q ? `搜索：${eggState.q}` : eggCurrentGroupName();
+
+  if(!cards.length){
+    eggEls.result.innerHTML = `
+      <div class="result-head"><h2>${esc(title)}</h2><span>0 个结果</span></div>
+      <div class="empty-state">没有匹配的母族</div>
+    `;
+    return;
+  }
+
+  const grid = cards.map(card => {
+    const rep = card.representative || {};
+    const avatar = rep.local_avatar_url || rep.avatar_url || '';
+    const name = eggPageName(card);
+    const chain = (card.family_members || []).slice(0, 6).map(item => `<span class="chain-chip">${esc(item)}</span>`).join('');
+    const more = (card.family_members || []).length > 6 ? `<span class="chain-chip">+${esc((card.family_members || []).length - 6)}</span>` : '';
+    return `
+      <article class="member-card">
+        <img class="member-avatar" src="${esc(avatar)}" alt="${esc(name)}" loading="lazy">
+        <div>
+          <div class="member-title">
+            <a href="/dex?pokemon=${encodeURIComponent(name)}">${esc(name)}</a>
+            <span class="group-tag">${esc(card.group_display || '')}</span>
+          </div>
+          <div class="member-meta">
+            母族 ${esc(card.mother_family || '-')} · ${esc(rep.type_name || '未知元素')}<br>
+            ${esc(card.family_chain || '')}
+          </div>
+          <div class="chain-row">${chain}${more}</div>
+          <div class="chain-row">
+            <span class="status-tag ${eggHatchable(card) ? 'ok' : ''}">${esc(rep.hatch_status_text || '未知状态')}</span>
+            <span class="status-tag">${esc(card.member_count || 0)} 个形态</span>
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  eggEls.result.innerHTML = `
+    <div class="result-head">
+      <h2>${esc(title)}</h2>
+      <span>${esc(total)} 个母族 · 第 ${esc(page)} / ${esc(totalPages)} 页</span>
+    </div>
+    <div class="member-grid">${grid}</div>
+    ${renderPagination(page, totalPages)}
+  `;
+}
+
+function renderPagination(page, totalPages){
+  if(totalPages <= 1) return '';
+  const pages = [];
+  const start = Math.max(1, page - 2);
+  const end = Math.min(totalPages, page + 2);
+  for(let i = start; i <= end; i++) pages.push(i);
+  return `
+    <div class="pagination">
+      <button class="page-btn" data-page="${Math.max(1, page - 1)}" ${page <= 1 ? 'disabled' : ''}>上一页</button>
+      ${pages.map(p => `<button class="page-btn ${p === page ? 'active' : ''}" data-page="${p}">${p}</button>`).join('')}
+      <button class="page-btn" data-page="${Math.min(totalPages, page + 1)}" ${page >= totalPages ? 'disabled' : ''}>下一页</button>
+    </div>
+  `;
+}
+
+async function initEggTool(){
+  if(eggState.inited) return;
+  await loadEggGroups();
+  await loadEggMembers();
+  eggState.inited = true;
+}
+
+function renderHatchPrompt(text){
+  hatchEls.result.innerHTML = `<div class="empty-state">${esc(text)}</div>`;
+}
+
+function renderHatchResult(payload){
+  const rows = Array.isArray(payload.rows) ? payload.rows : [];
+  if(!rows.length){
+    hatchEls.result.innerHTML = `
+      <div class="result-head">
+        <h2>${esc(`直径 ${toFixedText(payload.diameter)} m · 体重 ${toFixedText(payload.weight)} kg`)}</h2>
+        <span>0 个候选</span>
+      </div>
+      <div class="empty-state">没有匹配到候选区间</div>
+    `;
+    return;
+  }
+
+  const cards = rows.map(row => `
+    <article class="hatch-card">
+      <img class="hatch-avatar" src="${esc(row.icon_url || '')}" alt="${esc(row.name)}" loading="lazy">
+      <div>
+        <div class="hatch-title">
+          <a href="/dex?pokemon=${encodeURIComponent(row.dex_name || row.name)}">${esc(row.name)}</a>
+          <span class="range-tag">${esc(row.match_count)} 个命中区间</span>
+        </div>
+        <div class="hatch-subline">${esc(row.number || '')}${row.element ? ` · ${esc(row.element)}` : ''}${row.dex_name && row.dex_name !== row.name ? ` · 图鉴形态 ${esc(row.dex_name)}` : ''}</div>
+        <div class="hatch-meta">命中范围只用于反查候选，不包含精确测量点。</div>
+        <div class="range-row">
+          ${(row.matched_ranges || []).map(item => `<span class="range-chip">${esc(item.eggDiameter)} m / ${esc(item.eggWeight)} kg</span>`).join('')}
+        </div>
+      </div>
+    </article>
+  `).join('');
+
+  hatchEls.result.innerHTML = `
+    <div class="result-head">
+      <h2>${esc(`直径 ${toFixedText(payload.diameter)} m · 体重 ${toFixedText(payload.weight)} kg`)}</h2>
+      <span>${esc(payload.total_count || 0)} 个候选</span>
+    </div>
+    <div class="hatch-grid">${cards}</div>
+  `;
+}
+
+async function runHatchQuery(){
+  const diameter = parsePositive(hatchEls.diameter);
+  const weight = parsePositive(hatchEls.weight);
+  if(!diameter || !weight){
+    renderHatchPrompt('请输入合法的蛋直径和体重。');
+    return;
+  }
+  hatchEls.result.innerHTML = '<div class="empty-state">加载中...</div>';
+  const params = new URLSearchParams({
+    diameter: String(diameter),
+    weight: String(weight),
+  });
+  const res = await fetch(`/api/hatch-query?${params.toString()}`);
+  const payload = await res.json();
+  hatchState.payload = payload;
+  renderHatchResult(payload);
+}
+
+async function initHatchTool(){
+  if(hatchState.inited) return;
+  const res = await fetch('/api/hatch-query/meta');
+  const payload = await res.json();
+  hatchEls.count.textContent = `${payload.total_pets || 0} 个精灵区间`;
+  renderHatchPrompt('输入蛋直径和体重后点击“反查”。');
+  hatchState.inited = true;
+}
+
+toolLinks.forEach(button => {
+  button.addEventListener('click', () => setTool(button.dataset.tool));
+});
+
+eggEls.q.addEventListener('input', () => {
+  clearTimeout(eggState.timer);
+  eggState.q = eggEls.q.value.trim();
+  eggState.page = 1;
+  eggState.timer = setTimeout(loadEggMembers, 180);
+});
+document.getElementById('egg-search-btn').addEventListener('click', () => {
+  eggState.q = eggEls.q.value.trim();
+  eggState.page = 1;
+  loadEggMembers();
+});
+eggEls.groupSelect.addEventListener('change', () => {
+  eggState.groupId = Number(eggEls.groupSelect.value) || 0;
+  eggState.page = 1;
+  loadEggMembers();
+});
+eggEls.groupStrip.addEventListener('click', event => {
+  const button = event.target.closest('button[data-gid]');
+  if(!button) return;
+  eggState.groupId = Number(button.dataset.gid) || 0;
+  eggEls.groupSelect.value = String(eggState.groupId);
+  eggState.page = 1;
+  loadEggMembers();
+});
+eggEls.result.addEventListener('click', event => {
+  const button = event.target.closest('button[data-page]');
+  if(!button || button.disabled) return;
+  eggState.page = Number(button.dataset.page) || 1;
+  loadEggMembers();
+});
+
+document.getElementById('hatch-search-btn').addEventListener('click', runHatchQuery);
+[hatchEls.diameter, hatchEls.weight].forEach(input => {
+  input.addEventListener('keydown', event => {
+    if(event.key === 'Enter') runHatchQuery();
+  });
+});
+
+setTool(currentTool, false);
+</script>
+</body>
+</html>
