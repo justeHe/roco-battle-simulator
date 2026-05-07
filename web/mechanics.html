@@ -244,9 +244,24 @@ body { min-height: 100vh; }
 .pokemon-meta { color: var(--text-secondary); font-size: 10px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .empty-text { color: var(--text-secondary); font-size: 12px; padding: 8px; }
 @media(max-width:980px) {
-  .mechanics-layout { grid-template-columns: 1fr; }
+  .mechanics-layout { grid-template-columns: minmax(0, 1fr); }
+  .mechanics-sidebar,
+  .detail {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
   .mechanics-sidebar { position: static; height: 430px; min-height: 0; }
   .detail { min-height: auto; }
+  .mech-title { font-size: 24px; overflow-wrap: anywhere; }
+  .mech-name,
+  .mech-meta { white-space: normal; }
+  .wiki-body,
+  .wiki-body p,
+  .wiki-body li { overflow-wrap: anywhere; word-break: break-word; }
+  .related-skills,
+  .pokemon-links { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -284,8 +299,8 @@ let entries = [];
 let skillNames = new Set();
 let mechanicTitles = new Set();
 let activeId = '';
-const CATEGORY_ORDER = ['印记', '状态', '关键词'];
-const POLARITY_LABEL = { positive: '正面', negative: '负面', system: '系统' };
+const CATEGORY_ORDER = ['印记', '增益状态', '负面状态', '天气', '关键词'];
+const POLARITY_LABEL = { positive: '增益', negative: '负面', system: '系统' };
 const COLLAPSE_KEY = 'nrc.mechanics.collapsed';
 const collapsed = new Set(JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '[]'));
 
@@ -408,10 +423,10 @@ function renderWiki(text){
     if(!line){ closeLists(); return; }
     let m = line.match(/^====\s*(.+?)\s*====$/);
     if(m){ closeLists(); html += `<h4>${esc(m[1])}</h4>`; return; }
-    m = line.match(/^==\s*(.+?)\s*==$/);
-    if(m){ closeLists(); html += `<h2>${esc(m[1])}</h2>`; return; }
     m = line.match(/^===\s*(.+?)\s*===$/);
     if(m){ closeLists(); html += `<h3>${esc(m[1])}</h3>`; return; }
+    m = line.match(/^==\s*(.+?)\s*==$/);
+    if(m){ closeLists(); html += `<h2>${esc(m[1])}</h2>`; return; }
     if(line.startsWith('*')){
       const marker = line.match(/^[*#]+/)[0];
       const depth = marker.length;

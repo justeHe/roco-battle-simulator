@@ -229,11 +229,11 @@ def _process_revive_timers(state: BattleState) -> None:
 # ============================================================
 class DamageCalculator:
 
-    # 天气修正表（洛克王国真实天气：沙暴/雪天/雨天）
+    # 天气修正表（洛克王国真实天气：沙暴/暴风雪/雨天）
     _WEATHER_MULT: Dict[str, Dict[str, float]] = {
         "rain":      {"water": 1.5},   # 雨天：水系招式威力+50%，无其他效果
-        "sandstorm": {},               # 沙暴：无招式威力修正（回合伤害在 turn_end 处理）
-        "snow":      {},               # 雪天：无招式威力修正
+        "sandstorm": {},               # 沙暴：无招式威力修正，地系能耗减半在天气设置时处理
+        "snow":      {},               # 暴风雪：无招式威力修正，回合结束添加冻结
     }
 
     @staticmethod
@@ -699,8 +699,8 @@ def turn_end_effects(state: BattleState) -> None:
             p.current_hp = 0
             p.status = StatusType.FAINTED
 
-    # 天气伤害/效果 (沙暴：对非地/钢系造成1/16 HP伤害；雪天双方获得2层冻结)
-    if state.weather in ("sandstorm", "hail", "snow"):
+    # 天气回合结束效果：暴风雪给非冰系精灵添加冻结
+    if state.weather == "snow":
         from src.effect_engine import _apply_weather_damage
         _apply_weather_damage(state)
 

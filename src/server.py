@@ -39,6 +39,7 @@ _MECHANICS_CACHE: Optional[list[dict]] = None
 _ABILITY_ICON_CACHE: Optional[dict[str, str]] = None
 _EGG_GROUPS_CACHE: Optional[dict] = None
 _EGG_MEASUREMENTS_CACHE: Optional[dict] = None
+_MECHANIC_ICON_CACHE: Optional[dict[str, str]] = None
 
 _MECHANIC_EXCLUDED_TITLES = {
     "传说印记",
@@ -46,6 +47,7 @@ _MECHANIC_EXCLUDED_TITLES = {
     "帕尔印记",
     "技能石/湿润印记",
     "迟缓印记",
+    "能力等级",
 }
 
 _POSITIVE_MARKS = ["湿润印记", "龙噬印记", "蓄势印记", "风起印记", "蓄电印记", "光合印记", "攻击印记"]
@@ -82,6 +84,38 @@ _MECHANIC_LOCAL_ICON_MAP = {
     "机制": "/mechanic-icons/%E6%9C%BA%E5%88%B6.svg",
     "状态": "/mechanic-icons/%E7%8A%B6%E6%80%81.svg",
 }
+
+_POSITIVE_STATUS_TITLES = {
+    "物攻等级提升",
+    "物防等级提升",
+    "魔攻等级提升",
+    "魔防等级提升",
+    "防御等级提升",
+    "速度提升",
+    "威力提升",
+    "连击等级提升",
+    "能耗降低",
+    "吸血",
+    "先手加一",
+}
+
+_NEGATIVE_STATUS_TITLES = {
+    "物攻等级降低",
+    "物防等级降低",
+    "魔攻等级降低",
+    "魔防等级降低",
+    "速度降低",
+    "威力降低",
+    "能耗增加",
+    "中毒",
+    "冻结",
+    "灼烧",
+    "萌化",
+    "寄生",
+    "先手减一",
+}
+
+_STATUS_CATEGORIES = {"增益状态", "负面状态"}
 
 _TYPE_LABELS = {
     "normal": "普通",
@@ -201,6 +235,36 @@ def _build_skill_meta_icon_cache() -> dict:
 def _get_skill_meta_icon_url(kind: str, name: str) -> str:
     cache = _build_skill_meta_icon_cache()
     return cache.get(kind, {}).get(name or "", "")
+
+
+def _build_mechanic_icon_cache() -> dict[str, str]:
+    """扫描本地 data/mechanic_icons，生成词条名 -> /mechanic-icons URL。"""
+    global _MECHANIC_ICON_CACHE
+    if _MECHANIC_ICON_CACHE is not None:
+        return _MECHANIC_ICON_CACHE
+
+    root = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "data",
+        "mechanic_icons",
+    )
+    cache: dict[str, str] = {}
+    if os.path.exists(root):
+        for current, _, files in os.walk(root):
+            for fname in files:
+                if not fname.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".gif", ".svg")):
+                    continue
+                stem, _ = os.path.splitext(fname)
+                rel = os.path.relpath(os.path.join(current, fname), root)
+                url_path = "/".join(urllib.parse.quote(part) for part in rel.split(os.sep))
+                cache.setdefault(stem, f"/mechanic-icons/{url_path}")
+    _MECHANIC_ICON_CACHE = cache
+    return _MECHANIC_ICON_CACHE
+
+
+def _get_mechanic_icon_url(title: str) -> str:
+    cache = _build_mechanic_icon_cache()
+    return cache.get(title or "", "")
 
 
 def _build_ability_icon_cache() -> dict[str, str]:
@@ -982,11 +1046,92 @@ def _clean_mechanic_body(text: str) -> str:
     body = re.sub(r"\(([A-Za-z0-9_\- /|().:+]+)\)", "", body)
     body = "\n".join(line[1:].strip() if line.lstrip().startswith(">") else line for line in body.split("\n"))
     body = body.replace("[[防御姿态]]", "[[防御]]")
+    body = body.replace("[[冰冻]]", "[[冻结]]")
     return body.strip()
 
 
 def _manual_mechanic_entries() -> list[dict]:
     return [
+        {
+            "id": "迸发",
+            "title": "迸发",
+            "category": "关键词",
+            "polarity": "positive",
+            "meta": "关键词机制",
+            "body": """== 迸发 ==
+'''迸发''' 是技能关键字。精灵入场后的首次行动窗口中，使用带迸发标记的技能，会获得额外效果。
+
+=== 触发口径 ===
+* 技能描述中包含“迸发”的技能会被标记为迸发技能。
+* 系统会记录每只精灵入场的回合号；通常只有入场回合使用迸发技能时才会触发。
+* [[连续负荷]] 可以把迸发窗口额外延长1回合。
+
+=== 当前特性联动 ===
+* [[电流刺激]]：迸发技能威力+40。
+* [[超负荷]]：迸发技能会让敌方全技能能耗+1。
+* [[生物电]]：电系技能获得迸发时，能耗-2。
+* [[连续负荷]]：自己技能的迸发效果延长1回合。
+
+=== 当前迸发技能 ===
+* [[电弧]]、[[超导]]、[[引雷]]、[[雷暴]]、[[双联脉冲]]、[[天旋地转]]。""",
+            "is_overview": False,
+        },
+        {
+            "id": "雨天",
+            "title": "雨天",
+            "category": "天气",
+            "polarity": "system",
+            "meta": "天气",
+            "body": """== 雨天 ==
+'''雨天''' 是战场天气。
+
+=== 基础效果 ===
+* 天气为雨天时，双方的水系技能威力+50%。
+* 火系技能不会因为雨天降低威力。
+
+=== 持续时间 ===
+* 由[[求雨]]或[[落雨]]设置时，当前实现持续8回合。
+* 新天气会覆盖旧天气。""",
+            "is_overview": False,
+        },
+        {
+            "id": "沙暴",
+            "title": "沙暴",
+            "category": "天气",
+            "polarity": "system",
+            "meta": "天气",
+            "body": """== 沙暴 ==
+'''沙暴''' 是战场天气。
+
+=== 基础效果 ===
+* 天气为沙暴时，双方的地系技能能耗减半。
+* 能耗减半按向下取整处理，但最低保留1点能耗。
+* 沙暴结束时，会恢复地系技能的原始能耗。
+
+=== 持续时间 ===
+* 由[[沙涌]]设置时，当前实现持续8回合。
+* 新天气会覆盖旧天气。""",
+            "is_overview": False,
+        },
+        {
+            "id": "暴风雪",
+            "title": "暴风雪",
+            "category": "天气",
+            "polarity": "system",
+            "meta": "天气",
+            "body": """== 暴风雪 ==
+'''暴风雪''' 是战场天气。
+
+=== 基础效果 ===
+* 天气为暴风雪时，双方每回合结束获得2层[[冻结]]。
+* 冰系精灵免疫暴风雪提供的冻结。
+* 拥有冻结免疫的精灵同样不会获得这部分冻结。
+
+=== 持续时间 ===
+* 由[[冬至]]设置时，当前实现持续8回合。
+* 新天气会覆盖旧天气。""",
+            "is_overview": False,
+        },
         {
             "id": "蓄电印记",
             "title": "蓄电印记",
@@ -1031,21 +1176,104 @@ def _manual_mechanic_entries() -> list[dict]:
     ]
 
 
+def _classify_local_status_icon(title: str) -> Optional[tuple[str, str, str]]:
+    """把本地机制图标拆成独立状态词条。返回 category/polarity/meta。"""
+    if not title or title in {"印记", "机制", "状态"} or "印记" in title:
+        return None
+    if title in _POSITIVE_STATUS_TITLES or "提升" in title:
+        return "增益状态", "positive", "增益状态"
+    if title in _NEGATIVE_STATUS_TITLES or "降低" in title:
+        return "负面状态", "negative", "负面状态"
+    return None
+
+
+def _status_entry_effect_text(title: str, polarity: str) -> str:
+    effects = {
+        "物攻等级提升": "物攻提高，通常会提升物理攻击类技能的伤害。",
+        "物攻等级降低": "物攻降低，通常会削弱物理攻击类技能的伤害。",
+        "物防等级提升": "物防提高，通常会降低受到的物理攻击伤害。",
+        "物防等级降低": "物防降低，通常会提高受到的物理攻击伤害。",
+        "魔攻等级提升": "魔攻提高，通常会提升魔法攻击类技能的伤害。",
+        "魔攻等级降低": "魔攻降低，通常会削弱魔法攻击类技能的伤害。",
+        "魔防等级提升": "魔防提高，通常会降低受到的魔法攻击伤害。",
+        "魔防等级降低": "魔防降低，通常会提高受到的魔法攻击伤害。",
+        "防御等级提升": "防御相关能力提高，通常会降低本体受到的伤害。",
+        "速度提升": "速度提高，会影响同优先级行动的出手顺序。",
+        "速度降低": "速度降低，会影响同优先级行动的出手顺序。",
+        "威力提升": "技能威力提高，结算时会抬高本次或后续技能伤害。",
+        "威力降低": "技能威力降低，结算时会压低本次或后续技能伤害。",
+        "连击等级提升": "连击次数提高，使对应技能获得更多段数。",
+        "能耗降低": "技能能耗降低，释放时需要消耗的能量减少。",
+        "能耗增加": "技能能耗增加，释放时需要消耗的能量增加。",
+        "吸血": "根据实际造成的伤害回复自身生命。",
+        "寄生": "持续扣除目标生命，通常会将部分生命转化为回复。",
+        "先手加一": "技能优先级提高1级，更容易先于同速段技能行动。",
+        "先手减一": "技能优先级降低1级，更容易晚于同速段技能行动。",
+        "中毒": "回合结束受到毒系持续伤害，层数越高伤害越明显。",
+        "冻结": "形成冻结线或冻结伤害记录，生命低于冻结线时会触发对应结算。",
+        "灼烧": "回合结束受到火系持续伤害，并可能影响部分技能或特性结算。",
+        "萌化": "使精灵向更早阶段退化，按退化后的形态和数值参与战斗。",
+    }
+    if title in effects:
+        return effects[title]
+    return "增益状态会强化己方结算。" if polarity == "positive" else "负面状态会削弱或消耗目标。"
+
+
+def _build_local_status_entry(title: str, category: str, polarity: str, meta: str) -> dict:
+    return {
+        "id": title,
+        "title": title,
+        "category": category,
+        "polarity": polarity,
+        "meta": meta,
+        "body": f"""== {title} ==
+'''{title}''' 是战斗中的一种[[状态|{meta}]]。
+
+=== 基础效果 ===
+* {_status_entry_effect_text(title, polarity)}
+
+=== 结算口径 ===
+* 技能造成的数值类状态通常属于临时变化，会被换宠、反场或驱散类技能清除。
+* 特性造成的五维变化通常按特性描述结算，是否持续保留以具体特性为准。
+
+=== 页面关联 ===
+* 下方会列出描述中涉及“{title}”或对应数值变化的技能与特性来源。""",
+        "is_overview": False,
+    }
+
+
+def _local_status_icon_entries() -> list[dict]:
+    entries = []
+    for title in sorted(_build_mechanic_icon_cache()):
+        classified = _classify_local_status_icon(title)
+        if not classified:
+            continue
+        category, polarity, meta = classified
+        entries.append(_build_local_status_entry(title, category, polarity, meta))
+    return entries
+
+
 def _override_mechanic_entry(entry: dict) -> dict:
     item = dict(entry)
     title = item.get("title", "")
 
     if title == "状态":
+        item.update({
+            "category": "关键词",
+            "polarity": "system",
+            "meta": "状态系统总览",
+        })
         item["body"] = """== 状态 ==
 '''状态''' 是挂在精灵身上的战斗效果。
 
-=== 永久状态 ===
-* 换宠不消失，留在原精灵身上，下次上场仍然存在。
-* 当前包含：[[冰冻]]、[[萌化]]。
+=== 增益状态 ===
+* 强化己方结算，例如[[物攻等级提升]]、[[威力提升]]、[[能耗降低]]、[[先手加一]]。
+* 技能造成的数值变化通常属于临时变化，会被换宠、反场或驱散类技能清除。
+* 特性造成的五维变化是否持续保留，以具体特性描述为准。
 
-=== 临时状态 ===
-* 换宠会清除，部分效果也会被反场或驱散类技能清除。
-* 当前包含：[[灼烧]]、[[中毒]]、[[防御]]、[[能力等级]]。
+=== 负面状态 ===
+* 削弱、限制或消耗目标，例如[[中毒]]、[[灼烧]]、[[冻结]]、[[速度降低]]、[[能耗增加]]。
+* 负面状态会随具体技能或特性结算，有些按回合消耗，有些直接改变行动或伤害参数。
 
 === 与印记的区别 ===
 * 印记挂在阵营上，每方一正一负两个槽位，与当前是哪只精灵在场无关。
@@ -1055,9 +1283,9 @@ def _override_mechanic_entry(entry: dict) -> dict:
         item.update({
             "id": "防御",
             "title": "防御",
-            "category": "状态",
+            "category": "增益状态",
             "polarity": "positive",
-            "meta": "防御状态",
+            "meta": "增益状态",
             "body": """== 防御 ==
 '''防御''' 是由防御类技能产生的本回合减伤状态。
 
@@ -1074,24 +1302,19 @@ def _override_mechanic_entry(entry: dict) -> dict:
 * 技能或特性描述中出现“防御”的，都会列在本页下方。""",
         })
 
-    if title == "能力等级":
-        item["body"] = """== 能力等级 ==
-'''能力等级''' 用来描述物攻、魔攻、物防、魔防、速度这五项能力的百分比变化。
-
-=== 技能造成的临时能力变化 ===
-* 技能描述中的物攻、魔攻、物防、魔防、速度、双攻、双防变化属于临时状态。
-* 临时状态会被换宠、反场、驱散类技能清除。
-* 每1级按10%理解，例如物攻+30%视为物攻临时提高3级。
-* 正负方向可以抵消，具体结算以当前在场精灵身上的临时变化为准。
-
-=== 特性造成的永久五维变化 ===
-* 精灵特性导致的五维变化属于永久状态。
-* 永久状态不会因为换宠、反场或驱散类技能消除。
-* 如果特性写明“行动后降低”“首回合”等持续条件，则按特性描述结算。
-
-=== 页面关联 ===
-* 下方技能列表展示会造成临时五维变化的技能。
-* 下方特性精灵展示会造成永久五维变化的特性来源。"""
+    if title == "冰冻":
+        item.update({
+            "id": "冻结",
+            "title": "冻结",
+            "category": "负面状态",
+            "polarity": "negative",
+            "meta": "负面状态",
+        })
+        item["body"] = (item.get("body") or "").replace("冰冻", "冻结").replace("[[冰冻]]", "[[冻结]]")
+    elif item.get("category") == "状态":
+        polarity = item.get("polarity", "negative")
+        item["category"] = "增益状态" if polarity == "positive" else "负面状态"
+        item["meta"] = "增益状态" if polarity == "positive" else "负面状态"
 
     item["body"] = _clean_mechanic_body(item.get("body", ""))
     return item
@@ -1115,7 +1338,12 @@ def _prepare_mechanics_entries(raw_entries: list[dict]) -> list[dict]:
             entries.append(_override_mechanic_entry(item))
             seen.add(item["title"])
 
-    cat_order = {"印记": 0, "状态": 1, "关键词": 2}
+    for item in _local_status_icon_entries():
+        if item["title"] not in seen:
+            entries.append(_override_mechanic_entry(item))
+            seen.add(item["title"])
+
+    cat_order = {"印记": 0, "增益状态": 1, "负面状态": 2, "天气": 3, "关键词": 4}
     pol_order = {"positive": 0, "negative": 1, "system": 2}
     entries.sort(key=lambda e: (
         cat_order.get(e.get("category"), 9),
@@ -1160,7 +1388,7 @@ def _wiki_link_targets(text: str) -> set[str]:
 def _mechanic_exact_keywords(entry: dict) -> list[str]:
     title = entry.get("title", "")
     aliases = {
-        "冰冻": ["冰冻", "冻结"],
+        "冻结": ["冻结", "冰冻"],
         "防御": ["防御"],
     }
     if entry.get("is_overview"):
@@ -1191,6 +1419,48 @@ def _has_stat_change(text: str) -> bool:
     )
 
 
+def _match_stat_direction(text: str, stat: str, positive: bool) -> bool:
+    if not text:
+        return False
+    sign = r"[+＋]" if positive else r"[\-－]"
+    verbs = r"(提升|提高|增加|上升)" if positive else r"(降低|下降|减少|削弱)"
+    return bool(
+        re.search(stat + r".{0,8}" + sign + r"\d+", text)
+        or re.search(stat + r".{0,8}" + verbs, text)
+        or re.search(verbs + r".{0,8}" + stat, text)
+    )
+
+
+def _status_entry_matches(title: str, text: str) -> bool:
+    if not text:
+        return False
+    if title in {"中毒", "灼烧", "萌化"}:
+        return title in _strip_mark_suffix_mentions(text, title)
+    if title == "冻结":
+        return "冻结" in text or "冰冻" in text
+    if title in {"吸血", "寄生", "防御"}:
+        return title in text
+    if title.endswith("等级提升"):
+        stat = title.removesuffix("等级提升")
+        return _match_stat_direction(text, stat, True)
+    if title.endswith("等级降低"):
+        stat = title.removesuffix("等级降低")
+        return _match_stat_direction(text, stat, False)
+    if title in {"速度提升", "威力提升"}:
+        return _match_stat_direction(text, title.removesuffix("提升"), True)
+    if title in {"速度降低", "威力降低"}:
+        return _match_stat_direction(text, title.removesuffix("降低"), False)
+    if title == "能耗降低":
+        return bool(re.search(r"(能耗|耗能|能量消耗).{0,8}([\-－]\d+|降低|减少)", text) or "减耗" in text)
+    if title == "能耗增加":
+        return bool(re.search(r"(能耗|耗能|能量消耗).{0,8}([+＋]\d+|增加|提高|上升)", text))
+    if title == "先手加一":
+        return bool(re.search(r"(先手|先制|优先级).{0,4}([+＋]1|加一|提高|提升)", text))
+    if title == "先手减一":
+        return bool(re.search(r"(先手|先制|优先级).{0,4}([\-－]1|减一|降低|下降)", text))
+    return title in text
+
+
 def _contains_specific_mark(text: str) -> bool:
     return any(mark in (text or "") for mark in _BATTLE_MARKS)
 
@@ -1200,12 +1470,10 @@ def _mechanic_skill_matches(entry: dict, description: str) -> bool:
     category = entry.get("category", "")
     if not description or entry.get("is_overview"):
         return title == "印记" and "印记" in (description or "")
-    if title == "能力等级":
-        return _has_stat_change(description)
     if category == "印记":
         return title in description
-    if title in {"中毒", "灼烧", "萌化"}:
-        return title in _strip_mark_suffix_mentions(description, title)
+    if category in _STATUS_CATEGORIES:
+        return _status_entry_matches(title, description)
     return _text_mentions_any(description, _mechanic_exact_keywords(entry))
 
 
@@ -1214,8 +1482,6 @@ def _mechanic_ability_matches(entry: dict, ability_text: str) -> bool:
     category = entry.get("category", "")
     if not ability_text:
         return False
-    if title == "能力等级":
-        return _has_stat_change(ability_text)
     if category == "印记":
         if title == "印记":
             return "印记" in ability_text
@@ -1229,13 +1495,20 @@ def _mechanic_ability_matches(entry: dict, ability_text: str) -> bool:
                 or ("负面印记" in ability_text and entry.get("polarity") == "negative")
             )
         return "印记" in ability_text and not _contains_specific_mark(ability_text)
-    if title in {"中毒", "灼烧", "萌化"}:
-        return title in _strip_mark_suffix_mentions(ability_text, title)
+    if category in _STATUS_CATEGORIES:
+        return _status_entry_matches(title, ability_text)
     return _text_mentions_any(ability_text, _mechanic_exact_keywords(entry))
 
 
 def _mechanic_icon_url(entry: dict) -> str:
     title = entry.get("title", "")
+    icon = _get_mechanic_icon_url(title)
+    if icon:
+        return icon
+    if title == "冰冻":
+        icon = _get_mechanic_icon_url("冻结")
+        if icon:
+            return icon
     if title in _MECHANIC_LOCAL_ICON_MAP:
         return _MECHANIC_LOCAL_ICON_MAP[title]
     skill_name = _MECHANIC_SKILL_ICON_MAP.get(title)
@@ -1250,8 +1523,6 @@ def _mechanic_icon_url(entry: dict) -> str:
             return icon
     if title == "防御":
         return _get_skill_meta_icon_url("categories", "防御")
-    if title == "能力等级":
-        return _get_skill_meta_icon_url("categories", "状态")
     return ""
 
 

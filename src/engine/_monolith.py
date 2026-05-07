@@ -1113,34 +1113,24 @@ def _h_weather(tag: EffectTag, ctx: Ctx) -> None:
 
 
 # ── 注册表 ──
-_WEATHER_DAMAGE_TYPES = {"sandstorm", "snow"}   # 洛克王国真实天气（沙暴/雪天）
-_WEATHER_IMMUNE_TYPES = {"ground", "steel"}      # 游戏无岩系，免疫天气伤害的属性
+_WEATHER_DAMAGE_TYPES = {"snow"}   # 暴风雪回合结束添加冻结
+_WEATHER_IMMUNE_TYPES = {"ice"}    # 冰系免疫暴风雪追加冻结
 
 
 def _apply_weather_damage(state) -> None:
     """回合结束时应用天气效果。
-    - 沙暴：对非地/钢系造成 1/16 HP 伤害
-    - 雪天：双方获得 2 层冻结
+    - 暴风雪：非冰系双方获得 2 层冻结
     """
     from src.models import Type
     w = state.weather
     if not w:
         return
-    immune = {Type.GROUND, Type.STEEL}
-    if w == "sandstorm":
-        dmg_pct = 1 / 16
-        for p in state.team_a:
-            if not p.is_fainted and p.pokemon_type not in immune:
-                p.current_hp = max(1, p.current_hp - int(p.hp * dmg_pct))
-        for p in state.team_b:
-            if not p.is_fainted and p.pokemon_type not in immune:
-                p.current_hp = max(1, p.current_hp - int(p.hp * dmg_pct))
     if w == "snow":
         for p in state.team_a:
-            if not p.is_fainted:
+            if not p.is_fainted and p.pokemon_type != Type.ICE and not p.ability_state.get("freeze_immune"):
                 p.freeze_stacks += 2
         for p in state.team_b:
-            if not p.is_fainted:
+            if not p.is_fainted and p.pokemon_type != Type.ICE and not p.ability_state.get("freeze_immune"):
                 p.freeze_stacks += 2
 
 
@@ -3817,6 +3807,5 @@ class EffectExecutor:
                 pass
 
         return True
-
 
 
