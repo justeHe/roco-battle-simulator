@@ -320,11 +320,123 @@ body { min-height: 100vh; }
   font-size: 11px;
   margin-top: 4px;
 }
+.type-chart-wrap {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.type-chart-scroll {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,.38);
+}
+.type-chart {
+  min-width: 940px;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 11px;
+}
+.type-chart th,
+.type-chart td {
+  border-right: 1px solid rgba(185,151,91,.22);
+  border-bottom: 1px solid rgba(185,151,91,.22);
+  height: 34px;
+  text-align: center;
+}
+.type-chart th {
+  background: rgba(255,248,232,.94);
+  color: var(--text-primary);
+  font-weight: 900;
+  position: sticky;
+  z-index: 2;
+}
+.type-chart thead th { top: 0; }
+.type-chart tbody th {
+  left: 0;
+  text-align: left;
+  padding: 0 8px;
+}
+.type-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.type-head.vertical {
+  flex-direction: column;
+  gap: 2px;
+}
+.type-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+.type-cell { background: rgba(255,255,255,.5); color: var(--text-muted); }
+.type-cell.super { background: rgba(92,184,92,.22); color: #2e7d32; font-weight: 900; }
+.type-cell.resist { background: rgba(217,83,79,.18); color: #b6403a; font-weight: 900; }
+.type-cell.neutral span { opacity: .55; }
+.type-form {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.type-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 96px;
+  gap: 8px;
+}
+.type-result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  padding: 12px 16px 16px;
+}
+.type-result-card {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 12px;
+}
+.type-result-card h3 {
+  margin: 0 0 8px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.type-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  padding: 4px 7px;
+  font-size: 11px;
+  font-weight: 900;
+}
+.type-pill.super { border-color: rgba(92,184,92,.42); background: rgba(92,184,92,.1); color: #2e7d32; }
+.type-pill.resist { border-color: rgba(217,83,79,.34); background: rgba(217,83,79,.08); color: #b6403a; }
+.type-final {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--primary-dark);
+}
 @media(max-width:860px) {
   .tools-layout { grid-template-columns: 1fr; }
   .tools-sidebar { position: static; }
   .query-bar,
-  .hatch-form-grid { grid-template-columns: 1fr; }
+  .hatch-form-grid,
+  .type-form-grid { grid-template-columns: 1fr; }
   .panel-head { flex-direction: column; }
 }
 </style>
@@ -356,6 +468,10 @@ body { min-height: 100vh; }
         <button class="tool-link" type="button" data-tool="hatch-query">
           <span><strong>孵蛋查询器</strong><span>直径 / 体重</span></span>
           <b class="tool-badge">反查</b>
+        </button>
+        <button class="tool-link" type="button" data-tool="type-calc">
+          <span><strong>克制计算器</strong><span>系别 / 关系图</span></span>
+          <b class="tool-badge">克制</b>
         </button>
       </aside>
 
@@ -410,6 +526,43 @@ body { min-height: 100vh; }
 
           <div id="hatch-result"></div>
         </section>
+
+        <section id="panel-type-calc" class="tool-panel" hidden>
+          <div class="panel-head">
+            <div>
+              <h1>克制计算器与关系图</h1>
+              <p>查看系别克制矩阵，并计算单属性招式对单防或双防的伤害倍率。</p>
+            </div>
+            <div id="type-tool-count" class="panel-count">加载中...</div>
+          </div>
+
+          <div class="type-chart-wrap">
+            <div id="type-chart" class="type-chart-scroll"></div>
+          </div>
+
+          <div class="type-form">
+            <div class="type-form-grid">
+              <div class="field-stack">
+                <label for="type-attack">攻击方招式</label>
+                <select id="type-attack" class="roco-select"><option value="">不选择</option></select>
+              </div>
+              <div class="field-stack">
+                <label for="type-defense-a">防御方属性一</label>
+                <select id="type-defense-a" class="roco-select"><option value="">不选择</option></select>
+              </div>
+              <div class="field-stack">
+                <label for="type-defense-b">防御方属性二</label>
+                <select id="type-defense-b" class="roco-select"><option value="">不选择</option></select>
+              </div>
+              <div class="field-stack">
+                <label>&nbsp;</label>
+                <button id="type-clear-btn" class="roco-btn" type="button" style="width:100%">清空</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="type-result"></div>
+        </section>
       </section>
     </div>
   </main>
@@ -419,6 +572,7 @@ body { min-height: 100vh; }
 const toolPanels = {
   'egg-group': document.getElementById('panel-egg-group'),
   'hatch-query': document.getElementById('panel-hatch-query'),
+  'type-calc': document.getElementById('panel-type-calc'),
 };
 const toolLinks = [...document.querySelectorAll('[data-tool]')];
 const currentParams = new URLSearchParams(window.location.search);
@@ -427,6 +581,7 @@ if(!toolPanels[currentTool]) currentTool = 'egg-group';
 
 const eggState = { q: '', groupId: 0, page: 1, pageSize: 24, groups: [], payload: null, timer: null, inited: false };
 const hatchState = { inited: false, payload: null };
+const typeState = { inited: false, types: [], matrix: [], payload: null };
 
 const eggEls = {
   q: document.getElementById('egg-q'),
@@ -441,6 +596,14 @@ const hatchEls = {
   result: document.getElementById('hatch-result'),
   count: document.getElementById('hatch-tool-count'),
 };
+const typeEls = {
+  chart: document.getElementById('type-chart'),
+  attack: document.getElementById('type-attack'),
+  defenseA: document.getElementById('type-defense-a'),
+  defenseB: document.getElementById('type-defense-b'),
+  result: document.getElementById('type-result'),
+  count: document.getElementById('type-tool-count'),
+};
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function toFixedText(value){
@@ -451,6 +614,24 @@ function toFixedText(value){
 function parsePositive(el){
   const value = Number(el.value);
   return Number.isFinite(value) && value > 0 ? value : null;
+}
+function typeIcon(type, className = 'type-icon'){
+  if(!type || !type.icon_url) return '';
+  return `<img class="${className}" src="${esc(type.icon_url)}" alt="${esc(type.name)}">`;
+}
+function typeLabel(type){
+  return `<span class="type-head">${typeIcon(type)}${esc(type?.name || '')}</span>`;
+}
+function multiplierText(value){
+  const num = Number(value);
+  if(!Number.isFinite(num)) return '';
+  return Number.isInteger(num) ? `${num}` : String(num);
+}
+function multiplierClass(value){
+  const num = Number(value);
+  if(num > 1) return 'super';
+  if(num < 1) return 'resist';
+  return 'neutral';
 }
 
 function setTool(tool, updateUrl = true){
@@ -464,6 +645,7 @@ function setTool(tool, updateUrl = true){
   }
   if(currentTool === 'egg-group') initEggTool();
   if(currentTool === 'hatch-query') initHatchTool();
+  if(currentTool === 'type-calc') initTypeTool();
 }
 
 function eggPageName(card){
@@ -663,6 +845,137 @@ async function initHatchTool(){
   hatchState.inited = true;
 }
 
+function renderTypePrompt(text){
+  typeEls.result.innerHTML = `<div class="empty-state">${esc(text)}</div>`;
+}
+
+function renderTypeChart(){
+  const types = typeState.types;
+  const rows = typeState.matrix;
+  if(!types.length || !rows.length){
+    typeEls.chart.innerHTML = '<div class="empty-state">克制表加载失败</div>';
+    return;
+  }
+  typeEls.chart.innerHTML = `
+    <table class="type-chart">
+      <thead>
+        <tr>
+          <th>防御 \\ 攻击</th>
+          ${types.map(type => `<th><span class="type-head vertical">${typeIcon(type)}${esc(type.name)}</span></th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(row => {
+          const defense = types.find(type => type.id === row.defense);
+          return `
+            <tr>
+              <th>${typeLabel(defense)}</th>
+              ${types.map(attack => {
+                const value = row.values[attack.id] ?? 1;
+                return `<td class="type-cell ${multiplierClass(value)}"><span>${multiplierText(value)}</span></td>`;
+              }).join('')}
+            </tr>
+          `;
+        }).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+function fillTypeSelects(){
+  const options = '<option value="">不选择</option>' + typeState.types
+    .map(type => `<option value="${esc(type.id)}">${esc(type.name)}</option>`)
+    .join('');
+  [typeEls.attack, typeEls.defenseA, typeEls.defenseB].forEach(select => {
+    select.innerHTML = options;
+  });
+}
+
+function typePill(row, mode = ''){
+  const type = row.type || row;
+  const multiplier = row.multiplier !== undefined ? `<b>x${esc(multiplierText(row.multiplier))}</b>` : '';
+  return `<span class="type-pill ${mode || multiplierClass(row.multiplier)}">${typeIcon(type)}${esc(type.name)}${multiplier}</span>`;
+}
+
+function renderTypeResult(payload){
+  const result = payload.result;
+  const attackSummary = payload.attack_summary;
+  const defenseSummary = payload.defense_summary;
+  const cards = [];
+
+  if(result){
+    cards.push(`
+      <div class="type-result-card">
+        <h3>本次倍率</h3>
+        <div class="type-final">
+          ${typePill(result.attack)}
+          <span>→</span>
+          ${(result.defenses || []).map(type => typePill(type)).join('')}
+          <span>x${esc(multiplierText(result.multiplier))}</span>
+        </div>
+      </div>
+    `);
+  }
+
+  if(attackSummary && !defenseSummary){
+    cards.push(`
+      <div class="type-result-card">
+        <h3>可造成 2 倍伤害的防御属性</h3>
+        <div class="type-pill-row">${(attackSummary.strong || []).map(row => typePill(row, 'super')).join('') || '<span class="status-tag">无</span>'}</div>
+      </div>
+      <div class="type-result-card">
+        <h3>只能造成 0.5 倍伤害的防御属性</h3>
+        <div class="type-pill-row">${(attackSummary.resist || []).map(row => typePill(row, 'resist')).join('') || '<span class="status-tag">无</span>'}</div>
+      </div>
+    `);
+  }
+
+  if(defenseSummary){
+    cards.push(`
+      <div class="type-result-card">
+        <h3>会受到高倍伤害的攻击属性</h3>
+        <div class="type-pill-row">${(defenseSummary.weak_to || []).map(row => typePill(row, 'super')).join('') || '<span class="status-tag">无</span>'}</div>
+      </div>
+      <div class="type-result-card">
+        <h3>会受到低倍伤害的攻击属性</h3>
+        <div class="type-pill-row">${(defenseSummary.resist_from || []).map(row => typePill(row, 'resist')).join('') || '<span class="status-tag">无</span>'}</div>
+      </div>
+    `);
+  }
+
+  typeEls.result.innerHTML = cards.length
+    ? `<div class="type-result-grid">${cards.join('')}</div>`
+    : '<div class="empty-state">请选择攻击方或防御方属性。</div>';
+}
+
+async function runTypeCalc(){
+  if(typeEls.defenseA.value && typeEls.defenseA.value === typeEls.defenseB.value){
+    typeEls.defenseB.value = '';
+  }
+  const params = new URLSearchParams({
+    attack: typeEls.attack.value,
+    defense1: typeEls.defenseA.value,
+    defense2: typeEls.defenseB.value,
+  });
+  const res = await fetch(`/api/type-effectiveness?${params.toString()}`);
+  const payload = await res.json();
+  typeState.payload = payload;
+  renderTypeResult(payload);
+}
+
+async function initTypeTool(){
+  if(typeState.inited) return;
+  const res = await fetch('/api/type-chart');
+  const payload = await res.json();
+  typeState.types = Array.isArray(payload.types) ? payload.types : [];
+  typeState.matrix = Array.isArray(payload.matrix) ? payload.matrix : [];
+  typeEls.count.textContent = `${typeState.types.length} 个系别`;
+  fillTypeSelects();
+  renderTypeChart();
+  renderTypePrompt('请选择攻击方或防御方属性。');
+  typeState.inited = true;
+}
+
 toolLinks.forEach(button => {
   button.addEventListener('click', () => setTool(button.dataset.tool));
 });
@@ -703,6 +1016,16 @@ document.getElementById('hatch-search-btn').addEventListener('click', runHatchQu
   input.addEventListener('keydown', event => {
     if(event.key === 'Enter') runHatchQuery();
   });
+});
+
+[typeEls.attack, typeEls.defenseA, typeEls.defenseB].forEach(select => {
+  select.addEventListener('change', runTypeCalc);
+});
+document.getElementById('type-clear-btn').addEventListener('click', () => {
+  typeEls.attack.value = '';
+  typeEls.defenseA.value = '';
+  typeEls.defenseB.value = '';
+  runTypeCalc();
 });
 
 setTool(currentTool, false);

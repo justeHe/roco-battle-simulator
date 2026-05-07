@@ -83,6 +83,32 @@ _MECHANIC_LOCAL_ICON_MAP = {
     "状态": "/mechanic-icons/%E7%8A%B6%E6%80%81.svg",
 }
 
+_TYPE_LABELS = {
+    "normal": "普通",
+    "grass": "草",
+    "fire": "火",
+    "water": "水",
+    "light": "光",
+    "ground": "地",
+    "ice": "冰",
+    "dragon": "龙",
+    "electric": "电",
+    "poison": "毒",
+    "bug": "虫",
+    "fighting": "武",
+    "flying": "翼",
+    "fairy": "萌",
+    "ghost": "幽",
+    "dark": "恶",
+    "steel": "机械",
+    "psychic": "幻",
+}
+
+_TYPE_ORDER = [
+    "normal", "grass", "fire", "water", "light", "ground", "ice", "dragon", "electric",
+    "poison", "bug", "fighting", "flying", "fairy", "ghost", "dark", "steel", "psychic",
+]
+
 def _ensure_loaded():
     global _db_loaded
     if not _db_loaded:
@@ -381,6 +407,35 @@ def _range_score(diameter: float, weight: float, item: dict) -> tuple[float, flo
     mid_w = ((wmin + wmax) / 2) if wmin is not None and wmax is not None else weight
     distance = abs(diameter - mid_d) + abs(weight - mid_w)
     return area, distance
+
+
+def _type_items() -> list[dict]:
+    return [
+        {
+            "id": type_id,
+            "name": _TYPE_LABELS[type_id],
+            "icon_url": _get_skill_meta_icon_url("elements", _TYPE_LABELS[type_id]),
+        }
+        for type_id in _TYPE_ORDER
+    ]
+
+
+def _type_single_effectiveness(attack_id: str, defense_id: str) -> float:
+    from src.models import TYPE_CHART
+    return TYPE_CHART.get(attack_id, {}).get(defense_id, 1.0)
+
+
+def _type_combined_effectiveness(attack_id: str, defense_ids: list[str]) -> float:
+    clean = list(dict.fromkeys(type_id for type_id in defense_ids if type_id in _TYPE_LABELS))
+    if not clean:
+        return 1.0
+    values = [_type_single_effectiveness(attack_id, defense_id) for defense_id in clean]
+    if len(values) == 1:
+        return values[0]
+    if any(value > 1 for value in values) and any(value < 1 for value in values):
+        return 1.0
+    total = sum(values) - (len(values) - 1)
+    return round(max(0.5, total), 3)
 
 
 def _skill_metadata_cache() -> dict:
@@ -2594,6 +2649,88 @@ async def api_hatch_query_meta():
         "total_pets": data.get("totalPets", 0),
         "total_measurements": data.get("total", 0),
         "source": data.get("source", ""),
+    })
+
+
+@app.get("/api/type-chart")
+async def api_type_chart():
+    types = _type_items()
+    matrix = [
+        {
+            "defense": defense["id"],
+            "values": {
+                attack["id"]: _type_single_effectiveness(attack["id"], defense["id"])
+                for attack in types
+            },
+        }
+        for defense in types
+    ]
+    return JSONResponse({
+        "ok": True,
+        "types": types,
+        "matrix": matrix,
+    })
+
+
+@app.get("/api/type-effectiveness")
+async def api_type_effectiveness(attack: str = "", defense1: str = "", defense2: str = ""):
+    types = _type_items()
+    valid_ids = {item["id"] for item in types}
+    attack = attack if attack in valid_ids else ""
+    defenses = list(dict.fromkeys(value for value in [defense1, defense2] if value in valid_ids))
+
+    attack_summary = None
+    defense_summary = None
+    result = None
+
+    if attack:
+        strong = []
+        resist = []
+        for defense in types:
+            value = _type_single_effectiveness(attack, defense["id"])
+            row = {"type": defense, "multiplier": value}
+            if value > 1:
+                strong.append(row)
+            elif value < 1:
+                resist.append(row)
+        attack_summary = {"strong": strong, "resist": resist}
+
+    if defenses:
+        weak_to = []
+        resist_from = []
+        neutral_from = []
+        for attack_type in types:
+            value = _type_combined_effectiveness(attack_type["id"], defenses)
+            row = {"type": attack_type, "multiplier": value}
+            if value > 1:
+                weak_to.append(row)
+            elif value < 1:
+                resist_from.append(row)
+            else:
+                neutral_from.append(row)
+        weak_to.sort(key=lambda item: (-item["multiplier"], item["type"]["name"]))
+        resist_from.sort(key=lambda item: (item["multiplier"], item["type"]["name"]))
+        defense_summary = {
+            "defenses": [item for item in types if item["id"] in defenses],
+            "weak_to": weak_to,
+            "resist_from": resist_from,
+            "neutral_from": neutral_from,
+        }
+
+    if attack and defenses:
+        result = {
+            "attack": next(item for item in types if item["id"] == attack),
+            "defenses": [item for item in types if item["id"] in defenses],
+            "multiplier": _type_combined_effectiveness(attack, defenses),
+        }
+
+    return JSONResponse({
+        "ok": True,
+        "attack": attack,
+        "defenses": defenses,
+        "attack_summary": attack_summary,
+        "defense_summary": defense_summary,
+        "result": result,
     })
 
 
