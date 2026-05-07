@@ -1,0 +1,9209 @@
+{
+  "total": 1519,
+  "totalPets": 212,
+  "groups": [
+    {
+      "petId": "002",
+      "pet": "喵喵",
+      "rangeItems": [
+        {
+          "id": 122,
+          "eggDiameter": "0.4~0.6",
+          "eggWeight": "3~5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "003",
+      "pet": "喵呜",
+      "rangeItems": [
+        {
+          "id": 123,
+          "eggDiameter": "0.5~0.7",
+          "eggWeight": "6~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "007",
+      "pet": "火神",
+      "rangeItems": [
+        {
+          "id": 77,
+          "eggDiameter": "0.5~0.7",
+          "eggWeight": "5~8"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "008",
+      "pet": "水蓝蓝",
+      "rangeItems": [
+        {
+          "id": 445,
+          "eggDiameter": "0.2-0.2",
+          "eggWeight": "1.06-1.066"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 420,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.06"
+        },
+        {
+          "id": 419,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.066"
+        }
+      ]
+    },
+    {
+      "petId": "010",
+      "pet": "水灵",
+      "rangeItems": [
+        {
+          "id": 146,
+          "eggDiameter": "0.55~0.75",
+          "eggWeight": "6~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "011",
+      "pet": "鸭吉吉",
+      "rangeItems": [
+        {
+          "id": 174,
+          "eggDiameter": "0.26~0.55",
+          "eggWeight": "5.123~7.196"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 786,
+          "eggDiameter": "0.26",
+          "eggWeight": "5.394"
+        },
+        {
+          "id": 825,
+          "eggDiameter": "0.29",
+          "eggWeight": "5.319"
+        },
+        {
+          "id": 430,
+          "eggDiameter": "0.3",
+          "eggWeight": "5.63"
+        },
+        {
+          "id": 360,
+          "eggDiameter": "0.31",
+          "eggWeight": "5.651"
+        },
+        {
+          "id": 1019,
+          "eggDiameter": "0.32",
+          "eggWeight": "5.869"
+        },
+        {
+          "id": 609,
+          "eggDiameter": "0.33",
+          "eggWeight": "5.942"
+        },
+        {
+          "id": 603,
+          "eggDiameter": "0.34",
+          "eggWeight": "6.187"
+        },
+        {
+          "id": 1242,
+          "eggDiameter": "0.34",
+          "eggWeight": "6.2"
+        },
+        {
+          "id": 801,
+          "eggDiameter": "0.34",
+          "eggWeight": "6.214"
+        },
+        {
+          "id": 1107,
+          "eggDiameter": "0.36",
+          "eggWeight": "6.445"
+        },
+        {
+          "id": 743,
+          "eggDiameter": "0.37",
+          "eggWeight": "6.67"
+        },
+        {
+          "id": 332,
+          "eggDiameter": "0.38",
+          "eggWeight": "6.781"
+        },
+        {
+          "id": 876,
+          "eggDiameter": "0.41",
+          "eggWeight": "7.196"
+        },
+        {
+          "id": 1462,
+          "eggDiameter": "0.38",
+          "eggWeight": "6.816"
+        },
+        {
+          "id": 1515,
+          "eggDiameter": "0.36",
+          "eggWeight": "6.577"
+        },
+        {
+          "id": 1520,
+          "eggDiameter": "0.28",
+          "eggWeight": "5.123"
+        }
+      ]
+    },
+    {
+      "petId": "012",
+      "pet": "板板壳",
+      "rangeItems": [
+        {
+          "id": 264,
+          "eggDiameter": "0.21-0.31",
+          "eggWeight": "2.694-4.2"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 625,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.694"
+        },
+        {
+          "id": 612,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.715"
+        },
+        {
+          "id": 1319,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.784"
+        },
+        {
+          "id": 531,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.819"
+        },
+        {
+          "id": 519,
+          "eggDiameter": "0.25",
+          "eggWeight": "3.028"
+        },
+        {
+          "id": 580,
+          "eggDiameter": "0.26",
+          "eggWeight": "3.079"
+        },
+        {
+          "id": 1191,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.264"
+        },
+        {
+          "id": 7,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.28"
+        },
+        {
+          "id": 1133,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.341"
+        },
+        {
+          "id": 843,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.383"
+        },
+        {
+          "id": 1137,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.757"
+        },
+        {
+          "id": 212,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.799"
+        },
+        {
+          "id": 767,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.856"
+        },
+        {
+          "id": 450,
+          "eggDiameter": "0.31",
+          "eggWeight": "3.98"
+        },
+        {
+          "id": 1419,
+          "eggDiameter": "0.29",
+          "eggWeight": "3.705"
+        },
+        {
+          "id": 1434,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.536"
+        }
+      ]
+    },
+    {
+      "petId": "014",
+      "pet": "水泡壳",
+      "rangeItems": [
+        {
+          "id": 147,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "015",
+      "pet": "锥尾羊",
+      "rangeItems": [
+        {
+          "id": 188,
+          "eggDiameter": "0.24-0.34",
+          "eggWeight": "4.696-6.6"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1269,
+          "eggDiameter": "0.24",
+          "eggWeight": "4.696"
+        },
+        {
+          "id": 862,
+          "eggDiameter": "0.25",
+          "eggWeight": "4.932"
+        },
+        {
+          "id": 1138,
+          "eggDiameter": "0.25",
+          "eggWeight": "4.999"
+        },
+        {
+          "id": 316,
+          "eggDiameter": "0.25",
+          "eggWeight": "5.002"
+        },
+        {
+          "id": 224,
+          "eggDiameter": "0.26",
+          "eggWeight": "5.057"
+        },
+        {
+          "id": 442,
+          "eggDiameter": "0.27",
+          "eggWeight": "5.256"
+        },
+        {
+          "id": 1100,
+          "eggDiameter": "0.29",
+          "eggWeight": "5.671"
+        },
+        {
+          "id": 664,
+          "eggDiameter": "0.3",
+          "eggWeight": "5.715"
+        },
+        {
+          "id": 716,
+          "eggDiameter": "0.33",
+          "eggWeight": "6.382"
+        },
+        {
+          "id": 341,
+          "eggDiameter": "0.33",
+          "eggWeight": "6.384"
+        },
+        {
+          "id": 1442,
+          "eggDiameter": "0.34",
+          "eggWeight": "6.6"
+        },
+        {
+          "id": 1519,
+          "eggDiameter": "0.31",
+          "eggWeight": "5.929"
+        }
+      ]
+    },
+    {
+      "petId": "018",
+      "pet": "雪绒鸟",
+      "rangeItems": [
+        {
+          "id": 252,
+          "eggDiameter": "0.16-0.21",
+          "eggWeight": "0.999-1.789"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1374,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.999"
+        },
+        {
+          "id": 800,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.011"
+        },
+        {
+          "id": 923,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.127"
+        },
+        {
+          "id": 857,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.277"
+        },
+        {
+          "id": 894,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.317"
+        },
+        {
+          "id": 171,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.364"
+        },
+        {
+          "id": 919,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.467"
+        },
+        {
+          "id": 984,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.534"
+        },
+        {
+          "id": 225,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.615"
+        },
+        {
+          "id": 1193,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.647"
+        },
+        {
+          "id": 1402,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.584"
+        }
+      ]
+    },
+    {
+      "petId": "020",
+      "pet": "岚鸟",
+      "rangeItems": [
+        {
+          "id": 102,
+          "eggDiameter": "0.52~0.75",
+          "eggWeight": "5.5~8"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "021",
+      "pet": "小灵菇",
+      "rangeItems": [
+        {
+          "id": 345,
+          "eggDiameter": "0.18-0.25",
+          "eggWeight": "1.925-2.779"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 523,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.925"
+        },
+        {
+          "id": 768,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.961"
+        },
+        {
+          "id": 344,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.097"
+        },
+        {
+          "id": 1122,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.119"
+        },
+        {
+          "id": 359,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.147"
+        },
+        {
+          "id": 731,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.185"
+        },
+        {
+          "id": 1063,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.325"
+        },
+        {
+          "id": 317,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.442"
+        },
+        {
+          "id": 1341,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.617"
+        },
+        {
+          "id": 1282,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.771"
+        },
+        {
+          "id": 313,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.779"
+        }
+      ]
+    },
+    {
+      "petId": "023",
+      "pet": "幻影灵菇",
+      "rangeItems": [
+        {
+          "id": 75,
+          "eggDiameter": "0.5~0.7",
+          "eggWeight": "4.5~7"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "024",
+      "pet": "石肤蜥",
+      "rangeItems": [
+        {
+          "id": 139,
+          "eggDiameter": "0.21-0.29",
+          "eggWeight": "7.455-13.6"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 414,
+          "eggDiameter": "0.21",
+          "eggWeight": "7.455"
+        },
+        {
+          "id": 466,
+          "eggDiameter": "0.22",
+          "eggWeight": "8.625"
+        },
+        {
+          "id": 351,
+          "eggDiameter": "0.23",
+          "eggWeight": "8.792"
+        },
+        {
+          "id": 1270,
+          "eggDiameter": "0.23",
+          "eggWeight": "8.857"
+        },
+        {
+          "id": 777,
+          "eggDiameter": "0.23",
+          "eggWeight": "9.082"
+        },
+        {
+          "id": 930,
+          "eggDiameter": "0.24",
+          "eggWeight": "9.42"
+        },
+        {
+          "id": 986,
+          "eggDiameter": "0.24",
+          "eggWeight": "9.741"
+        },
+        {
+          "id": 214,
+          "eggDiameter": "0.25",
+          "eggWeight": "10.435"
+        },
+        {
+          "id": 1343,
+          "eggDiameter": "0.25",
+          "eggWeight": "10.602"
+        },
+        {
+          "id": 215,
+          "eggDiameter": "0.26",
+          "eggWeight": "10.996"
+        },
+        {
+          "id": 1068,
+          "eggDiameter": "0.26",
+          "eggWeight": "11.42"
+        },
+        {
+          "id": 928,
+          "eggDiameter": "0.27",
+          "eggWeight": "11.713"
+        },
+        {
+          "id": 1365,
+          "eggDiameter": "0.27",
+          "eggWeight": "11.943"
+        },
+        {
+          "id": 1342,
+          "eggDiameter": "0.27",
+          "eggWeight": "12.125"
+        },
+        {
+          "id": 140,
+          "eggDiameter": "0.28",
+          "eggWeight": "12.252"
+        },
+        {
+          "id": 1305,
+          "eggDiameter": "0.29",
+          "eggWeight": "13"
+        },
+        {
+          "id": 205,
+          "eggDiameter": "0.29",
+          "eggWeight": "13.202"
+        },
+        {
+          "id": 1023,
+          "eggDiameter": "0.29",
+          "eggWeight": "13.49"
+        }
+      ]
+    },
+    {
+      "petId": "026",
+      "pet": "石冠王蜥",
+      "rangeItems": [
+        {
+          "id": 141,
+          "eggDiameter": "0.6~0.85",
+          "eggWeight": "8~12"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "027",
+      "pet": "布是石",
+      "rangeItems": [
+        {
+          "id": 16,
+          "eggDiameter": "0.18-0.25",
+          "eggWeight": "6.556-12.914"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1181,
+          "eggDiameter": "0.18",
+          "eggWeight": "6.556"
+        },
+        {
+          "id": 1253,
+          "eggDiameter": "0.18",
+          "eggWeight": "6.897"
+        },
+        {
+          "id": 1110,
+          "eggDiameter": "0.2",
+          "eggWeight": "8.18"
+        },
+        {
+          "id": 384,
+          "eggDiameter": "0.2",
+          "eggWeight": "8.492"
+        },
+        {
+          "id": 563,
+          "eggDiameter": "0.22",
+          "eggWeight": "9.969"
+        },
+        {
+          "id": 447,
+          "eggDiameter": "0.22",
+          "eggWeight": "10.316"
+        },
+        {
+          "id": 1018,
+          "eggDiameter": "0.22",
+          "eggWeight": "10.358"
+        },
+        {
+          "id": 1355,
+          "eggDiameter": "0.24",
+          "eggWeight": "11.877"
+        },
+        {
+          "id": 1050,
+          "eggDiameter": "0.24",
+          "eggWeight": "12.212"
+        },
+        {
+          "id": 213,
+          "eggDiameter": "0.25",
+          "eggWeight": "12.595"
+        },
+        {
+          "id": 840,
+          "eggDiameter": "0.25",
+          "eggWeight": "12.914"
+        },
+        {
+          "id": 1524,
+          "eggDiameter": "0.21",
+          "eggWeight": "9.584"
+        }
+      ]
+    },
+    {
+      "petId": "029",
+      "pet": "布克棱岩",
+      "rangeItems": [
+        {
+          "id": 15,
+          "eggDiameter": "0.7~0.95",
+          "eggWeight": "14~20"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "030",
+      "pet": "恶魔叮",
+      "rangeItems": [
+        {
+          "id": 243,
+          "eggDiameter": "0.156-0.23",
+          "eggWeight": "1.265-2.08"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 866,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.265"
+        },
+        {
+          "id": 608,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.296"
+        },
+        {
+          "id": 1098,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.297"
+        },
+        {
+          "id": 1176,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.322"
+        },
+        {
+          "id": 829,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.365"
+        },
+        {
+          "id": 44,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.37"
+        },
+        {
+          "id": 969,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.412"
+        },
+        {
+          "id": 718,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.429"
+        },
+        {
+          "id": 910,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.458"
+        },
+        {
+          "id": 474,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.479"
+        },
+        {
+          "id": 850,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.522"
+        },
+        {
+          "id": 797,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.561"
+        },
+        {
+          "id": 320,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.576"
+        },
+        {
+          "id": 1077,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.593"
+        },
+        {
+          "id": 806,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.627"
+        },
+        {
+          "id": 1506,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.624"
+        }
+      ]
+    },
+    {
+      "petId": "031",
+      "pet": "叮叮恶魔",
+      "rangeItems": [
+        {
+          "id": 36,
+          "eggDiameter": "0.5~0.72",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "032",
+      "pet": "毛毛",
+      "rangeItems": [
+        {
+          "id": 116,
+          "eggDiameter": "0.13-0.19",
+          "eggWeight": "1.053-1.8"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1134,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.053"
+        },
+        {
+          "id": 774,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.069"
+        },
+        {
+          "id": 1175,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.352"
+        },
+        {
+          "id": 1376,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.448"
+        },
+        {
+          "id": 1295,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.459"
+        },
+        {
+          "id": 715,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.494"
+        },
+        {
+          "id": 1331,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.538"
+        },
+        {
+          "id": 117,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.568"
+        },
+        {
+          "id": 990,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.61"
+        },
+        {
+          "id": 897,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.636"
+        },
+        {
+          "id": 204,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.646"
+        },
+        {
+          "id": 1174,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.664"
+        },
+        {
+          "id": 686,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.751"
+        },
+        {
+          "id": 1397,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.431"
+        },
+        {
+          "id": 1437,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.241"
+        }
+      ]
+    },
+    {
+      "petId": "034",
+      "pet": "化蝶",
+      "rangeItems": [
+        {
+          "id": 73,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "035",
+      "pet": "幽影树",
+      "rangeItems": [
+        {
+          "id": 184,
+          "eggDiameter": "0.25~0.38",
+          "eggWeight": "10.535~14.768"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 971,
+          "eggDiameter": "0.25",
+          "eggWeight": "11.367"
+        },
+        {
+          "id": 1020,
+          "eggDiameter": "0.27",
+          "eggWeight": "10.535"
+        },
+        {
+          "id": 408,
+          "eggDiameter": "0.27",
+          "eggWeight": "10.654"
+        },
+        {
+          "id": 1043,
+          "eggDiameter": "0.28",
+          "eggWeight": "10.758"
+        },
+        {
+          "id": 963,
+          "eggDiameter": "0.28",
+          "eggWeight": "10.868"
+        },
+        {
+          "id": 520,
+          "eggDiameter": "0.28",
+          "eggWeight": "10.904"
+        },
+        {
+          "id": 888,
+          "eggDiameter": "0.28",
+          "eggWeight": "10.92"
+        },
+        {
+          "id": 1017,
+          "eggDiameter": "0.29",
+          "eggWeight": "11.282"
+        },
+        {
+          "id": 660,
+          "eggDiameter": "0.31",
+          "eggWeight": "11.925"
+        },
+        {
+          "id": 291,
+          "eggDiameter": "0.32",
+          "eggWeight": "12.541"
+        },
+        {
+          "id": 1034,
+          "eggDiameter": "0.34",
+          "eggWeight": "13.069"
+        },
+        {
+          "id": 405,
+          "eggDiameter": "0.36",
+          "eggWeight": "14.123"
+        },
+        {
+          "id": 1347,
+          "eggDiameter": "0.36",
+          "eggWeight": "14.283"
+        },
+        {
+          "id": 1351,
+          "eggDiameter": "0.37",
+          "eggWeight": "14.276"
+        },
+        {
+          "id": 1081,
+          "eggDiameter": "0.38",
+          "eggWeight": "14.768"
+        },
+        {
+          "id": 1498,
+          "eggDiameter": "0.35",
+          "eggWeight": "13.557"
+        }
+      ]
+    },
+    {
+      "petId": "036",
+      "pet": "小鼠獭",
+      "rangeItems": [
+        {
+          "id": 246,
+          "eggDiameter": "0.16-0.28",
+          "eggWeight": "2.361-3.507"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1314,
+          "eggDiameter": "0.16",
+          "eggWeight": "2.361"
+        },
+        {
+          "id": 437,
+          "eggDiameter": "0.16",
+          "eggWeight": "2.446"
+        },
+        {
+          "id": 424,
+          "eggDiameter": "0.16",
+          "eggWeight": "2.616"
+        },
+        {
+          "id": 574,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.431"
+        },
+        {
+          "id": 194,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.496"
+        },
+        {
+          "id": 163,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.506"
+        },
+        {
+          "id": 858,
+          "eggDiameter": "0.18",
+          "eggWeight": "2.568"
+        },
+        {
+          "id": 673,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.638"
+        },
+        {
+          "id": 1261,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.723"
+        },
+        {
+          "id": 867,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.752"
+        },
+        {
+          "id": 614,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.815"
+        },
+        {
+          "id": 1165,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.838"
+        },
+        {
+          "id": 620,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.938"
+        },
+        {
+          "id": 978,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.962"
+        }
+      ]
+    },
+    {
+      "petId": "038",
+      "pet": "卷胡巨獭",
+      "rangeItems": [
+        {
+          "id": 91,
+          "eggDiameter": "0.65~0.9",
+          "eggWeight": "9~13"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "039",
+      "pet": "矿晶虫",
+      "rangeItems": [
+        {
+          "id": 268,
+          "eggDiameter": "0.23-0.32",
+          "eggWeight": "2.066-2.485"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 536,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.066"
+        },
+        {
+          "id": 1274,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.076"
+        },
+        {
+          "id": 970,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.141"
+        },
+        {
+          "id": 938,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.191"
+        },
+        {
+          "id": 421,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.215"
+        },
+        {
+          "id": 1250,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.252"
+        },
+        {
+          "id": 472,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.285"
+        },
+        {
+          "id": 1231,
+          "eggDiameter": "0.29",
+          "eggWeight": "2.33"
+        },
+        {
+          "id": 333,
+          "eggDiameter": "0.32",
+          "eggWeight": "2.485"
+        }
+      ]
+    },
+    {
+      "petId": "040",
+      "pet": "晶石蜗",
+      "rangeItems": [
+        {
+          "id": 85,
+          "eggDiameter": "0.5~0.75",
+          "eggWeight": "6~10"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "041",
+      "pet": "奇丽草",
+      "rangeItems": [
+        {
+          "id": 253,
+          "eggDiameter": "0.16-0.23",
+          "eggWeight": "0.872-2.256"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 379,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.435"
+        },
+        {
+          "id": 361,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.444"
+        },
+        {
+          "id": 542,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.661"
+        },
+        {
+          "id": 948,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.693"
+        },
+        {
+          "id": 947,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.747"
+        },
+        {
+          "id": 1028,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.753"
+        },
+        {
+          "id": 945,
+          "eggDiameter": "0.2",
+          "eggWeight": "0.872"
+        },
+        {
+          "id": 1284,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.934"
+        },
+        {
+          "id": 439,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.992"
+        },
+        {
+          "id": 1086,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.042"
+        },
+        {
+          "id": 1303,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.129"
+        },
+        {
+          "id": 834,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.158"
+        },
+        {
+          "id": 1102,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.256"
+        },
+        {
+          "id": 1534,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.549"
+        }
+      ]
+    },
+    {
+      "petId": "043",
+      "pet": "奇丽花",
+      "rangeItems": [
+        {
+          "id": 130,
+          "eggDiameter": "0.5~0.7",
+          "eggWeight": "4.5~7"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "044",
+      "pet": "丢丢",
+      "rangeItems": [
+        {
+          "id": 239,
+          "eggDiameter": "0.15-0.21",
+          "eggWeight": "1.508-2.44"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 662,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.508"
+        },
+        {
+          "id": 795,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.52"
+        },
+        {
+          "id": 37,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.554"
+        },
+        {
+          "id": 1096,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.758"
+        },
+        {
+          "id": 854,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.952"
+        },
+        {
+          "id": 1026,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.975"
+        },
+        {
+          "id": 1345,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.072"
+        },
+        {
+          "id": 1336,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.083"
+        },
+        {
+          "id": 758,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.111"
+        },
+        {
+          "id": 435,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.258"
+        },
+        {
+          "id": 1223,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.259"
+        },
+        {
+          "id": 569,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.363"
+        },
+        {
+          "id": 630,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.4"
+        },
+        {
+          "id": 1525,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.665"
+        }
+      ]
+    },
+    {
+      "petId": "046",
+      "pet": "卡瓦重",
+      "rangeItems": [
+        {
+          "id": 96,
+          "eggDiameter": "0.45~0.7",
+          "eggWeight": "4~7"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "047",
+      "pet": "护主犬",
+      "rangeItems": [
+        {
+          "id": 71,
+          "eggDiameter": "0.27-0.38",
+          "eggWeight": "4.798-6.893"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 877,
+          "eggDiameter": "0.27",
+          "eggWeight": "4.798"
+        },
+        {
+          "id": 1094,
+          "eggDiameter": "0.27",
+          "eggWeight": "4.876"
+        },
+        {
+          "id": 1022,
+          "eggDiameter": "0.28",
+          "eggWeight": "5.04"
+        },
+        {
+          "id": 1008,
+          "eggDiameter": "0.29",
+          "eggWeight": "5.146"
+        },
+        {
+          "id": 879,
+          "eggDiameter": "0.29",
+          "eggWeight": "5.284"
+        },
+        {
+          "id": 759,
+          "eggDiameter": "0.31",
+          "eggWeight": "5.568"
+        },
+        {
+          "id": 683,
+          "eggDiameter": "0.32",
+          "eggWeight": "5.676"
+        },
+        {
+          "id": 347,
+          "eggDiameter": "0.34",
+          "eggWeight": "6.06"
+        },
+        {
+          "id": 772,
+          "eggDiameter": "0.34",
+          "eggWeight": "6.096"
+        },
+        {
+          "id": 1273,
+          "eggDiameter": "0.34",
+          "eggWeight": "6.187"
+        },
+        {
+          "id": 991,
+          "eggDiameter": "0.35",
+          "eggWeight": "6.37"
+        },
+        {
+          "id": 1011,
+          "eggDiameter": "0.36",
+          "eggWeight": "6.538"
+        },
+        {
+          "id": 1313,
+          "eggDiameter": "0.37",
+          "eggWeight": "6.776"
+        },
+        {
+          "id": 697,
+          "eggDiameter": "0.37",
+          "eggWeight": "6.786"
+        },
+        {
+          "id": 567,
+          "eggDiameter": "0.38",
+          "eggWeight": "6.893"
+        },
+        {
+          "id": 1455,
+          "eggDiameter": "0.3",
+          "eggWeight": "5.436"
+        },
+        {
+          "id": 1508,
+          "eggDiameter": "0.36",
+          "eggWeight": "6.561"
+        }
+      ]
+    },
+    {
+      "petId": "048",
+      "pet": "音速犬",
+      "rangeItems": [
+        {
+          "id": 180,
+          "eggDiameter": "0.58~0.82",
+          "eggWeight": "7~10"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "049",
+      "pet": "绿耳松鼠",
+      "rangeItems": [
+        {
+          "id": 110,
+          "eggDiameter": "0.2-0.28",
+          "eggWeight": "1.273-2.29"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1259,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.273"
+        },
+        {
+          "id": 907,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.301"
+        },
+        {
+          "id": 1373,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.35"
+        },
+        {
+          "id": 1029,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.388"
+        },
+        {
+          "id": 681,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.573"
+        },
+        {
+          "id": 1255,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.695"
+        },
+        {
+          "id": 702,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.927"
+        },
+        {
+          "id": 1091,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.034"
+        },
+        {
+          "id": 819,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.129"
+        },
+        {
+          "id": 1289,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.26"
+        },
+        {
+          "id": 1057,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.29"
+        },
+        {
+          "id": 1400,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.789"
+        }
+      ]
+    },
+    {
+      "petId": "051",
+      "pet": "蹦床松鼠",
+      "rangeItems": [
+        {
+          "id": 11,
+          "eggDiameter": "0.47~0.68",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "052",
+      "pet": "嘟嘟煲",
+      "rangeItems": [
+        {
+          "id": 41,
+          "eggDiameter": "0.26-0.33",
+          "eggWeight": "17.25-22.158"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 321,
+          "eggDiameter": "0.26",
+          "eggWeight": "17.336"
+        },
+        {
+          "id": 1290,
+          "eggDiameter": "0.28",
+          "eggWeight": "17.25"
+        },
+        {
+          "id": 649,
+          "eggDiameter": "0.29",
+          "eggWeight": "18.389"
+        },
+        {
+          "id": 835,
+          "eggDiameter": "0.29",
+          "eggWeight": "18.501"
+        },
+        {
+          "id": 1359,
+          "eggDiameter": "0.3",
+          "eggWeight": "18.717"
+        },
+        {
+          "id": 1257,
+          "eggDiameter": "0.3",
+          "eggWeight": "19.032"
+        },
+        {
+          "id": 1032,
+          "eggDiameter": "0.33",
+          "eggWeight": "21.593"
+        },
+        {
+          "id": 780,
+          "eggDiameter": "0.33",
+          "eggWeight": "21.895"
+        },
+        {
+          "id": 1481,
+          "eggDiameter": "0.32",
+          "eggWeight": "20.862"
+        }
+      ]
+    },
+    {
+      "petId": "053",
+      "pet": "嘟嘟锅",
+      "rangeItems": [
+        {
+          "id": 42,
+          "eggDiameter": "0.33~0.65",
+          "eggWeight": "3.5~22.29"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1121,
+          "eggDiameter": "0.33",
+          "eggWeight": "22.29"
+        }
+      ]
+    },
+    {
+      "petId": "054",
+      "pet": "小灵面",
+      "rangeItems": [
+        {
+          "id": 159,
+          "eggDiameter": "0.16-0.23",
+          "eggWeight": "0.036-0.06"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1202,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.036"
+        },
+        {
+          "id": 841,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.037"
+        },
+        {
+          "id": 578,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.041"
+        },
+        {
+          "id": 964,
+          "eggDiameter": "0.19",
+          "eggWeight": "0.047"
+        },
+        {
+          "id": 713,
+          "eggDiameter": "0.2",
+          "eggWeight": "0.05"
+        },
+        {
+          "id": 1288,
+          "eggDiameter": "0.21",
+          "eggWeight": "0.053"
+        },
+        {
+          "id": 465,
+          "eggDiameter": "0.22",
+          "eggWeight": "0.056"
+        },
+        {
+          "id": 732,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.06"
+        },
+        {
+          "id": 1488,
+          "eggDiameter": "0.18",
+          "eggWeight": "0.044"
+        }
+      ]
+    },
+    {
+      "petId": "056",
+      "pet": "幽冥眼",
+      "rangeItems": [
+        {
+          "id": 183,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "057",
+      "pet": "梦游",
+      "rangeItems": [
+        {
+          "id": 444,
+          "eggDiameter": "0.21-0.25",
+          "eggWeight": "0.3-0.413"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 551,
+          "eggDiameter": "0.21",
+          "eggWeight": "0.3"
+        },
+        {
+          "id": 432,
+          "eggDiameter": "0.21",
+          "eggWeight": "0.314"
+        },
+        {
+          "id": 429,
+          "eggDiameter": "0.21",
+          "eggWeight": "0.322"
+        },
+        {
+          "id": 949,
+          "eggDiameter": "0.22",
+          "eggWeight": "0.324"
+        },
+        {
+          "id": 508,
+          "eggDiameter": "0.22",
+          "eggWeight": "0.332"
+        },
+        {
+          "id": 1329,
+          "eggDiameter": "0.22",
+          "eggWeight": "0.333"
+        },
+        {
+          "id": 528,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.351"
+        },
+        {
+          "id": 1185,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.367"
+        },
+        {
+          "id": 1078,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.368"
+        },
+        {
+          "id": 707,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.369"
+        },
+        {
+          "id": 931,
+          "eggDiameter": "0.24",
+          "eggWeight": "0.374"
+        },
+        {
+          "id": 428,
+          "eggDiameter": "0.24",
+          "eggWeight": "0.375"
+        },
+        {
+          "id": 1278,
+          "eggDiameter": "0.24",
+          "eggWeight": "0.391"
+        },
+        {
+          "id": 120,
+          "eggDiameter": "0.25",
+          "eggWeight": "0.4"
+        },
+        {
+          "id": 881,
+          "eggDiameter": "0.25",
+          "eggWeight": "0.403"
+        },
+        {
+          "id": 1300,
+          "eggDiameter": "0.25",
+          "eggWeight": "0.413"
+        },
+        {
+          "id": 1474,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.314"
+        }
+      ]
+    },
+    {
+      "petId": "058",
+      "pet": "梦悠悠",
+      "rangeItems": [
+        {
+          "id": 119,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "059",
+      "pet": "兽花蕾",
+      "rangeItems": [
+        {
+          "id": 143,
+          "eggDiameter": "0.16-0.19",
+          "eggWeight": "1.5-2.5"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1321,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.5"
+        },
+        {
+          "id": 1339,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.535"
+        },
+        {
+          "id": 1362,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.58"
+        },
+        {
+          "id": 565,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.681"
+        },
+        {
+          "id": 647,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.729"
+        },
+        {
+          "id": 736,
+          "eggDiameter": "0.16",
+          "eggWeight": "2.042"
+        },
+        {
+          "id": 992,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.585"
+        },
+        {
+          "id": 1180,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.786"
+        },
+        {
+          "id": 1025,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.84"
+        },
+        {
+          "id": 617,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.03"
+        },
+        {
+          "id": 1092,
+          "eggDiameter": "0.18",
+          "eggWeight": "2.282"
+        },
+        {
+          "id": 1377,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.363"
+        },
+        {
+          "id": 1312,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.5"
+        },
+        {
+          "id": 1432,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.662"
+        }
+      ]
+    },
+    {
+      "petId": "060",
+      "pet": "伏地兽",
+      "rangeItems": [
+        {
+          "id": 263,
+          "eggDiameter": "0.208-0.296",
+          "eggWeight": "4.96-6.32"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "062",
+      "pet": "巨噬针鼹",
+      "rangeItems": [
+        {
+          "id": 90,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "7~11"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "063",
+      "pet": "蹦蹦种子",
+      "rangeItems": [
+        {
+          "id": 265,
+          "eggDiameter": "0.2-0.28",
+          "eggWeight": "1.53-2.24"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 793,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.58"
+        },
+        {
+          "id": 1293,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.688"
+        },
+        {
+          "id": 1117,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.7"
+        },
+        {
+          "id": 290,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.737"
+        },
+        {
+          "id": 926,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.738"
+        },
+        {
+          "id": 1209,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.925"
+        },
+        {
+          "id": 832,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.014"
+        },
+        {
+          "id": 462,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.085"
+        },
+        {
+          "id": 783,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.147"
+        },
+        {
+          "id": 796,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.172"
+        },
+        {
+          "id": 1333,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.235"
+        },
+        {
+          "id": 1449,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.53"
+        },
+        {
+          "id": 1516,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.933"
+        }
+      ]
+    },
+    {
+      "petId": "064",
+      "pet": "蹦蹦草",
+      "rangeItems": [],
+      "exactItems": [
+        {
+          "id": 640,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.783"
+        }
+      ]
+    },
+    {
+      "petId": "065",
+      "pet": "蹦蹦花",
+      "rangeItems": [
+        {
+          "id": 10,
+          "eggDiameter": "0.55~0.75",
+          "eggWeight": "5~8"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "066",
+      "pet": "电咩咩",
+      "rangeItems": [
+        {
+          "id": 35,
+          "eggDiameter": "0.25~0.34",
+          "eggWeight": "2.572~3.6"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 312,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.572"
+        },
+        {
+          "id": 452,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.739"
+        },
+        {
+          "id": 34,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.153"
+        },
+        {
+          "id": 1292,
+          "eggDiameter": "0.31",
+          "eggWeight": "3.22"
+        },
+        {
+          "id": 1187,
+          "eggDiameter": "0.34",
+          "eggWeight": "3.597"
+        },
+        {
+          "id": 921,
+          "eggDiameter": "0.34",
+          "eggWeight": "3.6"
+        },
+        {
+          "id": 1382,
+          "eggDiameter": "0.33",
+          "eggWeight": "3.481"
+        },
+        {
+          "id": 1479,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.663"
+        }
+      ]
+    },
+    {
+      "petId": "069",
+      "pet": "蒲公英",
+      "rangeItems": [
+        {
+          "id": 128,
+          "eggDiameter": "0.13-0.21",
+          "eggWeight": "0.03-0.118"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 494,
+          "eggDiameter": "0.135",
+          "eggWeight": "0.03"
+        },
+        {
+          "id": 1243,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.064"
+        },
+        {
+          "id": 398,
+          "eggDiameter": "0.18",
+          "eggWeight": "0.088"
+        },
+        {
+          "id": 543,
+          "eggDiameter": "0.21",
+          "eggWeight": "0.116"
+        },
+        {
+          "id": 682,
+          "eggDiameter": "0.21",
+          "eggWeight": "0.117"
+        },
+        {
+          "id": 871,
+          "eggDiameter": "0.21",
+          "eggWeight": "0.118"
+        },
+        {
+          "id": 1478,
+          "eggDiameter": "0.18",
+          "eggWeight": "0.087"
+        }
+      ]
+    },
+    {
+      "petId": "070",
+      "pet": "蒲公英娃娃",
+      "rangeItems": [
+        {
+          "id": 129,
+          "eggDiameter": "0.42~0.62",
+          "eggWeight": "3~5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "071",
+      "pet": "伊贝儿",
+      "rangeItems": [
+        {
+          "id": 251,
+          "eggDiameter": "0.176-0.26",
+          "eggWeight": "1.222-1.68"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1296,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.222"
+        },
+        {
+          "id": 1083,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.268"
+        },
+        {
+          "id": 600,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.276"
+        },
+        {
+          "id": 629,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.29"
+        },
+        {
+          "id": 1215,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.367"
+        },
+        {
+          "id": 636,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.442"
+        },
+        {
+          "id": 1356,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.474"
+        },
+        {
+          "id": 918,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.512"
+        },
+        {
+          "id": 968,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.591"
+        },
+        {
+          "id": 749,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.595"
+        },
+        {
+          "id": 778,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.615"
+        },
+        {
+          "id": 1418,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.611"
+        },
+        {
+          "id": 1510,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.488"
+        }
+      ]
+    },
+    {
+      "petId": "072",
+      "pet": "伊贝粉粉",
+      "rangeItems": [
+        {
+          "id": 176,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "073",
+      "pet": "白发懒人",
+      "rangeItems": [
+        {
+          "id": 285,
+          "eggDiameter": "0.31-0.43",
+          "eggWeight": "6.951-9.4"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 941,
+          "eggDiameter": "0.31",
+          "eggWeight": "6.951"
+        },
+        {
+          "id": 525,
+          "eggDiameter": "0.32",
+          "eggWeight": "7.047"
+        },
+        {
+          "id": 1192,
+          "eggDiameter": "0.34",
+          "eggWeight": "7.519"
+        },
+        {
+          "id": 433,
+          "eggDiameter": "0.34",
+          "eggWeight": "7.521"
+        },
+        {
+          "id": 363,
+          "eggDiameter": "0.35",
+          "eggWeight": "7.759"
+        },
+        {
+          "id": 1366,
+          "eggDiameter": "0.36",
+          "eggWeight": "7.86"
+        },
+        {
+          "id": 4,
+          "eggDiameter": "0.36",
+          "eggWeight": "7.957"
+        },
+        {
+          "id": 1148,
+          "eggDiameter": "0.37",
+          "eggWeight": "8.166"
+        },
+        {
+          "id": 1116,
+          "eggDiameter": "0.37",
+          "eggWeight": "8.179"
+        },
+        {
+          "id": 810,
+          "eggDiameter": "0.39",
+          "eggWeight": "8.471"
+        },
+        {
+          "id": 201,
+          "eggDiameter": "0.4",
+          "eggWeight": "8.775"
+        },
+        {
+          "id": 1173,
+          "eggDiameter": "0.42",
+          "eggWeight": "9.09"
+        },
+        {
+          "id": 1330,
+          "eggDiameter": "0.43",
+          "eggWeight": "9.19"
+        },
+        {
+          "id": 354,
+          "eggDiameter": "0.43",
+          "eggWeight": "9.32"
+        },
+        {
+          "id": 1448,
+          "eggDiameter": "0.34",
+          "eggWeight": "7.473"
+        }
+      ]
+    },
+    {
+      "petId": "075",
+      "pet": "瞌睡王",
+      "rangeItems": [
+        {
+          "id": 97,
+          "eggDiameter": "0.65~0.9",
+          "eggWeight": "9~13"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "076",
+      "pet": "海盔虫",
+      "rangeItems": [
+        {
+          "id": 276,
+          "eggDiameter": "0.23-0.29",
+          "eggWeight": "2.621-3.44"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1067,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.621"
+        },
+        {
+          "id": 455,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.644"
+        },
+        {
+          "id": 425,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.734"
+        },
+        {
+          "id": 62,
+          "eggDiameter": "0.26",
+          "eggWeight": "3.077"
+        },
+        {
+          "id": 1127,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.132"
+        },
+        {
+          "id": 1379,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.235"
+        },
+        {
+          "id": 689,
+          "eggDiameter": "0.29",
+          "eggWeight": "3.346"
+        },
+        {
+          "id": 1395,
+          "eggDiameter": "0.29",
+          "eggWeight": "3.405"
+        },
+        {
+          "id": 1414,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.838"
+        }
+      ]
+    },
+    {
+      "petId": "079",
+      "pet": "菊花梨",
+      "rangeItems": [
+        {
+          "id": 87,
+          "eggDiameter": "0.27-0.37",
+          "eggWeight": "1.532-2.32"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 581,
+          "eggDiameter": "0.27",
+          "eggWeight": "1.532"
+        },
+        {
+          "id": 822,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.6"
+        },
+        {
+          "id": 823,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.6"
+        },
+        {
+          "id": 1247,
+          "eggDiameter": "0.3",
+          "eggWeight": "1.751"
+        },
+        {
+          "id": 504,
+          "eggDiameter": "0.31",
+          "eggWeight": "1.782"
+        },
+        {
+          "id": 496,
+          "eggDiameter": "0.31",
+          "eggWeight": "1.793"
+        },
+        {
+          "id": 804,
+          "eggDiameter": "0.35",
+          "eggWeight": "2.093"
+        },
+        {
+          "id": 331,
+          "eggDiameter": "0.37",
+          "eggWeight": "2.308"
+        },
+        {
+          "id": 1458,
+          "eggDiameter": "0.36",
+          "eggWeight": "2.196"
+        }
+      ]
+    },
+    {
+      "petId": "080",
+      "pet": "小星光",
+      "rangeItems": [
+        {
+          "id": 165,
+          "eggDiameter": "0.34-0.46",
+          "eggWeight": "10.06-14.32"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1238,
+          "eggDiameter": "0.34",
+          "eggWeight": "10.06"
+        },
+        {
+          "id": 1324,
+          "eggDiameter": "0.34",
+          "eggWeight": "10.08"
+        },
+        {
+          "id": 1015,
+          "eggDiameter": "0.35",
+          "eggWeight": "10.342"
+        },
+        {
+          "id": 495,
+          "eggDiameter": "0.35",
+          "eggWeight": "10.552"
+        },
+        {
+          "id": 1340,
+          "eggDiameter": "0.41",
+          "eggWeight": "12.735"
+        },
+        {
+          "id": 722,
+          "eggDiameter": "0.42",
+          "eggWeight": "12.797"
+        },
+        {
+          "id": 782,
+          "eggDiameter": "0.43",
+          "eggWeight": "13.163"
+        },
+        {
+          "id": 1256,
+          "eggDiameter": "0.44",
+          "eggWeight": "13.458"
+        },
+        {
+          "id": 1241,
+          "eggDiameter": "0.44",
+          "eggWeight": "13.571"
+        },
+        {
+          "id": 1332,
+          "eggDiameter": "0.46",
+          "eggWeight": "14.32"
+        },
+        {
+          "id": 1497,
+          "eggDiameter": "0.37",
+          "eggWeight": "11.149"
+        },
+        {
+          "id": 1503,
+          "eggDiameter": "0.45",
+          "eggWeight": "14.051"
+        }
+      ]
+    },
+    {
+      "petId": "081",
+      "pet": "星光狮",
+      "rangeItems": [],
+      "exactItems": [
+        {
+          "id": 785,
+          "eggDiameter": "0.39",
+          "eggWeight": "11.895"
+        }
+      ]
+    },
+    {
+      "petId": "082",
+      "pet": "一窝蜂",
+      "rangeItems": [
+        {
+          "id": 258,
+          "eggDiameter": "0.16-0.22",
+          "eggWeight": "1.0458-4.88"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1349,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.643"
+        },
+        {
+          "id": 679,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.68"
+        },
+        {
+          "id": 175,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.71"
+        },
+        {
+          "id": 1146,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.714"
+        },
+        {
+          "id": 674,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.718"
+        },
+        {
+          "id": 319,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.722"
+        },
+        {
+          "id": 1287,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.731"
+        },
+        {
+          "id": 532,
+          "eggDiameter": "0.18",
+          "eggWeight": "4.88"
+        },
+        {
+          "id": 1183,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.806"
+        },
+        {
+          "id": 1041,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.89"
+        },
+        {
+          "id": 192,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.9"
+        },
+        {
+          "id": 1072,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.938"
+        },
+        {
+          "id": 1085,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.007"
+        },
+        {
+          "id": 365,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.083"
+        },
+        {
+          "id": 678,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.084"
+        },
+        {
+          "id": 885,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.132"
+        },
+        {
+          "id": 1338,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.177"
+        },
+        {
+          "id": 1436,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.0458"
+        },
+        {
+          "id": 1450,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.853"
+        },
+        {
+          "id": 1460,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.859"
+        },
+        {
+          "id": 1476,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.595"
+        }
+      ]
+    },
+    {
+      "petId": "085",
+      "pet": "小夜",
+      "rangeItems": [
+        {
+          "id": 166,
+          "eggDiameter": "0.22-0.3",
+          "eggWeight": "1.625-3.02"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 974,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.625"
+        },
+        {
+          "id": 446,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.635"
+        },
+        {
+          "id": 750,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.791"
+        },
+        {
+          "id": 833,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.798"
+        },
+        {
+          "id": 1153,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.906"
+        },
+        {
+          "id": 653,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.919"
+        },
+        {
+          "id": 571,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.015"
+        },
+        {
+          "id": 955,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.104"
+        },
+        {
+          "id": 1316,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.174"
+        },
+        {
+          "id": 852,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.336"
+        },
+        {
+          "id": 976,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.357"
+        },
+        {
+          "id": 607,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.59"
+        },
+        {
+          "id": 751,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.699"
+        },
+        {
+          "id": 342,
+          "eggDiameter": "0.3",
+          "eggWeight": "2.905"
+        },
+        {
+          "id": 1113,
+          "eggDiameter": "0.3",
+          "eggWeight": "2.946"
+        },
+        {
+          "id": 582,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.016"
+        },
+        {
+          "id": 1399,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.02"
+        }
+      ]
+    },
+    {
+      "petId": "087",
+      "pet": "朔夜伊芙",
+      "rangeItems": [
+        {
+          "id": 148,
+          "eggDiameter": "0.6~0.85",
+          "eggWeight": "8~12"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "088",
+      "pet": "乖乖鹄",
+      "rangeItems": [
+        {
+          "id": 58,
+          "eggDiameter": "0.21-0.28",
+          "eggWeight": "1.557-2.141"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 898,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.557"
+        },
+        {
+          "id": 775,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.707"
+        },
+        {
+          "id": 914,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.712"
+        },
+        {
+          "id": 1306,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.849"
+        },
+        {
+          "id": 943,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.96"
+        },
+        {
+          "id": 588,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.109"
+        },
+        {
+          "id": 1357,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.141"
+        },
+        {
+          "id": 1509,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.115"
+        }
+      ]
+    },
+    {
+      "petId": "090",
+      "pet": "翠顶夫人",
+      "rangeItems": [
+        {
+          "id": 25,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "6~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "091",
+      "pet": "黑羽夫人",
+      "rangeItems": [
+        {
+          "id": 67,
+          "eggDiameter": "0.58~0.82",
+          "eggWeight": "7~10"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "092",
+      "pet": "锤头鹳",
+      "rangeItems": [
+        {
+          "id": 21,
+          "eggDiameter": "0.46~0.8",
+          "eggWeight": "17.98-26.321"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 335,
+          "eggDiameter": "0.46",
+          "eggWeight": "17.98"
+        },
+        {
+          "id": 842,
+          "eggDiameter": "0.47",
+          "eggWeight": "18.555"
+        },
+        {
+          "id": 1327,
+          "eggDiameter": "0.47",
+          "eggWeight": "18.87"
+        },
+        {
+          "id": 1178,
+          "eggDiameter": "0.48",
+          "eggWeight": "18.955"
+        },
+        {
+          "id": 1190,
+          "eggDiameter": "0.49",
+          "eggWeight": "19.304"
+        },
+        {
+          "id": 222,
+          "eggDiameter": "0.5",
+          "eggWeight": "19.72"
+        },
+        {
+          "id": 657,
+          "eggDiameter": "0.63",
+          "eggWeight": "25.254"
+        }
+      ]
+    },
+    {
+      "petId": "093",
+      "pet": "绿草精灵",
+      "rangeItems": [
+        {
+          "id": 282,
+          "eggDiameter": "0.32-0.41",
+          "eggWeight": "3.415-4.029"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1372,
+          "eggDiameter": "0.41",
+          "eggWeight": "4.002"
+        }
+      ]
+    },
+    {
+      "petId": "094",
+      "pet": "魔草巫灵",
+      "rangeItems": [
+        {
+          "id": 124,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "6~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "095",
+      "pet": "记忆石",
+      "rangeItems": [
+        {
+          "id": 81,
+          "eggDiameter": "0.42-0.58",
+          "eggWeight": "32.202-44.532"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 714,
+          "eggDiameter": "0.42",
+          "eggWeight": "32.202"
+        },
+        {
+          "id": 977,
+          "eggDiameter": "0.45",
+          "eggWeight": "34.725"
+        },
+        {
+          "id": 642,
+          "eggDiameter": "0.45",
+          "eggWeight": "35.377"
+        },
+        {
+          "id": 1021,
+          "eggDiameter": "0.47",
+          "eggWeight": "36.595"
+        },
+        {
+          "id": 1204,
+          "eggDiameter": "0.48",
+          "eggWeight": "37.113"
+        },
+        {
+          "id": 763,
+          "eggDiameter": "0.53",
+          "eggWeight": "40.531"
+        },
+        {
+          "id": 436,
+          "eggDiameter": "0.54",
+          "eggWeight": "44"
+        },
+        {
+          "id": 701,
+          "eggDiameter": "0.55",
+          "eggWeight": "42.268"
+        },
+        {
+          "id": 423,
+          "eggDiameter": "0.55",
+          "eggWeight": "42.521"
+        },
+        {
+          "id": 196,
+          "eggDiameter": "0.58",
+          "eggWeight": "44.38"
+        },
+        {
+          "id": 416,
+          "eggDiameter": "0.58",
+          "eggWeight": "44.532"
+        }
+      ]
+    },
+    {
+      "petId": "096",
+      "pet": "咔咔羽毛",
+      "rangeItems": [
+        {
+          "id": 274,
+          "eggDiameter": "0.248-0.356",
+          "eggWeight": "1.048-1.56"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "098",
+      "pet": "咔咔鸟",
+      "rangeItems": [
+        {
+          "id": 94,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "099",
+      "pet": "小草虫",
+      "rangeItems": [
+        {
+          "id": 256,
+          "eggDiameter": "0.188-0.28",
+          "eggWeight": "0.742-1.36"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1136,
+          "eggDiameter": "0.2",
+          "eggWeight": "0.742"
+        },
+        {
+          "id": 1108,
+          "eggDiameter": "0.22",
+          "eggWeight": "0.905"
+        },
+        {
+          "id": 389,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.937"
+        },
+        {
+          "id": 1225,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.975"
+        },
+        {
+          "id": 956,
+          "eggDiameter": "0.27",
+          "eggWeight": "1.21"
+        },
+        {
+          "id": 1299,
+          "eggDiameter": "0.27",
+          "eggWeight": "1.255"
+        },
+        {
+          "id": 693,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.335"
+        },
+        {
+          "id": 648,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.35"
+        },
+        {
+          "id": 1155,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.354"
+        }
+      ]
+    },
+    {
+      "petId": "101",
+      "pet": "花衣蝶",
+      "rangeItems": [
+        {
+          "id": 72,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "102",
+      "pet": "绿翼鸟",
+      "rangeItems": [
+        {
+          "id": 266,
+          "eggDiameter": "0.2-0.25",
+          "eggWeight": "1.2-1.92"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 591,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.2"
+        },
+        {
+          "id": 912,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.278"
+        },
+        {
+          "id": 703,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.309"
+        },
+        {
+          "id": 479,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.346"
+        },
+        {
+          "id": 111,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.35"
+        },
+        {
+          "id": 1109,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.53"
+        },
+        {
+          "id": 872,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.572"
+        },
+        {
+          "id": 587,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.641"
+        },
+        {
+          "id": 896,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.716"
+        },
+        {
+          "id": 605,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.824"
+        },
+        {
+          "id": 729,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.828"
+        },
+        {
+          "id": 1252,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.84"
+        },
+        {
+          "id": 705,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.859"
+        },
+        {
+          "id": 940,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.863"
+        },
+        {
+          "id": 1453,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.39"
+        }
+      ]
+    },
+    {
+      "petId": "104",
+      "pet": "魔眷鸟",
+      "rangeItems": [
+        {
+          "id": 125,
+          "eggDiameter": "0.5~0.72",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "105",
+      "pet": "阿米亚特",
+      "rangeItems": [
+        {
+          "id": 1,
+          "eggDiameter": "0.24-0.33",
+          "eggWeight": "13.802-19.425"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 659,
+          "eggDiameter": "0.24",
+          "eggWeight": "13.802"
+        },
+        {
+          "id": 400,
+          "eggDiameter": "0.24",
+          "eggWeight": "14.033"
+        },
+        {
+          "id": 1005,
+          "eggDiameter": "0.25",
+          "eggWeight": "14.402"
+        },
+        {
+          "id": 340,
+          "eggDiameter": "0.25",
+          "eggWeight": "14.417"
+        },
+        {
+          "id": 1001,
+          "eggDiameter": "0.26",
+          "eggWeight": "14.869"
+        },
+        {
+          "id": 198,
+          "eggDiameter": "0.28",
+          "eggWeight": "16.49"
+        },
+        {
+          "id": 512,
+          "eggDiameter": "0.3",
+          "eggWeight": "17.246"
+        },
+        {
+          "id": 733,
+          "eggDiameter": "0.32",
+          "eggWeight": "18.568"
+        },
+        {
+          "id": 338,
+          "eggDiameter": "0.32",
+          "eggWeight": "18.659"
+        },
+        {
+          "id": 1199,
+          "eggDiameter": "0.33",
+          "eggWeight": "19.425"
+        }
+      ]
+    },
+    {
+      "petId": "106",
+      "pet": "阿米樱",
+      "rangeItems": [],
+      "exactItems": [
+        {
+          "id": 2,
+          "eggDiameter": "0.25",
+          "eggWeight": "14.618"
+        },
+        {
+          "id": 1507,
+          "eggDiameter": "0.3",
+          "eggWeight": "17.634"
+        }
+      ]
+    },
+    {
+      "petId": "107",
+      "pet": "罗隐",
+      "rangeItems": [
+        {
+          "id": 112,
+          "eggDiameter": "0.26~0.95",
+          "eggWeight": "12~18"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 547,
+          "eggDiameter": "0.26",
+          "eggWeight": "15.174"
+        }
+      ]
+    },
+    {
+      "petId": "108",
+      "pet": "风铃鲨",
+      "rangeItems": [
+        {
+          "id": 247,
+          "eggDiameter": "0.17-0.24",
+          "eggWeight": "4.651-6.646"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1144,
+          "eggDiameter": "0.17",
+          "eggWeight": "4.651"
+        },
+        {
+          "id": 573,
+          "eggDiameter": "0.17",
+          "eggWeight": "4.872"
+        },
+        {
+          "id": 694,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.209"
+        },
+        {
+          "id": 1328,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.272"
+        },
+        {
+          "id": 1104,
+          "eggDiameter": "0.2",
+          "eggWeight": "5.386"
+        },
+        {
+          "id": 1087,
+          "eggDiameter": "0.2",
+          "eggWeight": "5.402"
+        },
+        {
+          "id": 1111,
+          "eggDiameter": "0.21",
+          "eggWeight": "5.687"
+        },
+        {
+          "id": 1070,
+          "eggDiameter": "0.22",
+          "eggWeight": "5.953"
+        },
+        {
+          "id": 409,
+          "eggDiameter": "0.22",
+          "eggWeight": "6.181"
+        },
+        {
+          "id": 195,
+          "eggDiameter": "0.23",
+          "eggWeight": "6.222"
+        },
+        {
+          "id": 1167,
+          "eggDiameter": "0.23",
+          "eggWeight": "6.376"
+        },
+        {
+          "id": 1240,
+          "eggDiameter": "0.23",
+          "eggWeight": "6.415"
+        },
+        {
+          "id": 839,
+          "eggDiameter": "0.24",
+          "eggWeight": "6.547"
+        },
+        {
+          "id": 211,
+          "eggDiameter": "0.24",
+          "eggWeight": "6.601"
+        },
+        {
+          "id": 959,
+          "eggDiameter": "0.24",
+          "eggWeight": "6.646"
+        },
+        {
+          "id": 1433,
+          "eggDiameter": "0.17",
+          "eggWeight": "4.788"
+        }
+      ]
+    },
+    {
+      "petId": "110",
+      "pet": "彩蝶鲨",
+      "rangeItems": [
+        {
+          "id": 18,
+          "eggDiameter": "0.58~0.82",
+          "eggWeight": "7~10"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 844,
+          "eggDiameter": "0.23",
+          "eggWeight": "12.292"
+        }
+      ]
+    },
+    {
+      "petId": "111",
+      "pet": "石石",
+      "rangeItems": [
+        {
+          "id": 230,
+          "eggDiameter": "0.12-0.42",
+          "eggWeight": "21.405-32.478"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1369,
+          "eggDiameter": "0.15",
+          "eggWeight": "21.759"
+        },
+        {
+          "id": 308,
+          "eggDiameter": "0.16",
+          "eggWeight": "22.698"
+        },
+        {
+          "id": 741,
+          "eggDiameter": "0.19",
+          "eggWeight": "26.743"
+        },
+        {
+          "id": 1040,
+          "eggDiameter": "0.19",
+          "eggWeight": "26.967"
+        },
+        {
+          "id": 315,
+          "eggDiameter": "0.21",
+          "eggWeight": "28.646"
+        },
+        {
+          "id": 1201,
+          "eggDiameter": "0.21",
+          "eggWeight": "29.258"
+        },
+        {
+          "id": 203,
+          "eggDiameter": "0.42",
+          "eggWeight": "32.478"
+        },
+        {
+          "id": 1452,
+          "eggDiameter": "0.18",
+          "eggWeight": "25.142"
+        }
+      ]
+    },
+    {
+      "petId": "112",
+      "pet": "巨灵石",
+      "rangeItems": [
+        {
+          "id": 89,
+          "eggDiameter": "0.75~1",
+          "eggWeight": "16~24"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "113",
+      "pet": "仪使者",
+      "rangeItems": [
+        {
+          "id": 254,
+          "eggDiameter": "0.18-0.232",
+          "eggWeight": "7.62-14.02"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1168,
+          "eggDiameter": "0.21",
+          "eggWeight": "9.398"
+        },
+        {
+          "id": 1528,
+          "eggDiameter": "0.23",
+          "eggWeight": "12.247"
+        }
+      ]
+    },
+    {
+      "petId": "116",
+      "pet": "小独角兽",
+      "rangeItems": [
+        {
+          "id": 154,
+          "eggDiameter": "0.42-0.59",
+          "eggWeight": "14.589-22.234"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 575,
+          "eggDiameter": "0.42",
+          "eggWeight": "14.589"
+        },
+        {
+          "id": 618,
+          "eggDiameter": "0.42",
+          "eggWeight": "14.909"
+        },
+        {
+          "id": 755,
+          "eggDiameter": "0.43",
+          "eggWeight": "15.345"
+        },
+        {
+          "id": 394,
+          "eggDiameter": "0.45",
+          "eggWeight": "15.933"
+        },
+        {
+          "id": 1016,
+          "eggDiameter": "0.45",
+          "eggWeight": "16.011"
+        },
+        {
+          "id": 499,
+          "eggDiameter": "0.45",
+          "eggWeight": "16.36"
+        },
+        {
+          "id": 1189,
+          "eggDiameter": "0.46",
+          "eggWeight": "16.542"
+        },
+        {
+          "id": 586,
+          "eggDiameter": "0.47",
+          "eggWeight": "16.908"
+        },
+        {
+          "id": 464,
+          "eggDiameter": "0.48",
+          "eggWeight": "17.239"
+        },
+        {
+          "id": 838,
+          "eggDiameter": "0.49",
+          "eggWeight": "17.764"
+        },
+        {
+          "id": 753,
+          "eggDiameter": "0.5",
+          "eggWeight": "18.091"
+        },
+        {
+          "id": 710,
+          "eggDiameter": "0.5",
+          "eggWeight": "18.335"
+        },
+        {
+          "id": 1095,
+          "eggDiameter": "0.52",
+          "eggWeight": "19.161"
+        },
+        {
+          "id": 1164,
+          "eggDiameter": "0.53",
+          "eggWeight": "19.197"
+        },
+        {
+          "id": 1360,
+          "eggDiameter": "0.53",
+          "eggWeight": "19.4"
+        },
+        {
+          "id": 937,
+          "eggDiameter": "0.55",
+          "eggWeight": "20.16"
+        },
+        {
+          "id": 711,
+          "eggDiameter": "0.56",
+          "eggWeight": "20.577"
+        },
+        {
+          "id": 905,
+          "eggDiameter": "0.56",
+          "eggWeight": "20.751"
+        },
+        {
+          "id": 307,
+          "eggDiameter": "0.57",
+          "eggWeight": "20.956"
+        },
+        {
+          "id": 1370,
+          "eggDiameter": "0.57",
+          "eggWeight": "21.015"
+        },
+        {
+          "id": 975,
+          "eggDiameter": "0.58",
+          "eggWeight": "21.665"
+        },
+        {
+          "id": 999,
+          "eggDiameter": "0.58",
+          "eggWeight": "21.742"
+        },
+        {
+          "id": 1406,
+          "eggDiameter": "0.5",
+          "eggWeight": "18.211"
+        },
+        {
+          "id": 1502,
+          "eggDiameter": "0.58",
+          "eggWeight": "21.595"
+        }
+      ]
+    },
+    {
+      "petId": "117",
+      "pet": "白金独角兽",
+      "rangeItems": [],
+      "exactItems": [
+        {
+          "id": 5,
+          "eggDiameter": "0.52",
+          "eggWeight": "19.126"
+        }
+      ]
+    },
+    {
+      "petId": "118",
+      "pet": "旋叶虫",
+      "rangeItems": [
+        {
+          "id": 167,
+          "eggDiameter": "0.04-0.06",
+          "eggWeight": "0.055-0.099"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 199,
+          "eggDiameter": "0.04",
+          "eggWeight": "0.055"
+        },
+        {
+          "id": 200,
+          "eggDiameter": "0.04",
+          "eggWeight": "0.059"
+        },
+        {
+          "id": 1031,
+          "eggDiameter": "0.05",
+          "eggWeight": "0.077"
+        },
+        {
+          "id": 1090,
+          "eggDiameter": "0.06",
+          "eggWeight": "0.087"
+        },
+        {
+          "id": 1404,
+          "eggDiameter": "0.04",
+          "eggWeight": "0.066"
+        },
+        {
+          "id": 1417,
+          "eggDiameter": "0.06",
+          "eggWeight": "0.099"
+        }
+      ]
+    },
+    {
+      "petId": "121",
+      "pet": "小黑猫",
+      "rangeItems": [
+        {
+          "id": 156,
+          "eggDiameter": "0.24~0.26",
+          "eggWeight": "1.337~1.639"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 723,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.337"
+        },
+        {
+          "id": 1004,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.37"
+        },
+        {
+          "id": 1260,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.493"
+        },
+        {
+          "id": 982,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.539"
+        },
+        {
+          "id": 288,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.639"
+        }
+      ]
+    },
+    {
+      "petId": "124",
+      "pet": "影狸",
+      "rangeItems": [
+        {
+          "id": 181,
+          "eggDiameter": "0.39~0.72",
+          "eggWeight": "3.477~7.5"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 385,
+          "eggDiameter": "0.39",
+          "eggWeight": "3.477"
+        }
+      ]
+    },
+    {
+      "petId": "125",
+      "pet": "多多",
+      "rangeItems": [
+        {
+          "id": 43,
+          "eggDiameter": "0.19-0.27",
+          "eggWeight": "5.179-7.406"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 530,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.302"
+        },
+        {
+          "id": 1071,
+          "eggDiameter": "0.2",
+          "eggWeight": "5.457"
+        },
+        {
+          "id": 929,
+          "eggDiameter": "0.21",
+          "eggWeight": "5.681"
+        },
+        {
+          "id": 1069,
+          "eggDiameter": "0.21",
+          "eggWeight": "5.833"
+        },
+        {
+          "id": 965,
+          "eggDiameter": "0.22",
+          "eggWeight": "6.08"
+        },
+        {
+          "id": 815,
+          "eggDiameter": "0.23",
+          "eggWeight": "6.201"
+        },
+        {
+          "id": 1103,
+          "eggDiameter": "0.24",
+          "eggWeight": "6.447"
+        },
+        {
+          "id": 1346,
+          "eggDiameter": "0.24",
+          "eggWeight": "6.478"
+        },
+        {
+          "id": 893,
+          "eggDiameter": "0.24",
+          "eggWeight": "6.573"
+        },
+        {
+          "id": 670,
+          "eggDiameter": "0.26",
+          "eggWeight": "7.066"
+        },
+        {
+          "id": 853,
+          "eggDiameter": "0.27",
+          "eggWeight": "7.292"
+        },
+        {
+          "id": 1013,
+          "eggDiameter": "0.27",
+          "eggWeight": "7.406"
+        },
+        {
+          "id": 1430,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.179"
+        },
+        {
+          "id": 1496,
+          "eggDiameter": "0.27",
+          "eggWeight": "7.27"
+        }
+      ]
+    },
+    {
+      "petId": "128",
+      "pet": "哭哭菇",
+      "rangeItems": [
+        {
+          "id": 240,
+          "eggDiameter": "0.12-0.2",
+          "eggWeight": "0.65-1.254"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 610,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.806"
+        },
+        {
+          "id": 481,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.712"
+        },
+        {
+          "id": 684,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.763"
+        },
+        {
+          "id": 611,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.806"
+        },
+        {
+          "id": 548,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.65"
+        },
+        {
+          "id": 685,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.869"
+        },
+        {
+          "id": 899,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.959"
+        },
+        {
+          "id": 99,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.977"
+        },
+        {
+          "id": 757,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.01"
+        },
+        {
+          "id": 1294,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.037"
+        },
+        {
+          "id": 922,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.105"
+        },
+        {
+          "id": 1239,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.218"
+        },
+        {
+          "id": 461,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.254"
+        }
+      ]
+    },
+    {
+      "petId": "130",
+      "pet": "怖哭菇",
+      "rangeItems": [
+        {
+          "id": 17,
+          "eggDiameter": "0.52~0.75",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "131",
+      "pet": "恶魔狼",
+      "rangeItems": [
+        {
+          "id": 45,
+          "eggDiameter": "0.3~0.78",
+          "eggWeight": "25.909-36.711"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 503,
+          "eggDiameter": "0.3",
+          "eggWeight": "30.506"
+        },
+        {
+          "id": 336,
+          "eggDiameter": "0.52",
+          "eggWeight": "25.909"
+        },
+        {
+          "id": 1039,
+          "eggDiameter": "0.56",
+          "eggWeight": "28.027"
+        },
+        {
+          "id": 855,
+          "eggDiameter": "0.56",
+          "eggWeight": "28.468"
+        },
+        {
+          "id": 668,
+          "eggDiameter": "0.58",
+          "eggWeight": "29.018"
+        },
+        {
+          "id": 501,
+          "eggDiameter": "0.59",
+          "eggWeight": "29.441"
+        },
+        {
+          "id": 1304,
+          "eggDiameter": "0.6",
+          "eggWeight": "29.935"
+        },
+        {
+          "id": 658,
+          "eggDiameter": "0.61",
+          "eggWeight": "30.32"
+        },
+        {
+          "id": 1254,
+          "eggDiameter": "0.61",
+          "eggWeight": "30.885"
+        },
+        {
+          "id": 960,
+          "eggDiameter": "0.62",
+          "eggWeight": "31.044"
+        },
+        {
+          "id": 934,
+          "eggDiameter": "0.63",
+          "eggWeight": "31.432"
+        },
+        {
+          "id": 448,
+          "eggDiameter": "0.63",
+          "eggWeight": "31.526"
+        },
+        {
+          "id": 289,
+          "eggDiameter": "0.64",
+          "eggWeight": "32.204"
+        },
+        {
+          "id": 626,
+          "eggDiameter": "0.66",
+          "eggWeight": "32.94"
+        },
+        {
+          "id": 717,
+          "eggDiameter": "0.67",
+          "eggWeight": "33.626"
+        },
+        {
+          "id": 549,
+          "eggDiameter": "0.67",
+          "eggWeight": "33.811"
+        },
+        {
+          "id": 318,
+          "eggDiameter": "0.68",
+          "eggWeight": "33.753"
+        },
+        {
+          "id": 449,
+          "eggDiameter": "0.68",
+          "eggWeight": "33.856"
+        },
+        {
+          "id": 476,
+          "eggDiameter": "0.68",
+          "eggWeight": "33.955"
+        },
+        {
+          "id": 798,
+          "eggDiameter": "0.68",
+          "eggWeight": "34.243"
+        },
+        {
+          "id": 752,
+          "eggDiameter": "0.7",
+          "eggWeight": "35.382"
+        },
+        {
+          "id": 645,
+          "eggDiameter": "0.72",
+          "eggWeight": "35.948"
+        },
+        {
+          "id": 210,
+          "eggDiameter": "0.73",
+          "eggWeight": "36.403"
+        },
+        {
+          "id": 209,
+          "eggDiameter": "0.73",
+          "eggWeight": "36.709"
+        },
+        {
+          "id": 364,
+          "eggDiameter": "0.73",
+          "eggWeight": "36.711"
+        }
+      ]
+    },
+    {
+      "petId": "132",
+      "pet": "小电企鹅",
+      "rangeItems": [
+        {
+          "id": 153,
+          "eggDiameter": "0.19~0.23",
+          "eggWeight": "1.365-2.156"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 863,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.409"
+        },
+        {
+          "id": 924,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.419"
+        },
+        {
+          "id": 463,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.539"
+        },
+        {
+          "id": 1258,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.542"
+        },
+        {
+          "id": 1149,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.583"
+        },
+        {
+          "id": 366,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.738"
+        },
+        {
+          "id": 373,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.857"
+        },
+        {
+          "id": 656,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.987"
+        },
+        {
+          "id": 811,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.032"
+        },
+        {
+          "id": 1426,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.812"
+        },
+        {
+          "id": 1464,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.365"
+        },
+        {
+          "id": 1501,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.682"
+        }
+      ]
+    },
+    {
+      "petId": "134",
+      "pet": "雪豆丁",
+      "rangeItems": [
+        {
+          "id": 284,
+          "eggDiameter": "0.344-0.51",
+          "eggWeight": "3.516-5"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 403,
+          "eggDiameter": "0.38",
+          "eggWeight": "3.516"
+        },
+        {
+          "id": 393,
+          "eggDiameter": "0.38",
+          "eggWeight": "3.531"
+        },
+        {
+          "id": 550,
+          "eggDiameter": "0.41",
+          "eggWeight": "3.84"
+        },
+        {
+          "id": 1014,
+          "eggDiameter": "0.44",
+          "eggWeight": "4.226"
+        },
+        {
+          "id": 515,
+          "eggDiameter": "0.45",
+          "eggWeight": "4.253"
+        },
+        {
+          "id": 1049,
+          "eggDiameter": "0.48",
+          "eggWeight": "4.58"
+        },
+        {
+          "id": 730,
+          "eggDiameter": "0.48",
+          "eggWeight": "4.651"
+        },
+        {
+          "id": 480,
+          "eggDiameter": "0.51",
+          "eggWeight": "4.882"
+        },
+        {
+          "id": 522,
+          "eggDiameter": "0.51",
+          "eggWeight": "4.971"
+        },
+        {
+          "id": 327,
+          "eggDiameter": "0.51",
+          "eggWeight": "4.985"
+        }
+      ]
+    },
+    {
+      "petId": "135",
+      "pet": "雪蛮人",
+      "rangeItems": [],
+      "exactItems": [
+        {
+          "id": 170,
+          "eggDiameter": "0.46",
+          "eggWeight": "4.445"
+        }
+      ]
+    },
+    {
+      "petId": "136",
+      "pet": "雪巨人",
+      "rangeItems": [
+        {
+          "id": 168,
+          "eggDiameter": "0.7~0.95",
+          "eggWeight": "12~18"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "137",
+      "pet": "呼呼猪",
+      "rangeItems": [
+        {
+          "id": 70,
+          "eggDiameter": "0.22-0.31",
+          "eggWeight": "0.31-3.401"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 993,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.442"
+        },
+        {
+          "id": 655,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.47"
+        },
+        {
+          "id": 650,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.589"
+        },
+        {
+          "id": 1211,
+          "eggDiameter": "0.25",
+          "eggWeight": "0.795"
+        },
+        {
+          "id": 1212,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.795"
+        },
+        {
+          "id": 537,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.839"
+        },
+        {
+          "id": 837,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.901"
+        },
+        {
+          "id": 1221,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.062"
+        },
+        {
+          "id": 827,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.103"
+        },
+        {
+          "id": 401,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.116"
+        },
+        {
+          "id": 443,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.189"
+        },
+        {
+          "id": 371,
+          "eggDiameter": "0.29",
+          "eggWeight": "3.234"
+        },
+        {
+          "id": 69,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.401"
+        },
+        {
+          "id": 1325,
+          "eggDiameter": "0.31",
+          "eggWeight": "0.31"
+        },
+        {
+          "id": 1407,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.584"
+        },
+        {
+          "id": 1439,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.897"
+        }
+      ]
+    },
+    {
+      "petId": "139",
+      "pet": "雪娃娃",
+      "rangeItems": [
+        {
+          "id": 172,
+          "eggDiameter": "0.12-0.21",
+          "eggWeight": "2.411-3.223"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1037,
+          "eggDiameter": "0.12",
+          "eggWeight": "2.461"
+        },
+        {
+          "id": 864,
+          "eggDiameter": "0.12",
+          "eggWeight": "2.523"
+        },
+        {
+          "id": 1281,
+          "eggDiameter": "0.13",
+          "eggWeight": "2.585"
+        },
+        {
+          "id": 950,
+          "eggDiameter": "0.14",
+          "eggWeight": "2.753"
+        },
+        {
+          "id": 343,
+          "eggDiameter": "0.14",
+          "eggWeight": "2.808"
+        },
+        {
+          "id": 1309,
+          "eggDiameter": "0.16",
+          "eggWeight": "3.025"
+        },
+        {
+          "id": 726,
+          "eggDiameter": "0.16",
+          "eggWeight": "3.105"
+        },
+        {
+          "id": 721,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.14"
+        },
+        {
+          "id": 1088,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.162"
+        },
+        {
+          "id": 808,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.197"
+        },
+        {
+          "id": 725,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.411"
+        }
+      ]
+    },
+    {
+      "petId": "141",
+      "pet": "雪灵",
+      "rangeItems": [
+        {
+          "id": 169,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "142",
+      "pet": "大耳帽兜",
+      "rangeItems": [
+        {
+          "id": 248,
+          "eggDiameter": "0.17-0.2",
+          "eggWeight": "2.965-4.145"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 457,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.965"
+        },
+        {
+          "id": 26,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.32"
+        },
+        {
+          "id": 323,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.326"
+        },
+        {
+          "id": 816,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.327"
+        },
+        {
+          "id": 295,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.331"
+        },
+        {
+          "id": 299,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.333"
+        },
+        {
+          "id": 300,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.336"
+        },
+        {
+          "id": 296,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.345"
+        },
+        {
+          "id": 298,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.349"
+        },
+        {
+          "id": 297,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.362"
+        },
+        {
+          "id": 471,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.577"
+        },
+        {
+          "id": 402,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.596"
+        },
+        {
+          "id": 572,
+          "eggDiameter": "0.19",
+          "eggWeight": "3.623"
+        },
+        {
+          "id": 469,
+          "eggDiameter": "0.19",
+          "eggWeight": "3.724"
+        },
+        {
+          "id": 667,
+          "eggDiameter": "0.19",
+          "eggWeight": "3.731"
+        },
+        {
+          "id": 470,
+          "eggDiameter": "0.19",
+          "eggWeight": "3.754"
+        },
+        {
+          "id": 712,
+          "eggDiameter": "0.19",
+          "eggWeight": "3.871"
+        },
+        {
+          "id": 779,
+          "eggDiameter": "0.2",
+          "eggWeight": "4.136"
+        },
+        {
+          "id": 962,
+          "eggDiameter": "0.2",
+          "eggWeight": "4.145"
+        },
+        {
+          "id": 1531,
+          "eggDiameter": "0.19",
+          "eggWeight": "3.648"
+        }
+      ]
+    },
+    {
+      "petId": "144",
+      "pet": "雪影娃娃",
+      "rangeItems": [
+        {
+          "id": 173,
+          "eggDiameter": "0.58~0.82",
+          "eggWeight": "7~10"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "145",
+      "pet": "权杖-Ⅱ",
+      "rangeItems": [
+        {
+          "id": 643,
+          "eggDiameter": "0.19-0.23",
+          "eggWeight": "9.982-14.249"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 628,
+          "eggDiameter": "0.19",
+          "eggWeight": "9.982"
+        },
+        {
+          "id": 132,
+          "eggDiameter": "0.19",
+          "eggWeight": "10.21"
+        },
+        {
+          "id": 633,
+          "eggDiameter": "0.19",
+          "eggWeight": "10.61"
+        },
+        {
+          "id": 638,
+          "eggDiameter": "0.2",
+          "eggWeight": "11.165"
+        },
+        {
+          "id": 691,
+          "eggDiameter": "0.2",
+          "eggWeight": "11.24"
+        },
+        {
+          "id": 635,
+          "eggDiameter": "0.2",
+          "eggWeight": "11.385"
+        },
+        {
+          "id": 646,
+          "eggDiameter": "0.21",
+          "eggWeight": "11.8"
+        },
+        {
+          "id": 1036,
+          "eggDiameter": "0.22",
+          "eggWeight": "12.786"
+        },
+        {
+          "id": 1169,
+          "eggDiameter": "0.22",
+          "eggWeight": "12.914"
+        },
+        {
+          "id": 791,
+          "eggDiameter": "0.23",
+          "eggWeight": "13.731"
+        },
+        {
+          "id": 1061,
+          "eggDiameter": "0.23",
+          "eggWeight": "14.013"
+        },
+        {
+          "id": 967,
+          "eggDiameter": "0.23",
+          "eggWeight": "14.058"
+        },
+        {
+          "id": 788,
+          "eggDiameter": "0.23",
+          "eggWeight": "14.249"
+        }
+      ]
+    },
+    {
+      "petId": "146",
+      "pet": "权杖-Ⅴ",
+      "rangeItems": [
+        {
+          "id": 644,
+          "eggDiameter": "0.22-0.23",
+          "eggWeight": "12.724-13.583"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 631,
+          "eggDiameter": "0.22",
+          "eggWeight": "12.724"
+        },
+        {
+          "id": 637,
+          "eggDiameter": "0.23",
+          "eggWeight": "13.41"
+        },
+        {
+          "id": 632,
+          "eggDiameter": "0.23",
+          "eggWeight": "13.583"
+        }
+      ]
+    },
+    {
+      "petId": "147",
+      "pet": "灵狐",
+      "rangeItems": [
+        {
+          "id": 107,
+          "eggDiameter": "0.24-0.33",
+          "eggWeight": "2.6-3.542"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 666,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.6"
+        },
+        {
+          "id": 488,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.611"
+        },
+        {
+          "id": 598,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.693"
+        },
+        {
+          "id": 1276,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.69"
+        },
+        {
+          "id": 1297,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.803"
+        },
+        {
+          "id": 553,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.864"
+        },
+        {
+          "id": 1245,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.895"
+        },
+        {
+          "id": 1263,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.917"
+        },
+        {
+          "id": 1224,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.952"
+        },
+        {
+          "id": 485,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.056"
+        },
+        {
+          "id": 577,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.07"
+        },
+        {
+          "id": 913,
+          "eggDiameter": "0.29",
+          "eggWeight": "3.102"
+        },
+        {
+          "id": 1371,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.256"
+        },
+        {
+          "id": 966,
+          "eggDiameter": "0.32",
+          "eggWeight": "3.438"
+        },
+        {
+          "id": 873,
+          "eggDiameter": "0.32",
+          "eggWeight": "3.447"
+        },
+        {
+          "id": 386,
+          "eggDiameter": "0.33",
+          "eggWeight": "3.542"
+        },
+        {
+          "id": 1485,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.738"
+        }
+      ]
+    },
+    {
+      "petId": "158",
+      "pet": "炽心勇狮",
+      "rangeItems": [
+        {
+          "id": 20,
+          "eggDiameter": "0.68~0.92",
+          "eggWeight": "10~14"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "162",
+      "pet": "公平鸽",
+      "rangeItems": [
+        {
+          "id": 54,
+          "eggDiameter": "0.18~0.68",
+          "eggWeight": "0.353~1.576"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 53,
+          "eggDiameter": "0.19",
+          "eggWeight": "0.894"
+        },
+        {
+          "id": 1140,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.021"
+        },
+        {
+          "id": 1352,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.208"
+        },
+        {
+          "id": 1307,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.281"
+        },
+        {
+          "id": 1222,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.42"
+        },
+        {
+          "id": 524,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.447"
+        },
+        {
+          "id": 1123,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.517"
+        },
+        {
+          "id": 1184,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.553"
+        },
+        {
+          "id": 1425,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.573"
+        },
+        {
+          "id": 1461,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.333"
+        },
+        {
+          "id": 1463,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.353"
+        }
+      ]
+    },
+    {
+      "petId": "163",
+      "pet": "小怂猫",
+      "rangeItems": [
+        {
+          "id": 281,
+          "eggDiameter": "0.25-0.35",
+          "eggWeight": "6.904-9"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1139,
+          "eggDiameter": "0.25",
+          "eggWeight": "6.904"
+        },
+        {
+          "id": 1320,
+          "eggDiameter": "0.25",
+          "eggWeight": "6.917"
+        },
+        {
+          "id": 989,
+          "eggDiameter": "0.25",
+          "eggWeight": "7.05"
+        },
+        {
+          "id": 821,
+          "eggDiameter": "0.27",
+          "eggWeight": "7.0888"
+        },
+        {
+          "id": 887,
+          "eggDiameter": "0.27",
+          "eggWeight": "7.3"
+        },
+        {
+          "id": 1318,
+          "eggDiameter": "0.27",
+          "eggWeight": "7.36"
+        },
+        {
+          "id": 994,
+          "eggDiameter": "0.29",
+          "eggWeight": "7.659"
+        },
+        {
+          "id": 518,
+          "eggDiameter": "0.32",
+          "eggWeight": "8.307"
+        },
+        {
+          "id": 1035,
+          "eggDiameter": "0.34",
+          "eggWeight": "8.618"
+        },
+        {
+          "id": 459,
+          "eggDiameter": "0.34",
+          "eggWeight": "8.662"
+        },
+        {
+          "id": 527,
+          "eggDiameter": "0.35",
+          "eggWeight": "8.918"
+        }
+      ]
+    },
+    {
+      "petId": "165",
+      "pet": "小狮鹫",
+      "rangeItems": [
+        {
+          "id": 162,
+          "eggDiameter": "0.3-0.42",
+          "eggWeight": "4.1-7.373"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1210,
+          "eggDiameter": "0.3",
+          "eggWeight": "4.1"
+        },
+        {
+          "id": 1230,
+          "eggDiameter": "0.31",
+          "eggWeight": "4.315"
+        },
+        {
+          "id": 1038,
+          "eggDiameter": "0.32",
+          "eggWeight": "4.544"
+        },
+        {
+          "id": 939,
+          "eggDiameter": "0.33",
+          "eggWeight": "6.951"
+        },
+        {
+          "id": 654,
+          "eggDiameter": "0.34",
+          "eggWeight": "5.041"
+        },
+        {
+          "id": 526,
+          "eggDiameter": "0.35",
+          "eggWeight": "5.321"
+        },
+        {
+          "id": 206,
+          "eggDiameter": "0.35",
+          "eggWeight": "5.392"
+        },
+        {
+          "id": 369,
+          "eggDiameter": "0.36",
+          "eggWeight": "7.373"
+        },
+        {
+          "id": 1066,
+          "eggDiameter": "0.39",
+          "eggWeight": "6.179"
+        },
+        {
+          "id": 594,
+          "eggDiameter": "0.42",
+          "eggWeight": "6.874"
+        },
+        {
+          "id": 1471,
+          "eggDiameter": "0.4",
+          "eggWeight": "6.534"
+        }
+      ]
+    },
+    {
+      "petId": "167",
+      "pet": "皇家狮鹫",
+      "rangeItems": [
+        {
+          "id": 76,
+          "eggDiameter": "0.6~0.85",
+          "eggWeight": "8~12"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "168",
+      "pet": "圆眼蜘蛛",
+      "rangeItems": [
+        {
+          "id": 260,
+          "eggDiameter": "0.192-0.28",
+          "eggWeight": "1.235-1.902"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1368,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.235"
+        },
+        {
+          "id": 585,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.262"
+        },
+        {
+          "id": 622,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.291"
+        },
+        {
+          "id": 1283,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.393"
+        },
+        {
+          "id": 692,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.41"
+        },
+        {
+          "id": 1322,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.524"
+        },
+        {
+          "id": 1361,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.68"
+        },
+        {
+          "id": 185,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.703"
+        },
+        {
+          "id": 1219,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.725"
+        },
+        {
+          "id": 737,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.806"
+        },
+        {
+          "id": 1445,
+          "eggDiameter": "0.24",
+          "eggWeight": "1.614"
+        },
+        {
+          "id": 1513,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.344"
+        }
+      ]
+    },
+    {
+      "petId": "171",
+      "pet": "波波螺",
+      "rangeItems": [
+        {
+          "id": 241,
+          "eggDiameter": "0.14-0.17",
+          "eggWeight": "1.72-2.26"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 13,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.72"
+        },
+        {
+          "id": 901,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.771"
+        },
+        {
+          "id": 995,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.863"
+        },
+        {
+          "id": 1291,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.923"
+        },
+        {
+          "id": 505,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.986"
+        },
+        {
+          "id": 1073,
+          "eggDiameter": "0.16",
+          "eggWeight": "2.069"
+        },
+        {
+          "id": 1246,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.17"
+        },
+        {
+          "id": 223,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.215"
+        }
+      ]
+    },
+    {
+      "petId": "173",
+      "pet": "嗜波螺",
+      "rangeItems": [
+        {
+          "id": 142,
+          "eggDiameter": "0.5~0.72",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "174",
+      "pet": "菇菇丁",
+      "rangeItems": [
+        {
+          "id": 234,
+          "eggDiameter": "0.11-0.28",
+          "eggWeight": "0.386-1.565"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 590,
+          "eggDiameter": "0.11",
+          "eggWeight": "0.386"
+        },
+        {
+          "id": 799,
+          "eggDiameter": "0.11",
+          "eggWeight": "0.387"
+        },
+        {
+          "id": 1027,
+          "eggDiameter": "0.11",
+          "eggWeight": "0.389"
+        },
+        {
+          "id": 621,
+          "eggDiameter": "0.11",
+          "eggWeight": "0.399"
+        },
+        {
+          "id": 1075,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.41"
+        },
+        {
+          "id": 1074,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.417"
+        },
+        {
+          "id": 908,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.419"
+        },
+        {
+          "id": 1170,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.426"
+        },
+        {
+          "id": 418,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.442"
+        },
+        {
+          "id": 55,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.447"
+        },
+        {
+          "id": 953,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.463"
+        },
+        {
+          "id": 935,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.48"
+        },
+        {
+          "id": 952,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.485"
+        },
+        {
+          "id": 869,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.486"
+        },
+        {
+          "id": 1298,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.489"
+        },
+        {
+          "id": 541,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.498"
+        },
+        {
+          "id": 221,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.565"
+        },
+        {
+          "id": 1454,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.438"
+        }
+      ]
+    },
+    {
+      "petId": "176",
+      "pet": "九幽菇",
+      "rangeItems": [
+        {
+          "id": 86,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "6~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "177",
+      "pet": "斑斑",
+      "rangeItems": [
+        {
+          "id": 257,
+          "eggDiameter": "0.188-0.25",
+          "eggWeight": "1.68-2.468"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1275,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.68"
+        },
+        {
+          "id": 942,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.704"
+        },
+        {
+          "id": 708,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.716"
+        },
+        {
+          "id": 493,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.727"
+        },
+        {
+          "id": 441,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.853"
+        },
+        {
+          "id": 920,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.945"
+        },
+        {
+          "id": 1114,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.045"
+        },
+        {
+          "id": 892,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.062"
+        },
+        {
+          "id": 1160,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.221"
+        },
+        {
+          "id": 742,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.336"
+        },
+        {
+          "id": 1053,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.375"
+        },
+        {
+          "id": 1408,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.944"
+        },
+        {
+          "id": 1447,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.01"
+        },
+        {
+          "id": 1517,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.831"
+        }
+      ]
+    },
+    {
+      "petId": "178",
+      "pet": "斑枭",
+      "rangeItems": [
+        {
+          "id": 6,
+          "eggDiameter": "0.5~0.72",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "179",
+      "pet": "草头鸭",
+      "rangeItems": [
+        {
+          "id": 272,
+          "eggDiameter": "0.21-0.28",
+          "eggWeight": "1.802-2.414"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 860,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.802"
+        },
+        {
+          "id": 1194,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.847"
+        },
+        {
+          "id": 1208,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.854"
+        },
+        {
+          "id": 671,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.929"
+        },
+        {
+          "id": 514,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.024"
+        },
+        {
+          "id": 883,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.076"
+        },
+        {
+          "id": 544,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.187"
+        },
+        {
+          "id": 771,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.211"
+        },
+        {
+          "id": 1024,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.32"
+        },
+        {
+          "id": 19,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.357"
+        },
+        {
+          "id": 1030,
+          "eggDiameter": "0.28",
+          "eggWeight": "2.414"
+        },
+        {
+          "id": 1499,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.923"
+        },
+        {
+          "id": 1526,
+          "eggDiameter": "0.27",
+          "eggWeight": "2.351"
+        }
+      ]
+    },
+    {
+      "petId": "180",
+      "pet": "卷毛鸭",
+      "rangeItems": [
+        {
+          "id": 92,
+          "eggDiameter": "0.4~0.6",
+          "eggWeight": "2.5~5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "181",
+      "pet": "海豹战士",
+      "rangeItems": [
+        {
+          "id": 61,
+          "eggDiameter": "0.27-0.38",
+          "eggWeight": "25.07-34.986"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1216,
+          "eggDiameter": "0.27",
+          "eggWeight": "25.07"
+        },
+        {
+          "id": 698,
+          "eggDiameter": "0.28",
+          "eggWeight": "25.099"
+        },
+        {
+          "id": 983,
+          "eggDiameter": "0.31",
+          "eggWeight": "25.404"
+        },
+        {
+          "id": 392,
+          "eggDiameter": "0.34",
+          "eggWeight": "30.89"
+        },
+        {
+          "id": 1286,
+          "eggDiameter": "0.34",
+          "eggWeight": "30.984"
+        },
+        {
+          "id": 602,
+          "eggDiameter": "0.34",
+          "eggWeight": "31.139"
+        },
+        {
+          "id": 310,
+          "eggDiameter": "0.35",
+          "eggWeight": "31.724"
+        },
+        {
+          "id": 599,
+          "eggDiameter": "0.36",
+          "eggWeight": "32.399"
+        },
+        {
+          "id": 998,
+          "eggDiameter": "0.38",
+          "eggWeight": "34.266"
+        },
+        {
+          "id": 746,
+          "eggDiameter": "0.38",
+          "eggWeight": "34.986"
+        }
+      ]
+    },
+    {
+      "petId": "182",
+      "pet": "海豹船长",
+      "rangeItems": [
+        {
+          "id": 60,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "7~11"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "183",
+      "pet": "号儿鱼",
+      "rangeItems": [
+        {
+          "id": 235,
+          "eggDiameter": "0.13-0.17",
+          "eggWeight": "1.38-2.087"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1156,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.38"
+        },
+        {
+          "id": 330,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.395"
+        },
+        {
+          "id": 66,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.426"
+        },
+        {
+          "id": 1082,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.609"
+        },
+        {
+          "id": 1262,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.645"
+        },
+        {
+          "id": 583,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.679"
+        },
+        {
+          "id": 651,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.735"
+        },
+        {
+          "id": 396,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.761"
+        },
+        {
+          "id": 1007,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.77"
+        },
+        {
+          "id": 1009,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.799"
+        },
+        {
+          "id": 1235,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.811"
+        },
+        {
+          "id": 1267,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.814"
+        },
+        {
+          "id": 1268,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.85"
+        },
+        {
+          "id": 216,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.894"
+        },
+        {
+          "id": 826,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.931"
+        },
+        {
+          "id": 641,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.975"
+        },
+        {
+          "id": 438,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.087"
+        },
+        {
+          "id": 1410,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.727"
+        },
+        {
+          "id": 1427,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.564"
+        },
+        {
+          "id": 1484,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.668"
+        }
+      ]
+    },
+    {
+      "petId": "184",
+      "pet": "圆号鱼",
+      "rangeItems": [
+        {
+          "id": 1128,
+          "eggDiameter": "0.14-0.14",
+          "eggWeight": "1.552-1.552"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1129,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.552"
+        }
+      ]
+    },
+    {
+      "petId": "185",
+      "pet": "甜田螺",
+      "rangeItems": [
+        {
+          "id": 245,
+          "eggDiameter": "0.164-0.24",
+          "eggWeight": "2.724-3.76"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 434,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.724"
+        },
+        {
+          "id": 1196,
+          "eggDiameter": "0.18",
+          "eggWeight": "2.804"
+        },
+        {
+          "id": 859,
+          "eggDiameter": "0.18",
+          "eggWeight": "2.87"
+        },
+        {
+          "id": 706,
+          "eggDiameter": "0.18",
+          "eggWeight": "2.884"
+        },
+        {
+          "id": 727,
+          "eggDiameter": "0.19",
+          "eggWeight": "3.012"
+        },
+        {
+          "id": 754,
+          "eggDiameter": "0.2",
+          "eggWeight": "3.083"
+        },
+        {
+          "id": 748,
+          "eggDiameter": "0.21",
+          "eggWeight": "3.228"
+        },
+        {
+          "id": 735,
+          "eggDiameter": "0.21",
+          "eggWeight": "3.237"
+        },
+        {
+          "id": 1042,
+          "eggDiameter": "0.21",
+          "eggWeight": "3.326"
+        },
+        {
+          "id": 700,
+          "eggDiameter": "0.22",
+          "eggWeight": "3.391"
+        },
+        {
+          "id": 509,
+          "eggDiameter": "0.22",
+          "eggWeight": "3.48"
+        },
+        {
+          "id": 790,
+          "eggDiameter": "0.23",
+          "eggWeight": "3.496"
+        },
+        {
+          "id": 1171,
+          "eggDiameter": "0.24",
+          "eggWeight": "3.679"
+        },
+        {
+          "id": 1456,
+          "eggDiameter": "0.21",
+          "eggWeight": "3.303"
+        },
+        {
+          "id": 1511,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.924"
+        }
+      ]
+    },
+    {
+      "petId": "187",
+      "pet": "卡洛儿",
+      "rangeItems": [
+        {
+          "id": 95,
+          "eggDiameter": "0.48~0.68",
+          "eggWeight": "4~6.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "188",
+      "pet": "棋棋",
+      "rangeItems": [
+        {
+          "id": 305,
+          "eggDiameter": "0.15~0.2",
+          "eggWeight": "2.203~5.8"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 559,
+          "eggDiameter": "0.15",
+          "eggWeight": "3.816"
+        },
+        {
+          "id": 566,
+          "eggDiameter": "0.15",
+          "eggWeight": "3.987"
+        },
+        {
+          "id": 337,
+          "eggDiameter": "0.15",
+          "eggWeight": "4.03"
+        },
+        {
+          "id": 329,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.155"
+        },
+        {
+          "id": 131,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.276"
+        },
+        {
+          "id": 453,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.203"
+        },
+        {
+          "id": 695,
+          "eggDiameter": "0.17",
+          "eggWeight": "4.408"
+        },
+        {
+          "id": 1335,
+          "eggDiameter": "0.17",
+          "eggWeight": "4.5"
+        },
+        {
+          "id": 1105,
+          "eggDiameter": "0.17",
+          "eggWeight": "4.725"
+        },
+        {
+          "id": 981,
+          "eggDiameter": "0.18",
+          "eggWeight": "5.058"
+        },
+        {
+          "id": 904,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.124"
+        },
+        {
+          "id": 584,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.241"
+        },
+        {
+          "id": 1145,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.25"
+        },
+        {
+          "id": 1048,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.413"
+        },
+        {
+          "id": 925,
+          "eggDiameter": "0.2",
+          "eggWeight": "5.467"
+        },
+        {
+          "id": 294,
+          "eggDiameter": "0.2",
+          "eggWeight": "5.497"
+        },
+        {
+          "id": 1188,
+          "eggDiameter": "0.2",
+          "eggWeight": "5.582"
+        },
+        {
+          "id": 1055,
+          "eggDiameter": "0.2",
+          "eggWeight": "5.8"
+        },
+        {
+          "id": 1412,
+          "eggDiameter": "0.15",
+          "eggWeight": "3.882"
+        },
+        {
+          "id": 1420,
+          "eggDiameter": "0.18",
+          "eggWeight": "4.732"
+        },
+        {
+          "id": 1421,
+          "eggDiameter": "0.18",
+          "eggWeight": "4.77"
+        },
+        {
+          "id": 1422,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.378"
+        },
+        {
+          "id": 1424,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.109"
+        },
+        {
+          "id": 1465,
+          "eggDiameter": "0.18",
+          "eggWeight": "4.796"
+        },
+        {
+          "id": 1466,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.212"
+        },
+        {
+          "id": 1467,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.06"
+        },
+        {
+          "id": 1477,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.266"
+        },
+        {
+          "id": 1529,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.127"
+        },
+        {
+          "id": 1532,
+          "eggDiameter": "0.16",
+          "eggWeight": "4.106"
+        }
+      ]
+    },
+    {
+      "petId": "193",
+      "pet": "奔波鼠",
+      "rangeItems": [
+        {
+          "id": 9,
+          "eggDiameter": "0.2~0.59",
+          "eggWeight": "1.449~6.12"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 613,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.449"
+        },
+        {
+          "id": 1158,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.473"
+        },
+        {
+          "id": 1000,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.586"
+        },
+        {
+          "id": 1012,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.611"
+        },
+        {
+          "id": 665,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.788"
+        },
+        {
+          "id": 8,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.126"
+        },
+        {
+          "id": 1177,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.176"
+        },
+        {
+          "id": 847,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.405"
+        },
+        {
+          "id": 1205,
+          "eggDiameter": "0.25",
+          "eggWeight": "2.522"
+        },
+        {
+          "id": 1381,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.057"
+        },
+        {
+          "id": 1468,
+          "eggDiameter": "0.59",
+          "eggWeight": "6.12"
+        }
+      ]
+    },
+    {
+      "petId": "195",
+      "pet": "呆小路",
+      "rangeItems": [
+        {
+          "id": 29,
+          "eggDiameter": "0.25~0.75",
+          "eggWeight": "1.608~7.5"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1115,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.677"
+        },
+        {
+          "id": 482,
+          "eggDiameter": "0.29",
+          "eggWeight": "1.897"
+        },
+        {
+          "id": 28,
+          "eggDiameter": "0.32",
+          "eggWeight": "2.12"
+        },
+        {
+          "id": 1483,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.608"
+        },
+        {
+          "id": 1486,
+          "eggDiameter": "0.31",
+          "eggWeight": "2.016"
+        }
+      ]
+    },
+    {
+      "petId": "198",
+      "pet": "逗逗",
+      "rangeItems": [
+        {
+          "id": 236,
+          "eggDiameter": "0.1-0.17",
+          "eggWeight": "0.213-0.319"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1065,
+          "eggDiameter": "0.1",
+          "eggWeight": "0.309"
+        },
+        {
+          "id": 576,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.213"
+        },
+        {
+          "id": 202,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.225"
+        },
+        {
+          "id": 391,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.241"
+        },
+        {
+          "id": 604,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.242"
+        },
+        {
+          "id": 292,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.255"
+        },
+        {
+          "id": 510,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.258"
+        },
+        {
+          "id": 988,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.279"
+        },
+        {
+          "id": 1344,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.282"
+        },
+        {
+          "id": 805,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.284"
+        },
+        {
+          "id": 40,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.297"
+        },
+        {
+          "id": 794,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.31"
+        },
+        {
+          "id": 781,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.319"
+        },
+        {
+          "id": 1390,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.312"
+        },
+        {
+          "id": 1470,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.235"
+        },
+        {
+          "id": 1522,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.295"
+        },
+        {
+          "id": 1527,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.288"
+        }
+      ]
+    },
+    {
+      "petId": "200",
+      "pet": "梦想三三",
+      "rangeItems": [
+        {
+          "id": 118,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "7~11"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "201",
+      "pet": "花怨鳗",
+      "rangeItems": [
+        {
+          "id": 275,
+          "eggDiameter": "0.25-0.28",
+          "eggWeight": "1.019-1.59"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1089,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.085"
+        },
+        {
+          "id": 1285,
+          "eggDiameter": "0.25",
+          "eggWeight": "1.091"
+        },
+        {
+          "id": 1244,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.185"
+        },
+        {
+          "id": 1228,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.276"
+        },
+        {
+          "id": 1163,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.308"
+        },
+        {
+          "id": 813,
+          "eggDiameter": "0.27",
+          "eggWeight": "1.307"
+        },
+        {
+          "id": 417,
+          "eggDiameter": "0.27",
+          "eggWeight": "1.426"
+        },
+        {
+          "id": 882,
+          "eggDiameter": "0.27",
+          "eggWeight": "1.448"
+        },
+        {
+          "id": 740,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.447"
+        },
+        {
+          "id": 1200,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.455"
+        },
+        {
+          "id": 1214,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.456"
+        },
+        {
+          "id": 596,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.59"
+        }
+      ]
+    },
+    {
+      "petId": "202",
+      "pet": "鳗尾兽",
+      "rangeItems": [
+        {
+          "id": 115,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "6~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "203",
+      "pet": "伊雷龙",
+      "rangeItems": [
+        {
+          "id": 178,
+          "eggDiameter": "0.288-0.38",
+          "eggWeight": "10.124-13.6"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1226,
+          "eggDiameter": "0.32",
+          "eggWeight": "10.124"
+        },
+        {
+          "id": 348,
+          "eggDiameter": "0.33",
+          "eggWeight": "10.414"
+        },
+        {
+          "id": 500,
+          "eggDiameter": "0.36",
+          "eggWeight": "12.06"
+        },
+        {
+          "id": 1396,
+          "eggDiameter": "0.36",
+          "eggWeight": "11.955"
+        }
+      ]
+    },
+    {
+      "petId": "204",
+      "pet": "伊兰龙",
+      "rangeItems": [
+        {
+          "id": 177,
+          "eggDiameter": "0.7~0.95",
+          "eggWeight": "11~16"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "205",
+      "pet": "拉特",
+      "rangeItems": [
+        {
+          "id": 101,
+          "eggDiameter": "0.196-0.25",
+          "eggWeight": "2.764-3.653"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 431,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.806"
+        },
+        {
+          "id": 1093,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.848"
+        },
+        {
+          "id": 1058,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.949"
+        },
+        {
+          "id": 301,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.961"
+        },
+        {
+          "id": 803,
+          "eggDiameter": "0.24",
+          "eggWeight": "3.161"
+        },
+        {
+          "id": 812,
+          "eggDiameter": "0.24",
+          "eggWeight": "3.171"
+        },
+        {
+          "id": 1277,
+          "eggDiameter": "0.24",
+          "eggWeight": "3.193"
+        },
+        {
+          "id": 1266,
+          "eggDiameter": "0.24",
+          "eggWeight": "3.244"
+        },
+        {
+          "id": 334,
+          "eggDiameter": "0.25",
+          "eggWeight": "3.324"
+        },
+        {
+          "id": 1233,
+          "eggDiameter": "0.25",
+          "eggWeight": "3.326"
+        },
+        {
+          "id": 1310,
+          "eggDiameter": "0.25",
+          "eggWeight": "3.394"
+        },
+        {
+          "id": 764,
+          "eggDiameter": "0.25",
+          "eggWeight": "3.404"
+        },
+        {
+          "id": 1457,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.764"
+        }
+      ]
+    },
+    {
+      "petId": "206",
+      "pet": "酷拉",
+      "rangeItems": [
+        {
+          "id": 100,
+          "eggDiameter": "0.6~0.85",
+          "eggWeight": "8~12"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "207",
+      "pet": "闪电环",
+      "rangeItems": [
+        {
+          "id": 134,
+          "eggDiameter": "0.16-0.19",
+          "eggWeight": "0.843-1.313"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1337,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.843"
+        },
+        {
+          "id": 890,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.92"
+        },
+        {
+          "id": 1047,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.95"
+        },
+        {
+          "id": 539,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.96"
+        },
+        {
+          "id": 696,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.993"
+        },
+        {
+          "id": 1334,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.028"
+        },
+        {
+          "id": 1198,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.057"
+        },
+        {
+          "id": 1112,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.095"
+        },
+        {
+          "id": 1150,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.14"
+        },
+        {
+          "id": 1056,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.2"
+        }
+      ]
+    },
+    {
+      "petId": "209",
+      "pet": "荆棘电环",
+      "rangeItems": [
+        {
+          "id": 84,
+          "eggDiameter": "0.5~0.72",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "210",
+      "pet": "小箱怪",
+      "rangeItems": [
+        {
+          "id": 255,
+          "eggDiameter": "0.14-0.19",
+          "eggWeight": "1.718-2.724"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 946,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.718"
+        },
+        {
+          "id": 895,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.913"
+        },
+        {
+          "id": 328,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.968"
+        },
+        {
+          "id": 661,
+          "eggDiameter": "0.16",
+          "eggWeight": "2.135"
+        },
+        {
+          "id": 807,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.157"
+        },
+        {
+          "id": 878,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.206"
+        },
+        {
+          "id": 339,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.273"
+        },
+        {
+          "id": 1006,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.327"
+        },
+        {
+          "id": 554,
+          "eggDiameter": "0.18",
+          "eggWeight": "2.472"
+        },
+        {
+          "id": 164,
+          "eggDiameter": "0.18",
+          "eggWeight": "2.479"
+        },
+        {
+          "id": 868,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.711"
+        },
+        {
+          "id": 1438,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.689"
+        },
+        {
+          "id": 1440,
+          "eggDiameter": "0.17",
+          "eggWeight": "2.313"
+        }
+      ]
+    },
+    {
+      "petId": "211",
+      "pet": "迷迷箱怪",
+      "rangeItems": [
+        {
+          "id": 121,
+          "eggDiameter": "0.5~0.72",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "212",
+      "pet": "古钟蛇",
+      "rangeItems": [
+        {
+          "id": 57,
+          "eggDiameter": "0.41~0.45",
+          "eggWeight": "2.522~2.942"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1143,
+          "eggDiameter": "0.41",
+          "eggWeight": "2.522"
+        },
+        {
+          "id": 521,
+          "eggDiameter": "0.41",
+          "eggWeight": "2.572"
+        },
+        {
+          "id": 980,
+          "eggDiameter": "0.42",
+          "eggWeight": "2.695"
+        },
+        {
+          "id": 325,
+          "eggDiameter": "0.43",
+          "eggWeight": "2.772"
+        },
+        {
+          "id": 56,
+          "eggDiameter": "0.44",
+          "eggWeight": "2.857"
+        },
+        {
+          "id": 492,
+          "eggDiameter": "0.45",
+          "eggWeight": "2.942"
+        }
+      ]
+    },
+    {
+      "petId": "213",
+      "pet": "寒音蛇",
+      "rangeItems": [
+        {
+          "id": 65,
+          "eggDiameter": "0.5~0.75",
+          "eggWeight": "5~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "214",
+      "pet": "矮脚爬爬",
+      "rangeItems": [
+        {
+          "id": 3,
+          "eggDiameter": "0.12-0.18",
+          "eggWeight": "1.217-1.654"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1350,
+          "eggDiameter": "0.12",
+          "eggWeight": "1.217"
+        },
+        {
+          "id": 535,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.286"
+        },
+        {
+          "id": 814,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.317"
+        },
+        {
+          "id": 770,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.457"
+        },
+        {
+          "id": 634,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.477"
+        },
+        {
+          "id": 900,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.492"
+        },
+        {
+          "id": 1354,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.499"
+        },
+        {
+          "id": 724,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.648"
+        },
+        {
+          "id": 1411,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.459"
+        },
+        {
+          "id": 1428,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.403"
+        }
+      ]
+    },
+    {
+      "petId": "216",
+      "pet": "火尾瓦特",
+      "rangeItems": [
+        {
+          "id": 78,
+          "eggDiameter": "0.27-0.38",
+          "eggWeight": "6.612-8.425"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1232,
+          "eggDiameter": "0.27",
+          "eggWeight": "6.615"
+        },
+        {
+          "id": 1237,
+          "eggDiameter": "0.28",
+          "eggWeight": "6.785"
+        },
+        {
+          "id": 747,
+          "eggDiameter": "0.3",
+          "eggWeight": "7.078"
+        },
+        {
+          "id": 1151,
+          "eggDiameter": "0.31",
+          "eggWeight": "7.292"
+        },
+        {
+          "id": 987,
+          "eggDiameter": "0.35",
+          "eggWeight": "7.862"
+        },
+        {
+          "id": 597,
+          "eggDiameter": "0.36",
+          "eggWeight": "8.052"
+        },
+        {
+          "id": 1413,
+          "eggDiameter": "0.29",
+          "eggWeight": "6.942"
+        },
+        {
+          "id": 1489,
+          "eggDiameter": "0.37",
+          "eggWeight": "8.266"
+        },
+        {
+          "id": 1523,
+          "eggDiameter": "0.32",
+          "eggWeight": "7.294"
+        }
+      ]
+    },
+    {
+      "petId": "218",
+      "pet": "烈火守护",
+      "rangeItems": [
+        {
+          "id": 106,
+          "eggDiameter": "0.34~0.97",
+          "eggWeight": "7.652~15"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 362,
+          "eggDiameter": "0.97",
+          "eggWeight": "15"
+        },
+        {
+          "id": 1500,
+          "eggDiameter": "0.34",
+          "eggWeight": "7.652"
+        }
+      ]
+    },
+    {
+      "petId": "219",
+      "pet": "里拉鳐",
+      "rangeItems": [
+        {
+          "id": 103,
+          "eggDiameter": "0.4-0.46",
+          "eggWeight": "13.793-19.75"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 817,
+          "eggDiameter": "0.4",
+          "eggWeight": "13.793"
+        },
+        {
+          "id": 675,
+          "eggDiameter": "0.41",
+          "eggWeight": "14.746"
+        },
+        {
+          "id": 669,
+          "eggDiameter": "0.42",
+          "eggWeight": "16.086"
+        },
+        {
+          "id": 1052,
+          "eggDiameter": "0.43",
+          "eggWeight": "16.881"
+        },
+        {
+          "id": 1161,
+          "eggDiameter": "0.43",
+          "eggWeight": "16.956"
+        },
+        {
+          "id": 1157,
+          "eggDiameter": "0.43",
+          "eggWeight": "17.093"
+        },
+        {
+          "id": 1142,
+          "eggDiameter": "0.43",
+          "eggWeight": "17.156"
+        },
+        {
+          "id": 589,
+          "eggDiameter": "0.45",
+          "eggWeight": "18.215"
+        },
+        {
+          "id": 884,
+          "eggDiameter": "0.46",
+          "eggWeight": "18.98"
+        },
+        {
+          "id": 1279,
+          "eggDiameter": "0.46",
+          "eggWeight": "19.75"
+        },
+        {
+          "id": 1416,
+          "eggDiameter": "0.46",
+          "eggWeight": "19.32"
+        },
+        {
+          "id": 1482,
+          "eggDiameter": "0.43",
+          "eggWeight": "16.506"
+        }
+      ]
+    },
+    {
+      "petId": "220",
+      "pet": "海枝枝",
+      "rangeItems": [
+        {
+          "id": 63,
+          "eggDiameter": "0.32-0.35",
+          "eggWeight": "1.32-2.707"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 906,
+          "eggDiameter": "0.32",
+          "eggWeight": "1.32"
+        },
+        {
+          "id": 891,
+          "eggDiameter": "0.32",
+          "eggWeight": "1.389"
+        },
+        {
+          "id": 1358,
+          "eggDiameter": "0.32",
+          "eggWeight": "1.45"
+        },
+        {
+          "id": 415,
+          "eggDiameter": "0.32",
+          "eggWeight": "1.544"
+        },
+        {
+          "id": 1044,
+          "eggDiameter": "0.32",
+          "eggWeight": "1.559"
+        },
+        {
+          "id": 592,
+          "eggDiameter": "0.33",
+          "eggWeight": "1.686"
+        },
+        {
+          "id": 1301,
+          "eggDiameter": "0.33",
+          "eggWeight": "1.822"
+        },
+        {
+          "id": 390,
+          "eggDiameter": "0.34",
+          "eggWeight": "2.111"
+        },
+        {
+          "id": 802,
+          "eggDiameter": "0.34",
+          "eggWeight": "2.201"
+        },
+        {
+          "id": 458,
+          "eggDiameter": "0.35",
+          "eggWeight": "2.463"
+        },
+        {
+          "id": 1101,
+          "eggDiameter": "0.35",
+          "eggWeight": "2.707"
+        },
+        {
+          "id": 1451,
+          "eggDiameter": "0.35",
+          "eggWeight": "2.376"
+        }
+      ]
+    },
+    {
+      "petId": "221",
+      "pet": "多西",
+      "rangeItems": [
+        {
+          "id": 277,
+          "eggDiameter": "0.26-0.376",
+          "eggWeight": "2.28-2.84"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "223",
+      "pet": "波多西",
+      "rangeItems": [
+        {
+          "id": 14,
+          "eggDiameter": "0.75~1",
+          "eggWeight": "14~20"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "224",
+      "pet": "小翼龙",
+      "rangeItems": [
+        {
+          "id": 283,
+          "eggDiameter": "0.32-0.348",
+          "eggWeight": "12.146-14.6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "225",
+      "pet": "翼龙",
+      "rangeItems": [
+        {
+          "id": 179,
+          "eggDiameter": "0.7~0.95",
+          "eggWeight": "10~15"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "226",
+      "pet": "电动长颈鹿",
+      "rangeItems": [
+        {
+          "id": 33,
+          "eggDiameter": "0.3-0.42",
+          "eggWeight": "10.58-17.72"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 552,
+          "eggDiameter": "0.3",
+          "eggWeight": "10.58"
+        },
+        {
+          "id": 568,
+          "eggDiameter": "0.3",
+          "eggWeight": "10.585"
+        },
+        {
+          "id": 776,
+          "eggDiameter": "0.31",
+          "eggWeight": "10.782"
+        },
+        {
+          "id": 1097,
+          "eggDiameter": "0.32",
+          "eggWeight": "11.039"
+        },
+        {
+          "id": 561,
+          "eggDiameter": "0.32",
+          "eggWeight": "11.306"
+        },
+        {
+          "id": 639,
+          "eggDiameter": "0.33",
+          "eggWeight": "11.672"
+        },
+        {
+          "id": 961,
+          "eggDiameter": "0.34",
+          "eggWeight": "11.917"
+        },
+        {
+          "id": 533,
+          "eggDiameter": "0.35",
+          "eggWeight": "12.459"
+        },
+        {
+          "id": 374,
+          "eggDiameter": "0.36",
+          "eggWeight": "12.577"
+        },
+        {
+          "id": 220,
+          "eggDiameter": "0.36",
+          "eggWeight": "12.772"
+        },
+        {
+          "id": 1002,
+          "eggDiameter": "0.4",
+          "eggWeight": "13.909"
+        },
+        {
+          "id": 1308,
+          "eggDiameter": "0.4",
+          "eggWeight": "13.975"
+        },
+        {
+          "id": 996,
+          "eggDiameter": "0.4",
+          "eggWeight": "13.997"
+        },
+        {
+          "id": 861,
+          "eggDiameter": "0.4",
+          "eggWeight": "14.076"
+        },
+        {
+          "id": 820,
+          "eggDiameter": "0.42",
+          "eggWeight": "14.675"
+        },
+        {
+          "id": 1490,
+          "eggDiameter": "0.4",
+          "eggWeight": "13.976"
+        }
+      ]
+    },
+    {
+      "petId": "228",
+      "pet": "爵士鹿",
+      "rangeItems": [
+        {
+          "id": 93,
+          "eggDiameter": "0.65~0.9",
+          "eggWeight": "9~13"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "229",
+      "pet": "缇塔",
+      "rangeItems": [
+        {
+          "id": 627,
+          "eggDiameter": "0.28-0.31",
+          "eggWeight": "13.081-18.075"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 828,
+          "eggDiameter": "0.28",
+          "eggWeight": "13.081"
+        },
+        {
+          "id": 734,
+          "eggDiameter": "0.28",
+          "eggWeight": "13.631"
+        },
+        {
+          "id": 787,
+          "eggDiameter": "0.28",
+          "eggWeight": "13.755"
+        },
+        {
+          "id": 719,
+          "eggDiameter": "0.28",
+          "eggWeight": "14.276"
+        },
+        {
+          "id": 440,
+          "eggDiameter": "0.28",
+          "eggWeight": "14.385"
+        },
+        {
+          "id": 1172,
+          "eggDiameter": "0.29",
+          "eggWeight": "15.004"
+        },
+        {
+          "id": 809,
+          "eggDiameter": "0.3",
+          "eggWeight": "15.8"
+        },
+        {
+          "id": 766,
+          "eggDiameter": "0.3",
+          "eggWeight": "15.985"
+        },
+        {
+          "id": 1119,
+          "eggDiameter": "0.3",
+          "eggWeight": "16.262"
+        },
+        {
+          "id": 557,
+          "eggDiameter": "0.3",
+          "eggWeight": "16.648"
+        },
+        {
+          "id": 1229,
+          "eggDiameter": "0.31",
+          "eggWeight": "17.749"
+        },
+        {
+          "id": 1152,
+          "eggDiameter": "0.31",
+          "eggWeight": "18.032"
+        },
+        {
+          "id": 1203,
+          "eggDiameter": "0.31",
+          "eggWeight": "18.075"
+        },
+        {
+          "id": 1415,
+          "eggDiameter": "0.28",
+          "eggWeight": "14.22"
+        },
+        {
+          "id": 1492,
+          "eggDiameter": "0.3",
+          "eggWeight": "16.662"
+        }
+      ]
+    },
+    {
+      "petId": "230",
+      "pet": "声波缇塔",
+      "rangeItems": [],
+      "exactItems": [
+        {
+          "id": 601,
+          "eggDiameter": "0.31",
+          "eggWeight": "17.374"
+        }
+      ]
+    },
+    {
+      "petId": "231",
+      "pet": "小鹬",
+      "rangeItems": [
+        {
+          "id": 228,
+          "eggDiameter": "0.12-0.15",
+          "eggWeight": "0.634-0.861"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1272,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.634"
+        },
+        {
+          "id": 309,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.735"
+        },
+        {
+          "id": 933,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.805"
+        },
+        {
+          "id": 468,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.81"
+        },
+        {
+          "id": 1311,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.815"
+        },
+        {
+          "id": 886,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.861"
+        },
+        {
+          "id": 1446,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.715"
+        },
+        {
+          "id": 1512,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.84"
+        }
+      ]
+    },
+    {
+      "petId": "233",
+      "pet": "高脚鹬",
+      "rangeItems": [
+        {
+          "id": 51,
+          "eggDiameter": "0.5~0.72",
+          "eggWeight": "5~7.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "236",
+      "pet": "圣代甜甜",
+      "rangeItems": [
+        {
+          "id": 137,
+          "eggDiameter": "0.42~0.62",
+          "eggWeight": "3~5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "237",
+      "pet": "刺轮砣",
+      "rangeItems": [
+        {
+          "id": 24,
+          "eggDiameter": "0.09-0.13",
+          "eggWeight": "1.085-1.6"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 502,
+          "eggDiameter": "0.09",
+          "eggWeight": "1.085"
+        },
+        {
+          "id": 688,
+          "eggDiameter": "0.1",
+          "eggWeight": "1.277"
+        },
+        {
+          "id": 623,
+          "eggDiameter": "0.12",
+          "eggWeight": "1.439"
+        },
+        {
+          "id": 1125,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.482"
+        },
+        {
+          "id": 1046,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.519"
+        }
+      ]
+    },
+    {
+      "petId": "239",
+      "pet": "豆丁鱼",
+      "rangeItems": [
+        {
+          "id": 38,
+          "eggDiameter": "0.13-0.18",
+          "eggWeight": "0.425-0.598"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1213,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.425"
+        },
+        {
+          "id": 789,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.447"
+        },
+        {
+          "id": 1182,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.472"
+        },
+        {
+          "id": 413,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.516"
+        },
+        {
+          "id": 370,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.561"
+        },
+        {
+          "id": 39,
+          "eggDiameter": "0.17",
+          "eggWeight": "0.569"
+        },
+        {
+          "id": 407,
+          "eggDiameter": "0.18",
+          "eggWeight": "0.598"
+        },
+        {
+          "id": 1387,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.511"
+        },
+        {
+          "id": 1388,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.513"
+        },
+        {
+          "id": 1505,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.483"
+        }
+      ]
+    },
+    {
+      "petId": "241",
+      "pet": "龙鱼",
+      "rangeItems": [
+        {
+          "id": 109,
+          "eggDiameter": "0.6~0.85",
+          "eggWeight": "8~12"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "242",
+      "pet": "胆小鳗鱼",
+      "rangeItems": [
+        {
+          "id": 30,
+          "eggDiameter": "0.26-0.44",
+          "eggWeight": "1.219-10.74"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 217,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.219"
+        },
+        {
+          "id": 218,
+          "eggDiameter": "0.26",
+          "eggWeight": "1.279"
+        },
+        {
+          "id": 410,
+          "eggDiameter": "0.28",
+          "eggWeight": "1.467"
+        },
+        {
+          "id": 624,
+          "eggDiameter": "0.31",
+          "eggWeight": "6.304"
+        },
+        {
+          "id": 460,
+          "eggDiameter": "0.32",
+          "eggWeight": "6.464"
+        },
+        {
+          "id": 909,
+          "eggDiameter": "0.33",
+          "eggWeight": "7.135"
+        },
+        {
+          "id": 616,
+          "eggDiameter": "0.36",
+          "eggWeight": "8.804"
+        },
+        {
+          "id": 915,
+          "eggDiameter": "0.39",
+          "eggWeight": "8.705"
+        },
+        {
+          "id": 376,
+          "eggDiameter": "0.39",
+          "eggWeight": "8.925"
+        },
+        {
+          "id": 720,
+          "eggDiameter": "0.39",
+          "eggWeight": "9.025"
+        },
+        {
+          "id": 564,
+          "eggDiameter": "0.42",
+          "eggWeight": "9.852"
+        },
+        {
+          "id": 1120,
+          "eggDiameter": "0.43",
+          "eggWeight": "10.344"
+        },
+        {
+          "id": 1518,
+          "eggDiameter": "0.44",
+          "eggWeight": "10.158"
+        }
+      ]
+    },
+    {
+      "petId": "244",
+      "pet": "翡翠水母",
+      "rangeItems": [
+        {
+          "id": 48,
+          "eggDiameter": "0.196-0.29",
+          "eggWeight": "11.189-14.72"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 936,
+          "eggDiameter": "0.21",
+          "eggWeight": "11.189"
+        },
+        {
+          "id": 47,
+          "eggDiameter": "0.21",
+          "eggWeight": "11.2"
+        },
+        {
+          "id": 1302,
+          "eggDiameter": "0.21",
+          "eggWeight": "11.244"
+        },
+        {
+          "id": 836,
+          "eggDiameter": "0.22",
+          "eggWeight": "11.53"
+        },
+        {
+          "id": 916,
+          "eggDiameter": "0.22",
+          "eggWeight": "11.604"
+        },
+        {
+          "id": 1206,
+          "eggDiameter": "0.23",
+          "eggWeight": "12.015"
+        },
+        {
+          "id": 687,
+          "eggDiameter": "0.25",
+          "eggWeight": "12.63"
+        },
+        {
+          "id": 1264,
+          "eggDiameter": "0.25",
+          "eggWeight": "12.806"
+        },
+        {
+          "id": 1326,
+          "eggDiameter": "0.25",
+          "eggWeight": "13.125"
+        },
+        {
+          "id": 1106,
+          "eggDiameter": "0.27",
+          "eggWeight": "13.702"
+        },
+        {
+          "id": 865,
+          "eggDiameter": "0.28",
+          "eggWeight": "14.259"
+        },
+        {
+          "id": 1124,
+          "eggDiameter": "0.28",
+          "eggWeight": "14.288"
+        },
+        {
+          "id": 377,
+          "eggDiameter": "0.29",
+          "eggWeight": "14.324"
+        },
+        {
+          "id": 1405,
+          "eggDiameter": "0.29",
+          "eggWeight": "14.477"
+        }
+      ]
+    },
+    {
+      "petId": "246",
+      "pet": "裘洛",
+      "rangeItems": [
+        {
+          "id": 279,
+          "eggDiameter": "0.28-0.4",
+          "eggWeight": "3-5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "249",
+      "pet": "可爱猿",
+      "rangeItems": [
+        {
+          "id": 278,
+          "eggDiameter": "0.276-0.392",
+          "eggWeight": "8.4-12.6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "251",
+      "pet": "火焰猿",
+      "rangeItems": [
+        {
+          "id": 79,
+          "eggDiameter": "0.6~0.85",
+          "eggWeight": "9~13"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "252",
+      "pet": "布鲁斯",
+      "rangeItems": [
+        {
+          "id": 267,
+          "eggDiameter": "0.212-0.304",
+          "eggWeight": "0.96-1.84"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "254",
+      "pet": "冰钻布鲁斯",
+      "rangeItems": [
+        {
+          "id": 12,
+          "eggDiameter": "0.65~0.9",
+          "eggWeight": "9~13"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "255",
+      "pet": "治愈兔",
+      "rangeItems": [
+        {
+          "id": 273,
+          "eggDiameter": "0.24-0.34",
+          "eggWeight": "4.221-5.65"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 187,
+          "eggDiameter": "0.24",
+          "eggWeight": "4.221"
+        },
+        {
+          "id": 1131,
+          "eggDiameter": "0.24",
+          "eggWeight": "4.244"
+        },
+        {
+          "id": 456,
+          "eggDiameter": "0.24",
+          "eggWeight": "4.307"
+        },
+        {
+          "id": 973,
+          "eggDiameter": "0.25",
+          "eggWeight": "4.419"
+        },
+        {
+          "id": 506,
+          "eggDiameter": "0.26",
+          "eggWeight": "4.597"
+        },
+        {
+          "id": 1141,
+          "eggDiameter": "0.26",
+          "eggWeight": "4.61"
+        },
+        {
+          "id": 595,
+          "eggDiameter": "0.27",
+          "eggWeight": "4.278"
+        },
+        {
+          "id": 1353,
+          "eggDiameter": "0.28",
+          "eggWeight": "4.759"
+        },
+        {
+          "id": 324,
+          "eggDiameter": "0.28",
+          "eggWeight": "4.774"
+        },
+        {
+          "id": 422,
+          "eggDiameter": "0.28",
+          "eggWeight": "4.781"
+        },
+        {
+          "id": 1132,
+          "eggDiameter": "0.28",
+          "eggWeight": "4.829"
+        },
+        {
+          "id": 1130,
+          "eggDiameter": "0.28",
+          "eggWeight": "4.859"
+        },
+        {
+          "id": 556,
+          "eggDiameter": "0.28",
+          "eggWeight": "4.917"
+        },
+        {
+          "id": 207,
+          "eggDiameter": "0.3",
+          "eggWeight": "5.216"
+        },
+        {
+          "id": 497,
+          "eggDiameter": "0.31",
+          "eggWeight": "5.241"
+        },
+        {
+          "id": 383,
+          "eggDiameter": "0.31",
+          "eggWeight": "5.342"
+        },
+        {
+          "id": 792,
+          "eggDiameter": "0.32",
+          "eggWeight": "5.395"
+        },
+        {
+          "id": 511,
+          "eggDiameter": "0.32",
+          "eggWeight": "5.47"
+        },
+        {
+          "id": 406,
+          "eggDiameter": "0.34",
+          "eggWeight": "5.65"
+        },
+        {
+          "id": 1394,
+          "eggDiameter": "0.33",
+          "eggWeight": "5.621"
+        },
+        {
+          "id": 1435,
+          "eggDiameter": "0.29",
+          "eggWeight": "4.974"
+        }
+      ]
+    },
+    {
+      "petId": "257",
+      "pet": "红绒十字",
+      "rangeItems": [
+        {
+          "id": 68,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "258",
+      "pet": "乌达",
+      "rangeItems": [
+        {
+          "id": 261,
+          "eggDiameter": "0.19-0.43",
+          "eggWeight": "1.613-2.44"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 473,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.613"
+        },
+        {
+          "id": 769,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.629"
+        },
+        {
+          "id": 149,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.77"
+        },
+        {
+          "id": 191,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.832"
+        },
+        {
+          "id": 193,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.875"
+        },
+        {
+          "id": 1166,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.977"
+        },
+        {
+          "id": 570,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.055"
+        },
+        {
+          "id": 545,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.082"
+        },
+        {
+          "id": 979,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.087"
+        },
+        {
+          "id": 870,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.18"
+        },
+        {
+          "id": 477,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.239"
+        },
+        {
+          "id": 395,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.372"
+        },
+        {
+          "id": 1186,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.431"
+        },
+        {
+          "id": 1079,
+          "eggDiameter": "0.43",
+          "eggWeight": "2.248"
+        },
+        {
+          "id": 1491,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.706"
+        }
+      ]
+    },
+    {
+      "petId": "260",
+      "pet": "乌拉塔",
+      "rangeItems": [
+        {
+          "id": 150,
+          "eggDiameter": "0.65~0.9",
+          "eggWeight": "10~15"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "261",
+      "pet": "螺旋帕帕",
+      "rangeItems": [
+        {
+          "id": 113,
+          "eggDiameter": "0.14-0.19",
+          "eggWeight": "0.796-1.74"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1249,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.054"
+        },
+        {
+          "id": 1248,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.796"
+        },
+        {
+          "id": 1064,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.902"
+        },
+        {
+          "id": 1218,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.102"
+        },
+        {
+          "id": 1003,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.304"
+        },
+        {
+          "id": 1080,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.391"
+        },
+        {
+          "id": 954,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.736"
+        },
+        {
+          "id": 1380,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.382"
+        },
+        {
+          "id": 1429,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.608"
+        },
+        {
+          "id": 1443,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.512"
+        }
+      ]
+    },
+    {
+      "petId": "263",
+      "pet": "机械方方",
+      "rangeItems": [
+        {
+          "id": 80,
+          "eggDiameter": "0.2~0.23",
+          "eggWeight": "3.215~3.886"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 555,
+          "eggDiameter": "0.2",
+          "eggWeight": "3.215"
+        },
+        {
+          "id": 849,
+          "eggDiameter": "0.2",
+          "eggWeight": "3.276"
+        },
+        {
+          "id": 1265,
+          "eggDiameter": "0.2",
+          "eggWeight": "3.31"
+        },
+        {
+          "id": 851,
+          "eggDiameter": "0.2",
+          "eggWeight": "3.319"
+        },
+        {
+          "id": 1060,
+          "eggDiameter": "0.21",
+          "eggWeight": "3.544"
+        },
+        {
+          "id": 762,
+          "eggDiameter": "0.22",
+          "eggWeight": "3.718"
+        },
+        {
+          "id": 761,
+          "eggDiameter": "0.22",
+          "eggWeight": "3.726"
+        },
+        {
+          "id": 349,
+          "eggDiameter": "0.23",
+          "eggWeight": "3.886"
+        },
+        {
+          "id": 1493,
+          "eggDiameter": "0.2",
+          "eggWeight": "3.275"
+        }
+      ]
+    },
+    {
+      "petId": "265",
+      "pet": "立方人",
+      "rangeItems": [
+        {
+          "id": 105,
+          "eggDiameter": "0.6~0.85",
+          "eggWeight": "12~16"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "266",
+      "pet": "可立鸡",
+      "rangeItems": [
+        {
+          "id": 249,
+          "eggDiameter": "0.17-0.24",
+          "eggWeight": "1.665-2.959"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 902,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.675"
+        },
+        {
+          "id": 1059,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.703"
+        },
+        {
+          "id": 1033,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.826"
+        },
+        {
+          "id": 1220,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.833"
+        },
+        {
+          "id": 958,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.031"
+        },
+        {
+          "id": 1315,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.055"
+        },
+        {
+          "id": 1207,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.346"
+        },
+        {
+          "id": 98,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.435"
+        },
+        {
+          "id": 1154,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.606"
+        },
+        {
+          "id": 1197,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.813"
+        },
+        {
+          "id": 709,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.959"
+        },
+        {
+          "id": 1364,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.625"
+        },
+        {
+          "id": 1403,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.237"
+        },
+        {
+          "id": 1469,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.111"
+        }
+      ]
+    },
+    {
+      "petId": "268",
+      "pet": "绅士鸡",
+      "rangeItems": [
+        {
+          "id": 135,
+          "eggDiameter": "0.48~0.68",
+          "eggWeight": "4~6.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "269",
+      "pet": "武者鸡",
+      "rangeItems": [
+        {
+          "id": 151,
+          "eggDiameter": "0.48~0.68",
+          "eggWeight": "4~6.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "270",
+      "pet": "优优",
+      "rangeItems": [
+        {
+          "id": 242,
+          "eggDiameter": "0.152-0.23",
+          "eggWeight": "1.098-1.636"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 680,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.098"
+        },
+        {
+          "id": 927,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.171"
+        },
+        {
+          "id": 704,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.27"
+        },
+        {
+          "id": 957,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.272"
+        },
+        {
+          "id": 1375,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.33"
+        },
+        {
+          "id": 1367,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.386"
+        },
+        {
+          "id": 182,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.48"
+        },
+        {
+          "id": 1251,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.51"
+        },
+        {
+          "id": 652,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.601"
+        },
+        {
+          "id": 562,
+          "eggDiameter": "0.23",
+          "eggWeight": "1.63"
+        },
+        {
+          "id": 1444,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.491"
+        },
+        {
+          "id": 1480,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.52"
+        }
+      ]
+    },
+    {
+      "petId": "272",
+      "pet": "噼啪鸟",
+      "rangeItems": [
+        {
+          "id": 127,
+          "eggDiameter": "0.4~0.86",
+          "eggWeight": "35.8~51"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "273",
+      "pet": "深蓝鲸",
+      "rangeItems": [
+        {
+          "id": 136,
+          "eggDiameter": "0.8~1.1",
+          "eggWeight": "258~280"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "274",
+      "pet": "格兰种子",
+      "rangeItems": [
+        {
+          "id": 244,
+          "eggDiameter": "0.16-0.24",
+          "eggWeight": "1.288-2.16"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1045,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.288"
+        },
+        {
+          "id": 378,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.3"
+        },
+        {
+          "id": 944,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.319"
+        },
+        {
+          "id": 1280,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.389"
+        },
+        {
+          "id": 538,
+          "eggDiameter": "0.19",
+          "eggWeight": "1.564"
+        },
+        {
+          "id": 489,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.657"
+        },
+        {
+          "id": 676,
+          "eggDiameter": "0.21",
+          "eggWeight": "1.786"
+        },
+        {
+          "id": 579,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.82"
+        },
+        {
+          "id": 1179,
+          "eggDiameter": "0.22",
+          "eggWeight": "1.844"
+        },
+        {
+          "id": 1010,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.003"
+        },
+        {
+          "id": 830,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.081"
+        },
+        {
+          "id": 1441,
+          "eggDiameter": "0.2",
+          "eggWeight": "1.634"
+        }
+      ]
+    },
+    {
+      "petId": "276",
+      "pet": "格兰球",
+      "rangeItems": [
+        {
+          "id": 52,
+          "eggDiameter": "0.48~0.68",
+          "eggWeight": "4~6.5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "277",
+      "pet": "地鼠",
+      "rangeItems": [
+        {
+          "id": 32,
+          "eggDiameter": "0.184~0.27",
+          "eggWeight": "0.63~1.14"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 399,
+          "eggDiameter": "0.2",
+          "eggWeight": "0.63"
+        },
+        {
+          "id": 1062,
+          "eggDiameter": "0.22",
+          "eggWeight": "0.728"
+        },
+        {
+          "id": 1051,
+          "eggDiameter": "0.25",
+          "eggWeight": "0.856"
+        },
+        {
+          "id": 31,
+          "eggDiameter": "0.26",
+          "eggWeight": "0.88"
+        },
+        {
+          "id": 540,
+          "eggDiameter": "0.27",
+          "eggWeight": "0.952"
+        },
+        {
+          "id": 1495,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.784"
+        },
+        {
+          "id": 1504,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.778"
+        }
+      ]
+    },
+    {
+      "petId": "280",
+      "pet": "墨鱿士",
+      "rangeItems": [
+        {
+          "id": 237,
+          "eggDiameter": "0.14-0.184",
+          "eggWeight": "1.3-2.008"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "283",
+      "pet": "小甲虫",
+      "rangeItems": [
+        {
+          "id": 306,
+          "eggDiameter": "0.2~0.28",
+          "eggWeight": "2.399~3.341"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 739,
+          "eggDiameter": "0.2",
+          "eggWeight": "2.399"
+        },
+        {
+          "id": 760,
+          "eggDiameter": "0.21",
+          "eggWeight": "2.417"
+        },
+        {
+          "id": 322,
+          "eggDiameter": "0.22",
+          "eggWeight": "2.554"
+        },
+        {
+          "id": 157,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.64"
+        },
+        {
+          "id": 1159,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.658"
+        },
+        {
+          "id": 972,
+          "eggDiameter": "0.23",
+          "eggWeight": "2.674"
+        },
+        {
+          "id": 1271,
+          "eggDiameter": "0.24",
+          "eggWeight": "2.825"
+        },
+        {
+          "id": 1147,
+          "eggDiameter": "0.26",
+          "eggWeight": "3.03"
+        },
+        {
+          "id": 158,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.21"
+        },
+        {
+          "id": 606,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.32"
+        },
+        {
+          "id": 856,
+          "eggDiameter": "0.28",
+          "eggWeight": "3.341"
+        },
+        {
+          "id": 1391,
+          "eggDiameter": "0.26",
+          "eggWeight": "3.02"
+        },
+        {
+          "id": 1459,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.102"
+        }
+      ]
+    },
+    {
+      "petId": "285",
+      "pet": "圣剑侍从",
+      "rangeItems": [
+        {
+          "id": 286,
+          "eggDiameter": "0.376-0.49",
+          "eggWeight": "46.28-69.44"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 293,
+          "eggDiameter": "0.49",
+          "eggWeight": "67.319"
+        },
+        {
+          "id": 1530,
+          "eggDiameter": "0.48",
+          "eggWeight": "65.214"
+        }
+      ]
+    },
+    {
+      "petId": "286",
+      "pet": "圣剑-X",
+      "rangeItems": [
+        {
+          "id": 138,
+          "eggDiameter": "0.7~0.95",
+          "eggWeight": "12~18"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "287",
+      "pet": "吸泥鸥",
+      "rangeItems": [
+        {
+          "id": 269,
+          "eggDiameter": "0.22-0.29",
+          "eggWeight": "3.426-5"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 738,
+          "eggDiameter": "0.23",
+          "eggWeight": "3.426"
+        },
+        {
+          "id": 1317,
+          "eggDiameter": "0.24",
+          "eggWeight": "3.691"
+        },
+        {
+          "id": 454,
+          "eggDiameter": "0.24",
+          "eggWeight": "3.766"
+        },
+        {
+          "id": 997,
+          "eggDiameter": "0.25",
+          "eggWeight": "4.018"
+        },
+        {
+          "id": 784,
+          "eggDiameter": "0.25",
+          "eggWeight": "4.036"
+        },
+        {
+          "id": 880,
+          "eggDiameter": "0.27",
+          "eggWeight": "4.525"
+        },
+        {
+          "id": 917,
+          "eggDiameter": "0.28",
+          "eggWeight": "4.594"
+        },
+        {
+          "id": 152,
+          "eggDiameter": "0.29",
+          "eggWeight": "4.89"
+        },
+        {
+          "id": 756,
+          "eggDiameter": "0.29",
+          "eggWeight": "4.996"
+        },
+        {
+          "id": 1487,
+          "eggDiameter": "0.27",
+          "eggWeight": "4.517"
+        }
+      ]
+    },
+    {
+      "petId": "288",
+      "pet": "泥吼牙",
+      "rangeItems": [
+        {
+          "id": 126,
+          "eggDiameter": "0.55~0.8",
+          "eggWeight": "6~9"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "289",
+      "pet": "大头骨龙",
+      "rangeItems": [
+        {
+          "id": 27,
+          "eggDiameter": "0.36-0.42",
+          "eggWeight": "6.646-13.4"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1234,
+          "eggDiameter": "0.36",
+          "eggWeight": "6.646"
+        },
+        {
+          "id": 507,
+          "eggDiameter": "0.36",
+          "eggWeight": "7.288"
+        },
+        {
+          "id": 546,
+          "eggDiameter": "0.36",
+          "eggWeight": "7.77"
+        },
+        {
+          "id": 534,
+          "eggDiameter": "0.37",
+          "eggWeight": "7.57"
+        },
+        {
+          "id": 677,
+          "eggDiameter": "0.37",
+          "eggWeight": "7.687"
+        },
+        {
+          "id": 1217,
+          "eggDiameter": "0.37",
+          "eggWeight": "7.975"
+        },
+        {
+          "id": 388,
+          "eggDiameter": "0.38",
+          "eggWeight": "8.495"
+        },
+        {
+          "id": 765,
+          "eggDiameter": "0.38",
+          "eggWeight": "8.888"
+        },
+        {
+          "id": 1162,
+          "eggDiameter": "0.4",
+          "eggWeight": "11.021"
+        },
+        {
+          "id": 560,
+          "eggDiameter": "0.4",
+          "eggWeight": "11.527"
+        },
+        {
+          "id": 831,
+          "eggDiameter": "0.41",
+          "eggWeight": "11.857"
+        },
+        {
+          "id": 513,
+          "eggDiameter": "0.41",
+          "eggWeight": "12.091"
+        },
+        {
+          "id": 1195,
+          "eggDiameter": "0.41",
+          "eggWeight": "12.244"
+        },
+        {
+          "id": 690,
+          "eggDiameter": "0.41",
+          "eggWeight": "12.534"
+        },
+        {
+          "id": 818,
+          "eggDiameter": "0.42",
+          "eggWeight": "12.74"
+        },
+        {
+          "id": 1472,
+          "eggDiameter": "0.39",
+          "eggWeight": "10.432"
+        },
+        {
+          "id": 1473,
+          "eggDiameter": "0.42",
+          "eggWeight": "13.242"
+        },
+        {
+          "id": 1475,
+          "eggDiameter": "0.39",
+          "eggWeight": "10.205"
+        }
+      ]
+    },
+    {
+      "petId": "290",
+      "pet": "寂灭骨龙",
+      "rangeItems": [
+        {
+          "id": 83,
+          "eggDiameter": "0.75~1",
+          "eggWeight": "13~18"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "291",
+      "pet": "厉毒小萝",
+      "rangeItems": [
+        {
+          "id": 270,
+          "eggDiameter": "0.22-0.26",
+          "eggWeight": "3.492-5.968"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "293",
+      "pet": "小帕尔",
+      "rangeItems": [
+        {
+          "id": 280,
+          "eggDiameter": "0.27-0.3",
+          "eggWeight": "3.343-3.94"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 404,
+          "eggDiameter": "0.27",
+          "eggWeight": "3.343"
+        },
+        {
+          "id": 875,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.864"
+        },
+        {
+          "id": 160,
+          "eggDiameter": "0.3",
+          "eggWeight": "3.94"
+        }
+      ]
+    },
+    {
+      "petId": "296",
+      "pet": "毛头小蛛",
+      "rangeItems": [
+        {
+          "id": 231,
+          "eggDiameter": "0.12-0.18",
+          "eggWeight": "0.335-0.8"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 368,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.335"
+        }
+      ]
+    },
+    {
+      "petId": "299",
+      "pet": "画精灵",
+      "rangeItems": [
+        {
+          "id": 74,
+          "eggDiameter": "0.12-0.16",
+          "eggWeight": "0.367-0.565"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 911,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.367"
+        },
+        {
+          "id": 486,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.375"
+        },
+        {
+          "id": 845,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.379"
+        },
+        {
+          "id": 1135,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.401"
+        },
+        {
+          "id": 593,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.434"
+        },
+        {
+          "id": 197,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.439"
+        },
+        {
+          "id": 699,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.445"
+        },
+        {
+          "id": 381,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.5"
+        },
+        {
+          "id": 190,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.51"
+        },
+        {
+          "id": 426,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.532"
+        },
+        {
+          "id": 1084,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.563"
+        },
+        {
+          "id": 1118,
+          "eggDiameter": "0.16",
+          "eggWeight": "0.565"
+        },
+        {
+          "id": 1401,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.403"
+        },
+        {
+          "id": 1409,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.456"
+        },
+        {
+          "id": 1533,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.436"
+        }
+      ]
+    },
+    {
+      "petId": "303",
+      "pet": "书魔虫",
+      "rangeItems": [
+        {
+          "id": 145,
+          "eggDiameter": "0.12~0.17",
+          "eggWeight": "0.912~1.544"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 951,
+          "eggDiameter": "0.13",
+          "eggWeight": "0.931"
+        },
+        {
+          "id": 985,
+          "eggDiameter": "0.14",
+          "eggWeight": "0.98"
+        },
+        {
+          "id": 1076,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.181"
+        },
+        {
+          "id": 516,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.234"
+        },
+        {
+          "id": 1378,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.304"
+        },
+        {
+          "id": 558,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.353"
+        },
+        {
+          "id": 728,
+          "eggDiameter": "0.16",
+          "eggWeight": "1.376"
+        },
+        {
+          "id": 219,
+          "eggDiameter": "0.17",
+          "eggWeight": "1.452"
+        },
+        {
+          "id": 1392,
+          "eggDiameter": "0.15",
+          "eggWeight": "1.23"
+        }
+      ]
+    },
+    {
+      "petId": "307",
+      "pet": "绒绒",
+      "rangeItems": [
+        {
+          "id": 229,
+          "eggDiameter": "0.116-0.15",
+          "eggWeight": "0.4-1"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 744,
+          "eggDiameter": "0.12",
+          "eggWeight": "0.402"
+        },
+        {
+          "id": 903,
+          "eggDiameter": "0.15",
+          "eggWeight": "0.962"
+        }
+      ]
+    },
+    {
+      "petId": "310",
+      "pet": "犀角鸟",
+      "rangeItems": [
+        {
+          "id": 232,
+          "eggDiameter": "0.128-0.16",
+          "eggWeight": "3.84-4.6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "313",
+      "pet": "果冻",
+      "rangeItems": [
+        {
+          "id": 59,
+          "eggDiameter": "0.12~0.6",
+          "eggWeight": "1.535~5"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 672,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.535"
+        }
+      ]
+    },
+    {
+      "petId": "317",
+      "pet": "星尘虫",
+      "rangeItems": [
+        {
+          "id": 226,
+          "eggDiameter": "0.06-0.08",
+          "eggWeight": "0.18-0.56"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1423,
+          "eggDiameter": "0.07",
+          "eggWeight": "0.31"
+        },
+        {
+          "id": 1494,
+          "eggDiameter": "0.07",
+          "eggWeight": "0.301"
+        }
+      ]
+    },
+    {
+      "petId": "320",
+      "pet": "双灯鱼",
+      "rangeItems": [
+        {
+          "id": 262,
+          "eggDiameter": "0.21-0.3",
+          "eggWeight": "5.96-7.12"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1393,
+          "eggDiameter": "0.3",
+          "eggWeight": "7.074"
+        }
+      ]
+    },
+    {
+      "petId": "322",
+      "pet": "月牙雪熊",
+      "rangeItems": [
+        {
+          "id": 186,
+          "eggDiameter": "0.53~0.58",
+          "eggWeight": "27.691~34.25"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 745,
+          "eggDiameter": "0.53",
+          "eggWeight": "27.691"
+        },
+        {
+          "id": 311,
+          "eggDiameter": "0.54",
+          "eggWeight": "28.472"
+        },
+        {
+          "id": 1236,
+          "eggDiameter": "0.58",
+          "eggWeight": "33.591"
+        },
+        {
+          "id": 411,
+          "eggDiameter": "0.58",
+          "eggWeight": "34.206"
+        },
+        {
+          "id": 412,
+          "eggDiameter": "0.58",
+          "eggWeight": "34.25"
+        },
+        {
+          "id": 1389,
+          "eggDiameter": "0.54",
+          "eggWeight": "28.414"
+        },
+        {
+          "id": 1398,
+          "eggDiameter": "0.54",
+          "eggWeight": "29.059"
+        }
+      ]
+    },
+    {
+      "petId": "323",
+      "pet": "嗜光嗡嗡",
+      "rangeItems": [
+        {
+          "id": 227,
+          "eggDiameter": "0.096-0.13",
+          "eggWeight": "0.584-1.22"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 346,
+          "eggDiameter": "0.13",
+          "eggWeight": "1.046"
+        }
+      ]
+    },
+    {
+      "petId": "325",
+      "pet": "柴渣虫",
+      "rangeItems": [
+        {
+          "id": 259,
+          "eggDiameter": "0.19-0.23",
+          "eggWeight": "5.165-7.44"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 498,
+          "eggDiameter": "0.19",
+          "eggWeight": "5.196"
+        },
+        {
+          "id": 846,
+          "eggDiameter": "0.21",
+          "eggWeight": "6.144"
+        },
+        {
+          "id": 1227,
+          "eggDiameter": "0.21",
+          "eggWeight": "6.177"
+        },
+        {
+          "id": 848,
+          "eggDiameter": "0.21",
+          "eggWeight": "6.217"
+        },
+        {
+          "id": 358,
+          "eggDiameter": "0.214",
+          "eggWeight": "7.111"
+        },
+        {
+          "id": 356,
+          "eggDiameter": "0.214",
+          "eggWeight": "7.112"
+        },
+        {
+          "id": 874,
+          "eggDiameter": "0.23",
+          "eggWeight": "7.005"
+        },
+        {
+          "id": 326,
+          "eggDiameter": "0.23",
+          "eggWeight": "7.113"
+        },
+        {
+          "id": 1521,
+          "eggDiameter": "0.21",
+          "eggWeight": "6.231"
+        }
+      ]
+    },
+    {
+      "petId": "326",
+      "pet": "燃薪虫",
+      "rangeItems": [
+        {
+          "id": 133,
+          "eggDiameter": "0.45~0.65",
+          "eggWeight": "3.5~6"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "327",
+      "pet": "空空颅",
+      "rangeItems": [
+        {
+          "id": 250,
+          "eggDiameter": "0.172-0.244",
+          "eggWeight": "2.24-3.48"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1323,
+          "eggDiameter": "0.19",
+          "eggWeight": "2.291"
+        }
+      ]
+    },
+    {
+      "petId": "330",
+      "pet": "粉粉星",
+      "rangeItems": [
+        {
+          "id": 382,
+          "eggDiameter": "0.23-0.32",
+          "eggWeight": "0.759-1.15"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 475,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.759"
+        },
+        {
+          "id": 1054,
+          "eggDiameter": "0.26",
+          "eggWeight": "0.905"
+        },
+        {
+          "id": 824,
+          "eggDiameter": "0.27",
+          "eggWeight": "0.947"
+        },
+        {
+          "id": 478,
+          "eggDiameter": "0.28",
+          "eggWeight": "0.98"
+        },
+        {
+          "id": 932,
+          "eggDiameter": "0.31",
+          "eggWeight": "1.113"
+        },
+        {
+          "id": 380,
+          "eggDiameter": "0.31",
+          "eggWeight": "1.118"
+        },
+        {
+          "id": 49,
+          "eggDiameter": "0.32",
+          "eggWeight": "1.15"
+        },
+        {
+          "id": 1383,
+          "eggDiameter": "0.23",
+          "eggWeight": "0.761"
+        },
+        {
+          "id": 1384,
+          "eggDiameter": "0.24",
+          "eggWeight": "0.802"
+        }
+      ]
+    },
+    {
+      "petId": "331",
+      "pet": "小皮球",
+      "rangeItems": [
+        {
+          "id": 161,
+          "eggDiameter": "0.4~0.6",
+          "eggWeight": "2.5~5"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "332",
+      "pet": "贝瑟",
+      "rangeItems": [
+        {
+          "id": 271,
+          "eggDiameter": "0.228-0.328",
+          "eggWeight": "8.964-13.84"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 451,
+          "eggDiameter": "0.24",
+          "eggWeight": "8.964"
+        },
+        {
+          "id": 1099,
+          "eggDiameter": "0.28",
+          "eggWeight": "10.649"
+        },
+        {
+          "id": 1363,
+          "eggDiameter": "0.31",
+          "eggWeight": "11.938"
+        },
+        {
+          "id": 1385,
+          "eggDiameter": "0.27",
+          "eggWeight": "10.361"
+        }
+      ]
+    },
+    {
+      "petId": "335",
+      "pet": "粉星仔",
+      "rangeItems": [
+        {
+          "id": 50,
+          "eggDiameter": "0.17~0.21",
+          "eggWeight": "3.507~5.118"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 427,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.507"
+        },
+        {
+          "id": 355,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.547"
+        },
+        {
+          "id": 483,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.553"
+        },
+        {
+          "id": 484,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.59"
+        },
+        {
+          "id": 529,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.608"
+        },
+        {
+          "id": 615,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.665"
+        },
+        {
+          "id": 1348,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.697"
+        },
+        {
+          "id": 397,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.701"
+        },
+        {
+          "id": 357,
+          "eggDiameter": "0.18",
+          "eggWeight": "3.829"
+        },
+        {
+          "id": 517,
+          "eggDiameter": "0.18",
+          "eggWeight": "4.014"
+        },
+        {
+          "id": 491,
+          "eggDiameter": "0.19",
+          "eggWeight": "4.315"
+        },
+        {
+          "id": 467,
+          "eggDiameter": "0.19",
+          "eggWeight": "4.322"
+        },
+        {
+          "id": 663,
+          "eggDiameter": "0.19",
+          "eggWeight": "4.335"
+        },
+        {
+          "id": 353,
+          "eggDiameter": "0.19",
+          "eggWeight": "4.412"
+        },
+        {
+          "id": 487,
+          "eggDiameter": "0.21",
+          "eggWeight": "4.969"
+        },
+        {
+          "id": 372,
+          "eggDiameter": "0.21",
+          "eggWeight": "5.118"
+        },
+        {
+          "id": 1386,
+          "eggDiameter": "0.17",
+          "eggWeight": "3.735"
+        },
+        {
+          "id": 1514,
+          "eggDiameter": "0.19",
+          "eggWeight": "4.137"
+        }
+      ]
+    },
+    {
+      "petId": "338",
+      "pet": "布瓜蝌",
+      "rangeItems": [
+        {
+          "id": 233,
+          "eggDiameter": "0.128-0.204",
+          "eggWeight": "0.18-0.66"
+        }
+      ],
+      "exactItems": []
+    },
+    {
+      "petId": "340",
+      "pet": "火红尾",
+      "rangeItems": [
+        {
+          "id": 287,
+          "eggDiameter": "0.14-0.6",
+          "eggWeight": "1.734-15.402"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 1126,
+          "eggDiameter": "0.14",
+          "eggWeight": "1.734"
+        },
+        {
+          "id": 490,
+          "eggDiameter": "0.26",
+          "eggWeight": "2.363"
+        },
+        {
+          "id": 387,
+          "eggDiameter": "0.26",
+          "eggWeight": "13.415"
+        },
+        {
+          "id": 350,
+          "eggDiameter": "0.31",
+          "eggWeight": "4.305"
+        },
+        {
+          "id": 314,
+          "eggDiameter": "0.42",
+          "eggWeight": "8.692"
+        },
+        {
+          "id": 302,
+          "eggDiameter": "0.48",
+          "eggWeight": "10.833"
+        },
+        {
+          "id": 303,
+          "eggDiameter": "0.48",
+          "eggWeight": "10.965"
+        },
+        {
+          "id": 304,
+          "eggDiameter": "0.48",
+          "eggWeight": "11.057"
+        },
+        {
+          "id": 375,
+          "eggDiameter": "0.53",
+          "eggWeight": "12.63"
+        },
+        {
+          "id": 367,
+          "eggDiameter": "0.55",
+          "eggWeight": "13.646"
+        },
+        {
+          "id": 889,
+          "eggDiameter": "0.6",
+          "eggWeight": "15.402"
+        }
+      ]
+    },
+    {
+      "petId": "342",
+      "pet": "春团",
+      "rangeItems": [
+        {
+          "id": 238,
+          "eggDiameter": "0.14-0.21",
+          "eggWeight": "0.84-1.44"
+        }
+      ],
+      "exactItems": [
+        {
+          "id": 352,
+          "eggDiameter": "0.18",
+          "eggWeight": "1.084"
+        }
+      ]
+    },
+    {
+      "petId": "344",
+      "pet": "春花兔",
+      "rangeItems": [
+        {
+          "id": 23,
+          "eggDiameter": "0.48~0.68",
+          "eggWeight": "4.5~7"
+        }
+      ],
+      "exactItems": []
+    }
+  ],
+  "source": "https://raw.githubusercontent.com/mfskys/rocomegg/main/public/data/egg-measurements-final.json",
+  "downloaded_at": "2026-05-07T06:45:28.759370+00:00"
+}
