@@ -20,6 +20,7 @@ from src.engine._monolith import (
     _apply_permanent_mod,
     _adjust_cost_delta,
     _add_mark_to_marks,
+    _apply_status_stacks,
     _apply_buff,
     _apply_debuff,
     _clear_buffs,

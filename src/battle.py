@@ -17,7 +17,10 @@ from src.models import (
 )
 from src.skill_db import get_skill
 from src.effect_models import E, Timing
-from src.effect_engine import EffectExecutor, _add_mark_to_marks, _apply_permanent_mod, _adjust_cost_delta
+from src.effect_engine import (
+    EffectExecutor, _add_mark_to_marks, _apply_permanent_mod,
+    _apply_status_stacks, _adjust_cost_delta,
+)
 
 
 def _iter_flat_tags(effects):
@@ -108,11 +111,17 @@ def _transfer_pokemon_state(source: Pokemon, target: Pokemon) -> None:
     target.priority_stage = source.priority_stage
     target.next_attack_power_bonus = source.next_attack_power_bonus
     target.next_attack_power_pct = source.next_attack_power_pct
-    target.poison_stacks = source.poison_stacks
-    target.burn_stacks = source.burn_stacks
-    target.freeze_stacks = source.freeze_stacks
-    target.leech_stacks = source.leech_stacks
-    target.frostbite_damage = source.frostbite_damage
+    target.poison_stacks = 0
+    target.burn_stacks = 0
+    target.freeze_stacks = 0
+    target.leech_stacks = 0
+    target.frostbite_damage = 0
+    _apply_status_stacks(target, "poison", source.poison_stacks)
+    _apply_status_stacks(target, "burn", source.burn_stacks)
+    _apply_status_stacks(target, "leech", source.leech_stacks)
+    if target.pokemon_type != Type.ICE and not target.ability_state.get("freeze_immune"):
+        _apply_status_stacks(target, "freeze", source.freeze_stacks)
+        target.frostbite_damage = source.frostbite_damage
     if "cute_mark" in source.ability_state:
         target.ability_state["cute_mark"] = source.ability_state["cute_mark"]
     if "temporary_skill_cost_mods" in source.ability_state:
@@ -1357,7 +1366,7 @@ def _execute_with_counter(state: BattleState, team: str, action: Action,
         # 捆缚(中毒2层)
         dev_poison = devotion.get("捆缚", 0) * 2
         if dev_poison > 0:
-            enemy.poison_stacks += dev_poison
+            _apply_status_stacks(enemy, "poison", dev_poison)
         # 虫群过境(连击+1)
         dev_hits = devotion.get("虫群过境", 0)
         if dev_hits > 0:

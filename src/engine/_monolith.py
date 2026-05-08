@@ -371,11 +371,11 @@ def _execute_agility_old(pokemon: "Pokemon", enemy: "Pokemon", skill: "Skill") -
     pokemon.apply_self_buff(skill)
     enemy.apply_enemy_debuff(skill)
     if skill.poison_stacks > 0:
-        enemy.poison_stacks += skill.poison_stacks
+        _apply_status_stacks(enemy, "poison", skill.poison_stacks)
     if skill.burn_stacks > 0:
-        enemy.burn_stacks += skill.burn_stacks
+        _apply_status_stacks(enemy, "burn", skill.burn_stacks)
     if skill.leech_stacks > 0:
-        enemy.leech_stacks += skill.leech_stacks
+        _apply_status_stacks(enemy, "leech", skill.leech_stacks)
     if skill.power > 0 and not enemy.is_fainted:
         from src.battle import DamageCalculator
         dmg = DamageCalculator.calculate(pokemon, enemy, skill)
@@ -601,6 +601,42 @@ def _h_grant_life_drain(tag: EffectTag, ctx: Ctx) -> None:
     ctx.user.life_drain_mod += tag.params.get("pct", 0)
 
 
+def _is_status_immune(pokemon, status: str) -> bool:
+    if pokemon is None:
+        return True
+    from src.models import Type
+    ptype = getattr(pokemon, "pokemon_type", None)
+    if status == "poison":
+        return ptype == Type.POISON
+    if status == "burn":
+        return ptype == Type.FIRE
+    if status == "freeze":
+        return ptype == Type.ICE or bool(getattr(pokemon, "ability_state", {}).get("freeze_immune"))
+    if status == "leech":
+        return ptype == Type.GRASS
+    return False
+
+
+def _apply_status_stacks(pokemon, status: str, stacks: int | float = 1) -> int | float:
+    """Apply ordinary status stacks after type immunity checks.
+
+    Poison marks are intentionally not handled here; poison-type immunity only blocks
+    poison_stacks, not poison_mark.
+    """
+    if stacks <= 0 or _is_status_immune(pokemon, status):
+        return 0
+    attr = {
+        "poison": "poison_stacks",
+        "burn": "burn_stacks",
+        "freeze": "freeze_stacks",
+        "leech": "leech_stacks",
+    }.get(status)
+    if not attr:
+        return 0
+    setattr(pokemon, attr, getattr(pokemon, attr, 0) + stacks)
+    return stacks
+
+
 def _h_poison(tag: EffectTag, ctx: Ctx) -> None:
     stacks = tag.params.get("stacks", 1)
     # 特殊: stacks_per_poison_skill（溶解扩散特性）
@@ -616,21 +652,21 @@ def _h_poison(tag: EffectTag, ctx: Ctx) -> None:
     # 目标选择
     tgt = tag.params.get("target", "enemy")
     if tgt in ("enemy", "enemy_new"):
-        ctx.target.poison_stacks += stacks
+        _apply_status_stacks(ctx.target, "poison", stacks)
     else:
-        ctx.user.poison_stacks += stacks
+        _apply_status_stacks(ctx.user, "poison", stacks)
 
 
 def _h_burn(tag: EffectTag, ctx: Ctx) -> None:
-    ctx.target.burn_stacks += tag.params.get("stacks", 1)
+    _apply_status_stacks(ctx.target, "burn", tag.params.get("stacks", 1))
 
 
 def _h_freeze(tag: EffectTag, ctx: Ctx) -> None:
-    ctx.target.freeze_stacks += tag.params.get("stacks", 1)
+    _apply_status_stacks(ctx.target, "freeze", tag.params.get("stacks", 1))
 
 
 def _h_leech(tag: EffectTag, ctx: Ctx) -> None:
-    ctx.target.leech_stacks += tag.params.get("stacks", 1)
+    _apply_status_stacks(ctx.target, "leech", tag.params.get("stacks", 1))
 
 
 def _h_meteor(tag: EffectTag, ctx: Ctx) -> None:
@@ -777,7 +813,7 @@ def _h_convert_marks_to_burn(tag: EffectTag, ctx: Ctx) -> None:
     enemy_marks = ctx.state.marks_b if ctx.team == "a" else ctx.state.marks_a
     total = sum(v for v in enemy_marks.values() if isinstance(v, (int, float)))
     if total > 0:
-        ctx.target.burn_stacks += int(total * ratio)
+        _apply_status_stacks(ctx.target, "burn", int(total * ratio))
         enemy_marks.clear()
 
 
@@ -790,7 +826,7 @@ def _h_dispel_marks_to_burn(tag: EffectTag, ctx: Ctx) -> None:
     ctx.state.marks_a.clear()
     ctx.state.marks_b.clear()
     if total > 0:
-        ctx.target.burn_stacks += int(total * burn_per)
+        _apply_status_stacks(ctx.target, "burn", int(total * burn_per))
 
 
 def _h_consume_marks_heal(tag: EffectTag, ctx: Ctx) -> None:
@@ -862,7 +898,7 @@ def _h_convert_buff_to_poison(tag: EffectTag, ctx: Ctx) -> None:
             total_buff += int(v * 10)
             setattr(ctx.target, attr, 0.0)
     if total_buff > 0:
-        ctx.target.poison_stacks += total_buff
+        _apply_status_stacks(ctx.target, "poison", total_buff)
 
 
 def _h_convert_poison_to_mark(tag: EffectTag, ctx: Ctx) -> None:
@@ -1136,17 +1172,16 @@ def _apply_weather_damage(state) -> None:
     """回合结束时应用天气效果。
     - 暴风雪：非冰系双方获得 2 层冻结
     """
-    from src.models import Type
     w = state.weather
     if not w:
         return
     if w == "snow":
         for p in state.team_a:
-            if not p.is_fainted and p.pokemon_type != Type.ICE and not p.ability_state.get("freeze_immune"):
-                p.freeze_stacks += 2
+            if not p.is_fainted:
+                _apply_status_stacks(p, "freeze", 2)
         for p in state.team_b:
-            if not p.is_fainted and p.pokemon_type != Type.ICE and not p.ability_state.get("freeze_immune"):
-                p.freeze_stacks += 2
+            if not p.is_fainted:
+                _apply_status_stacks(p, "freeze", 2)
 
 
 def _h_enemy_energy_cost_up(tag: EffectTag, ctx: Ctx) -> None:
@@ -1195,8 +1230,8 @@ def _h_counter_override(tag: EffectTag, ctx: Ctx) -> None:
     from_val = tag.params.get("from", 0)
     to_val = tag.params.get("to", 0)
     if replace_type == "poison":
-        ctx.target.poison_stacks -= from_val
-        ctx.target.poison_stacks += to_val
+        ctx.target.poison_stacks = max(0, ctx.target.poison_stacks - from_val)
+        _apply_status_stacks(ctx.target, "poison", to_val)
 
 
 def _h_passive_energy_reduce_water_ring(tag: EffectTag, ctx: Ctx) -> None:
@@ -2059,7 +2094,7 @@ def _h_poison_on_skill_apply(tag: EffectTag, ctx: Ctx) -> None:
         return
     poison_stacks = tag.params.get("poison_stacks", 4)
     if ctx.target:
-        ctx.target.poison_stacks += poison_stacks
+        _apply_status_stacks(ctx.target, "poison", poison_stacks)
 
 
 # ── Entry Effects (1) ──
@@ -2096,7 +2131,7 @@ def _h_on_skill_element_buff(tag: EffectTag, ctx: Ctx) -> None:
 def _h_on_skill_element_poison(tag: EffectTag, ctx: Ctx) -> None:
     """ON_SKILL_ELEMENT_POISON: 使用某系技能后敌方中毒（生物碱）"""
     stacks = tag.params.get("stacks", 2)
-    ctx.target.poison_stacks += stacks
+    _apply_status_stacks(ctx.target, "poison", stacks)
 
 
 def _h_on_skill_element_cost_reduce(tag: EffectTag, ctx: Ctx) -> None:
@@ -2217,7 +2252,7 @@ def _h_entry_freeze_extra(tag: EffectTag, ctx: Ctx) -> None:
     """ENTRY_FREEZE_EXTRA: 入场时冻结+额外能耗增加（抓到你了）"""
     freeze = tag.params.get("freeze", 2)
     extra_cost_up = tag.params.get("extra_cost_up", 1)
-    ctx.target.freeze_stacks += freeze
+    _apply_status_stacks(ctx.target, "freeze", freeze)
     if extra_cost_up:
         for s in ctx.target.skills:
             s.energy_cost = max(0, s.energy_cost + _adjust_cost_delta(ctx.target, extra_cost_up))
@@ -2263,7 +2298,7 @@ def _h_enemy_switch_debuff(tag: EffectTag, ctx: Ctx) -> None:
     if tag.params.get("energy_loss"):
         ctx.target.energy = max(0, ctx.target.energy - tag.params["energy_loss"])
     if tag.params.get("poison"):
-        ctx.target.poison_stacks += tag.params["poison"]
+        _apply_status_stacks(ctx.target, "poison", tag.params["poison"])
 
 
 def _h_enemy_switch_self_cost_reduce(tag: EffectTag, ctx: Ctx) -> None:
@@ -2725,7 +2760,7 @@ def _h_contract_entry(tag: EffectTag, ctx: Ctx) -> None:
         # 用 speed_up 百分比近似：+50/base_speed
         base_spd = max(1, ctx.user.speed)
         ctx.user.speed_up += 50.0 / base_spd
-        ctx.target.poison_stacks += 1
+        _apply_status_stacks(ctx.target, "poison", 1)
 
 
 def _h_bloodline_entry(tag: EffectTag, ctx: Ctx) -> None:
