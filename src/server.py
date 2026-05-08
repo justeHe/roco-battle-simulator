@@ -47,7 +47,6 @@ _MECHANIC_EXCLUDED_TITLES = {
     "命定印记",
     "帕尔印记",
     "技能石/湿润印记",
-    "迟缓印记",
     "能力等级",
 }
 
@@ -618,8 +617,6 @@ def _effect_tag_text(tag) -> str:
         return f"攻击印记×{params.get('stacks', 1)}"
     if t == E.SLOW_MARK:
         return f"减速印记×{params.get('stacks', 1)}"
-    if t == E.SLUGGISH_MARK:
-        return f"迟缓印记×{params.get('stacks', 1)}"
     if t == E.SPIRIT_MARK:
         return f"降灵印记×{params.get('stacks', 1)}"
     if t == E.METEOR_MARK:
@@ -1958,6 +1955,8 @@ def _apply_passive_ability_flags(pokemon, ability_effects):
                 pokemon.ability_state["turn_end_skip"] = pokemon.ability_state.get("turn_end_skip", 0) + delta
             elif tag.type == E.BUFF_EXTRA_LAYERS:
                 pokemon.ability_state["buff_extra_layers"] = tag.params.get("extra", 2)
+            elif tag.type == E.MARK_STACK_NO_REPLACE:
+                pokemon.ability_state["mark_stack_additive"] = True
             elif tag.type == E.CUTE_NO_CAP:
                 pokemon.ability_state["cute_no_cap"] = True
             elif tag.type == E.CUTE_HIT_PER_STACK:

@@ -39,7 +39,7 @@ class E(Enum):
 
     # ── 印记系统 (全队共享, 换人不消失) ──
     # 正面印记：同一阵营同时仅存1种，新覆盖旧
-    # 负面印记：可多种共存
+    # 负面印记：同一阵营同时仅存1种，新覆盖旧
     POISON_MARK = auto()             # 中毒印记(负面)  params: {"stacks": 1}
     MOISTURE_MARK = auto()           # 湿润印记(正面)  params: {"stacks": 1}
     DRAGON_MARK = auto()             # 龙噬印记(正面)  params: {"stacks": 1}  释放基础能耗==5技能时攻击+40%
@@ -48,7 +48,6 @@ class E(Enum):
     SOLAR_MARK = auto()              # 光合印记(正面)  params: {"stacks": 1}  回合结束能量+1
     ATTACK_MARK = auto()             # 攻击印记(正面)  params: {"stacks": 1}  威力提升10%
     SLOW_MARK = auto()               # 减速印记(负面)  params: {"stacks": 1}  降低速度10%
-    SLUGGISH_MARK = auto()           # 迟缓印记(正面)  params: {"stacks": 1}  后手攻击时威力+30%
     SPIRIT_MARK = auto()             # 降灵印记(负面)  params: {"stacks": 1}  换上场失去1能量
     METEOR_MARK = auto()             # 星陨印记(负面)  params: {"stacks": 1}  造成伤害时消耗,每层30威力魔伤
     THORN_MARK = auto()              # 荆刺印记(负面)  params: {"stacks": 1}  敌方入场失去6%HP

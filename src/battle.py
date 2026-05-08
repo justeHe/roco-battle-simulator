@@ -17,7 +17,7 @@ from src.models import (
 )
 from src.skill_db import get_skill
 from src.effect_models import E, Timing
-from src.effect_engine import EffectExecutor, _apply_permanent_mod, _adjust_cost_delta
+from src.effect_engine import EffectExecutor, _add_mark_to_marks, _apply_permanent_mod, _adjust_cost_delta
 
 
 def _iter_flat_tags(effects):
@@ -692,7 +692,7 @@ def turn_end_effects(state: BattleState) -> None:
         meteor_add = p.ability_state.get("meteor_mark_add", 0)
         if meteor_add > 0 and not p.is_fainted:
             enemy_marks = state.marks_b if team_id == "a" else state.marks_a
-            enemy_marks["meteor_mark"] = enemy_marks.get("meteor_mark", 0) + meteor_add
+            _add_mark_to_marks(enemy_marks, "meteor_mark", meteor_add, p)
 
         # 判定倒下
         if p.current_hp <= 0:
@@ -786,7 +786,7 @@ def _apply_moisture_mark(state: BattleState) -> None:
                 if p.ability_state.get("cost_invert"):
                     delta = -delta
                 s.energy_cost = max(0, s.energy_cost + delta)
-        marks["moisture_mark"] = 0   # 消耗印记，效果已永久写入技能
+        marks.pop("moisture_mark", None)   # 消耗印记，效果已永久写入技能
 
 
 def _apply_mark_turn_end(state: BattleState) -> None:
@@ -895,11 +895,6 @@ def get_mark_damage_modifiers(state: BattleState, team: str, is_first: bool,
     attack = my_marks.get("attack_mark", 0)
     if attack > 0:
         mods["power_mult"] += 0.1 * attack
-
-    # 迟缓印记：后手攻击时威力+30%×层数
-    sluggish = my_marks.get("sluggish_mark", 0)
-    if sluggish > 0 and not is_first:
-        mods["power_mult"] += 0.3 * sluggish
 
     # 蓄势印记：攻击技能威力+30%×层数（能耗+1在技能执行时处理）
     momentum = my_marks.get("momentum_mark", 0)
@@ -1660,7 +1655,7 @@ def _check_kill_effects(state, current, enemy, skill, result, team, enemy_team) 
         for tag in _iter_flat_tags(skill.effects):
             if tag.type == E.CONVERT_POISON_TO_MARK and tag.params.get("on") == "kill":
                 marks = state.marks_b if team == "a" else state.marks_a
-                marks["poison_mark"] = marks.get("poison_mark", 0) + enemy.poison_stacks
+                _add_mark_to_marks(marks, "poison_mark", enemy.poison_stacks, current)
                 enemy.poison_stacks = 0
 
         # 攻击方：击败敌方时触发 ON_KILL 特性（恶魔的晚宴/振奋虫心/付给恶魔的赎价等）

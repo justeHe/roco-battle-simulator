@@ -486,7 +486,7 @@ def _h_damage(tag: EffectTag, ctx: Ctx) -> None:
         meteor_stacks = mark_mods["meteor_mark_stacks"]
         if meteor_stacks > 0 and dmg > 0:
             enemy_marks = ctx.state.marks_b if ctx.team == "a" else ctx.state.marks_a
-            enemy_marks["meteor_mark"] = 0
+            enemy_marks.pop("meteor_mark", None)
             meteor_power = 30 * meteor_stacks
             # 星陨印记造成魔法伤害（用攻方魔攻 vs 被攻方魔防）
             from src.models import SkillCategory, Type
@@ -640,18 +640,15 @@ def _h_meteor(tag: EffectTag, ctx: Ctx) -> None:
 
 
 def _h_poison_mark(tag: EffectTag, ctx: Ctx) -> None:
-    marks = ctx.state.marks_b if ctx.team == "a" else ctx.state.marks_a
-    marks["poison_mark"] = marks.get("poison_mark", 0) + tag.params.get("stacks", 1)
+    _h_mark_generic(tag, ctx, "poison_mark")
 
 
 def _h_moisture_mark(tag: EffectTag, ctx: Ctx) -> None:
     tgt = tag.params.get("target", "enemy")
-    if tgt == "self":
-        marks = ctx.state.marks_a if ctx.team == "a" else ctx.state.marks_b
-    else:
-        marks = ctx.state.marks_b if ctx.team == "a" else ctx.state.marks_a
-    stacks = tag.params.get("stacks", 1)
-    marks["moisture_mark"] = marks.get("moisture_mark", 0) + stacks
+    marks = _h_mark_generic(tag, ctx, "moisture_mark")
+    stacks = marks.get("moisture_mark", 0)
+    if stacks <= 0:
+        return
     # 湿润印记立即生效：释放后当回合就减能耗，不等下回合
     team_id = ctx.team if tgt == "self" else ("b" if ctx.team == "a" else "a")
     team_list = ctx.state.team_a if team_id == "a" else ctx.state.team_b
@@ -661,38 +658,59 @@ def _h_moisture_mark(tag: EffectTag, ctx: Ctx) -> None:
             if p.ability_state.get("cost_invert"):
                 delta = -delta
             s.energy_cost = max(0, s.energy_cost + delta)
-    marks["moisture_mark"] = 0  # 已消耗
+    marks.pop("moisture_mark", None)  # 已消耗
 
 
-def _h_mark_generic(tag: EffectTag, ctx: Ctx, mark_key: str) -> None:
+def _mark_polarity(mark_key: str) -> str:
+    if mark_key in POSITIVE_MARKS:
+        return "positive"
+    if mark_key in NEGATIVE_MARKS:
+        return "negative"
+    return ""
+
+
+def _mark_source_can_stack(source) -> bool:
+    if source is None:
+        return False
+    ability_state = getattr(source, "ability_state", {}) or {}
+    if ability_state.get("mark_stack_additive"):
+        return True
+    if getattr(source, "name", "") == "里拉鳐":
+        return True
+    return _ability_name(source) == "吟游之弦"
+
+
+def _add_mark_to_marks(marks: dict, mark_key: str, stacks: int | float = 1, source=None) -> None:
+    if stacks <= 0:
+        return
+    additive = _mark_source_can_stack(source)
+    polarity = _mark_polarity(mark_key)
+    if polarity and not additive:
+        for existing_key in list(marks.keys()):
+            if existing_key != mark_key and _mark_polarity(existing_key) == polarity:
+                del marks[existing_key]
+    marks[mark_key] = marks.get(mark_key, 0) + stacks
+
+
+def _h_mark_generic(tag: EffectTag, ctx: Ctx, mark_key: str) -> dict:
     """通用印记 handler：根据 target 参数放入对应队伍的 marks dict。
     
-    同一阵营（己方/敌方 marks dict）同时仅能存在1种正面印记和1种负面印记。
-    新印记会覆盖同类（正面/负面）中的旧印记。
+    默认同一阵营同时仅能存在1种正面印记和1种负面印记，新印记会覆盖同类旧印记。
+    里拉鳐/吟游之弦施加的印记不触发同类覆盖，可以让多种正面或负面印记同时生效。
     """
     tgt = tag.params.get("target", "enemy")
     if tgt == "self":
         marks = ctx.state.marks_a if ctx.team == "a" else ctx.state.marks_b
     else:
         marks = ctx.state.marks_b if ctx.team == "a" else ctx.state.marks_a
-    
-    # 同类印记覆盖：施加印记时清除同一 marks dict 中已有的同类（正面/负面）印记
-    if mark_key in POSITIVE_MARKS:
-        for existing_key in list(marks.keys()):
-            if existing_key in POSITIVE_MARKS and existing_key != mark_key:
-                del marks[existing_key]
-    elif mark_key in NEGATIVE_MARKS:
-        for existing_key in list(marks.keys()):
-            if existing_key in NEGATIVE_MARKS and existing_key != mark_key:
-                del marks[existing_key]
-    
-    marks[mark_key] = marks.get(mark_key, 0) + tag.params.get("stacks", 1)
+    _add_mark_to_marks(marks, mark_key, tag.params.get("stacks", 1), ctx.user)
+    return marks
 
 
 # 正面印记集合（同一阵营同时仅存1种，新覆盖旧）
 POSITIVE_MARKS = {
     "moisture_mark", "dragon_mark", "wind_mark", "charge_mark",
-    "solar_mark", "attack_mark", "sluggish_mark", "momentum_mark",
+    "solar_mark", "attack_mark", "momentum_mark",
 }
 
 # 负面印记集合（同一阵营同时仅存1种，新覆盖旧）
@@ -718,9 +736,6 @@ def _h_attack_mark(tag: EffectTag, ctx: Ctx) -> None:
 
 def _h_slow_mark(tag: EffectTag, ctx: Ctx) -> None:
     _h_mark_generic(tag, ctx, "slow_mark")
-
-def _h_sluggish_mark(tag: EffectTag, ctx: Ctx) -> None:
-    _h_mark_generic(tag, ctx, "sluggish_mark")
 
 def _h_spirit_mark(tag: EffectTag, ctx: Ctx) -> None:
     _h_mark_generic(tag, ctx, "spirit_mark")
@@ -808,7 +823,7 @@ def _h_steal_marks(tag: EffectTag, ctx: Ctx) -> None:
     enemy_marks = ctx.state.marks_b if ctx.team == "a" else ctx.state.marks_a
     my_marks = ctx.state.marks_a if ctx.team == "a" else ctx.state.marks_b
     for k, v in enemy_marks.items():
-        my_marks[k] = my_marks.get(k, 0) + v
+        _add_mark_to_marks(my_marks, k, v, ctx.user)
     enemy_marks.clear()
 
 
@@ -856,14 +871,14 @@ def _h_convert_poison_to_mark(tag: EffectTag, ctx: Ctx) -> None:
     marks = ctx.state.marks_b if ctx.team == "a" else ctx.state.marks_a
     if on == "kill" and ctx.target.is_fainted:
         stacks = ctx.target.poison_stacks
-        marks["poison_mark"] = marks.get("poison_mark", 0) + stacks
+        _add_mark_to_marks(marks, "poison_mark", stacks, ctx.user)
         ctx.target.poison_stacks = 0
     elif ratio > 0:
         stacks = ctx.target.poison_stacks
         converted = stacks // ratio
         if converted > 0:
             ctx.target.poison_stacks -= converted * ratio
-            marks["poison_mark"] = marks.get("poison_mark", 0) + converted
+            _add_mark_to_marks(marks, "poison_mark", converted, ctx.user)
 
 
 def _h_dispel_marks(tag: EffectTag, ctx: Ctx) -> None:
@@ -2900,7 +2915,6 @@ _HANDLERS: Dict[E, Callable] = {
     E.SOLAR_MARK:               _h_solar_mark,
     E.ATTACK_MARK:              _h_attack_mark,
     E.SLOW_MARK:                _h_slow_mark,
-    E.SLUGGISH_MARK:            _h_sluggish_mark,
     E.SPIRIT_MARK:              _h_spirit_mark,
     E.METEOR_MARK:              _h_meteor_mark,
     E.THORN_MARK:               _h_thorn_mark,
@@ -3807,5 +3821,3 @@ class EffectExecutor:
                 pass
 
         return True
-
-

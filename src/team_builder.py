@@ -126,6 +126,8 @@ class TeamBuilder:
                     p.ability_state["turn_end_skip"] = p.ability_state.get("turn_end_skip", 0) + delta
                 elif tag.type == E.BUFF_EXTRA_LAYERS:
                     p.ability_state["buff_extra_layers"] = tag.params.get("extra", 2)
+                elif tag.type == E.MARK_STACK_NO_REPLACE:
+                    p.ability_state["mark_stack_additive"] = True
                 # ── 萌化被动 ──
                 elif tag.type == E.CUTE_NO_CAP:
                     p.ability_state["cute_no_cap"] = True
