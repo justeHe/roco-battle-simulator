@@ -8,6 +8,7 @@
 - `spirit_icons.py`：BiliGame 精灵图鉴、形态立绘和进化信息。
 - `skills_biligame.py`：BiliGame 技能图鉴、技能图标、系别/分类/耗能图标。
 - `pokemon_skills.py`：BiliGame 精灵详情页可学习技能和学习来源。
+- `pvp_lineups.py`：BiliGame 阵容一览 PVP 阵容，输出 `data/pvp_lineups.json` 与 `data/lineup_icons/`。
 - `mechanics_rocomaster.py`：RocoMaster 机制百科文本。
 - `skills_rocoworld.py`：旧版 RocoWorld Wiki 技能数据爬虫。
 

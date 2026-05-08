@@ -6,19 +6,391 @@
 <title>洛克王国 · 仓库</title>
 <link rel="stylesheet" href="theme.css">
 <style>
-.toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-.toolbar .roco-input { flex: 1; min-width: 220px; }
-.storage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
-.preset-card { background: var(--bg-input); border: 2px solid var(--border); border-radius: var(--r-md); padding: 12px; }
-.preset-head { display: flex; justify-content: space-between; gap: 8px; align-items: start; }
-.preset-name { font-size: 15px; font-weight: 900; }
-.preset-meta { color: var(--text-secondary); font-size: 11px; margin-top: 4px; }
-.skill-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 9px; }
-.skill-chip { background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; padding: 2px 6px; font-size: 10px; color: var(--text-secondary); }
-.actions { display: flex; gap: 6px; margin-top: 10px; }
-.small-btn { border: 1px solid var(--border); border-radius: var(--r-pill); background: var(--bg-card); color: var(--text-primary); font-family: inherit; font-size: 11px; padding: 5px 10px; cursor: pointer; }
-.small-btn:hover { border-color: var(--primary); }
-.empty { background: var(--bg-card); border: 1px dashed var(--border-strong); border-radius: var(--r-lg); padding: 34px; text-align: center; color: var(--text-secondary); }
+body { height: 100vh; overflow: hidden; }
+.page-shell { height: 100vh; display: flex; flex-direction: column; }
+.page-main { flex: 1; min-height: 0; padding: 14px; }
+.storage-layout { height: 100%; display: grid; grid-template-columns: 340px minmax(0,1fr); gap: 12px; }
+.panel {
+  min-height: 0;
+  background: rgba(245,237,224,.74);
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.panel-head {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.58);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.panel-title { font-size: 15px; font-weight: 900; color: var(--text-primary); }
+.head-actions { display: flex; gap: 7px; flex-wrap: wrap; justify-content: flex-end; }
+.panel-body { flex: 1; min-height: 0; overflow: auto; padding: 12px; }
+.small-btn, .primary-btn, .icon-btn {
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 8px 10px;
+}
+.primary-btn { background: var(--title-bg); border-color: var(--title-bg); color: var(--text-light); }
+.small-btn:hover, .icon-btn:hover { border-color: var(--primary); color: var(--primary-dark); }
+.small-btn:disabled, .primary-btn:disabled { opacity: .45; cursor: not-allowed; }
+.roco-input, .roco-select, .roco-textarea {
+  width: 100%;
+  min-width: 0;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  outline: none;
+  padding: 8px 10px;
+}
+.roco-textarea { resize: vertical; min-height: 78px; line-height: 1.55; }
+.roco-input:focus, .roco-select:focus, .roco-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,166,35,.14); }
+.search-wrap { padding: 12px 12px 0; }
+.spirit-list { display: grid; gap: 7px; }
+.spirit-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 48px minmax(0,1fr);
+  gap: 9px;
+  align-items: center;
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  padding: 8px;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+.spirit-row.active { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,166,35,.13); }
+.row-avatar, .detail-avatar, .team-avatar, .pokemon-avatar {
+  object-fit: contain;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+.row-avatar { width: 48px; height: 48px; padding: 2px; }
+.row-name { min-width: 0; font-size: 13px; font-weight: 900; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-meta { min-width: 0; color: var(--text-secondary); font-size: 10px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.empty {
+  color: var(--text-secondary);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-md);
+  padding: 28px 14px;
+  text-align: center;
+  font-size: 13px;
+}
+.detail-pane { height: 100%; min-height: 0; overflow: auto; padding: 12px; }
+.detail-card {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: 170px minmax(0,1fr);
+  gap: 14px;
+  align-items: start;
+}
+.portrait-panel {
+  position: sticky;
+  top: 0;
+  display: grid;
+  gap: 10px;
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,.62);
+  padding: 12px;
+}
+.avatar-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.detail-avatar {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 8px;
+}
+.avatar-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,.55);
+  color: var(--text-secondary);
+  font-weight: 900;
+}
+.dex-number { font-size: 12px; color: var(--text-secondary); font-weight: 900; text-align: center; }
+.chip-row { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; }
+.type-chip, .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 7px;
+  min-width: 0;
+}
+.type-icon, .ability-icon, .skill-icon, .magic-icon { width: 20px; height: 20px; object-fit: contain; flex: 0 0 auto; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+.field { min-width: 0; }
+.field.full { grid-column: 1 / -1; }
+.field label, .section-label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 5px;
+}
+.ability-box {
+  display: grid;
+  grid-template-columns: 36px minmax(0,1fr);
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  padding: 9px;
+}
+.ability-box.no-icon { grid-template-columns: minmax(0,1fr); }
+.ability-icon { width: 36px; height: 36px; border-radius: var(--r-sm); background: var(--bg-card); border: 1px solid var(--border); padding: 2px; }
+.ability-name { font-size: 13px; font-weight: 900; color: var(--text-primary); }
+.ability-effect { margin-top: 3px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+.stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; }
+.stat {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-input);
+  padding: 7px 9px;
+}
+.stat-name { font-size: 11px; color: var(--text-secondary); font-weight: 900; min-width: 0; }
+.stat-value { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 900; }
+.nature-up { color: var(--heal-green); font-size: 12px; }
+.nature-down { color: var(--dmg-red); font-size: 12px; }
+.iv-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 7px; }
+.iv-grid label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-input);
+  padding: 8px;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+.skill-selects { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
+.move-grid { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 8px; margin-top: 8px; }
+.move-card {
+  min-width: 0;
+  min-height: 76px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 8px 6px;
+}
+.move-card:hover { border-color: var(--primary); }
+.move-card.empty-move { color: var(--text-muted); cursor: default; }
+.move-card .skill-icon { width: 34px; height: 34px; }
+.move-name { width: 100%; font-size: 10px; font-weight: 900; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skill-row { display: flex; flex-wrap: wrap; gap: 5px; }
+.skill-chip {
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 900;
+}
+.actions { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  background: rgba(37,29,22,.42);
+  padding: 18px;
+}
+.modal-backdrop.hidden { display: none; }
+.modal {
+  width: min(1120px, 100%);
+  max-height: min(86vh, 820px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-page);
+  box-shadow: var(--shadow-lg);
+}
+.modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,.75);
+}
+.modal-title { font-weight: 900; color: var(--text-primary); }
+.modal-body { min-height: 0; overflow: auto; padding: 12px; }
+.pokemon-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px,1fr)); gap: 8px; margin-top: 10px; }
+.pokemon-row {
+  display: grid;
+  grid-template-columns: 46px minmax(0,1fr);
+  gap: 8px;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 8px;
+  text-align: left;
+}
+.pokemon-row:hover { border-color: var(--primary); }
+.pokemon-avatar { width: 46px; height: 46px; padding: 2px; }
+.team-modal-grid { display: grid; grid-template-columns: minmax(0,1fr) 330px; gap: 12px; }
+.team-slots { display: grid; grid-template-columns: repeat(6, minmax(0,1fr)); gap: 8px; margin-bottom: 10px; }
+.team-slot {
+  min-width: 0;
+  min-height: 100px;
+  position: relative;
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,.72);
+  cursor: pointer;
+  padding: 8px 6px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+}
+.team-slot.active { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(245,166,35,.13); }
+.team-slot .remove-slot {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(58,58,58,.82);
+  color: white;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+.team-avatar { width: 52px; height: 52px; padding: 2px; }
+.slot-name { width: 100%; font-size: 10px; font-weight: 900; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-warehouse { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px,1fr)); gap: 8px; }
+.team-pet {
+  min-width: 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  cursor: pointer;
+  font-family: inherit;
+  padding: 8px 6px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+.team-pet.in-team { border-color: var(--primary); background: #fff8e8; }
+.team-side {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border: 2px solid var(--border);
+  border-radius: var(--r-lg);
+  background: rgba(255,255,255,.68);
+  padding: 12px;
+}
+.magic-options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.magic-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg-input);
+  padding: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 900;
+}
+.magic-option input { margin: 0; }
+.focus-box {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  padding: 10px;
+}
+.focus-head { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 8px; align-items: center; }
+.focus-name { font-size: 14px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.focus-meta { color: var(--text-secondary); font-size: 11px; margin-top: 3px; }
+.skill-tip {
+  position: fixed;
+  z-index: 500;
+  width: min(300px, calc(100vw - 24px));
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  background: #fffdf9;
+  box-shadow: var(--shadow-lg);
+  padding: 10px;
+  color: var(--text-primary);
+}
+.skill-tip.hidden { display: none; }
+.tip-head { display: grid; grid-template-columns: 38px minmax(0,1fr); gap: 8px; align-items: center; }
+.tip-title { font-size: 13px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tip-meta { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.tip-desc { margin-top: 8px; color: var(--text-secondary); font-size: 11px; line-height: 1.55; }
+@media (max-width: 1080px) {
+  body { height: auto; overflow: auto; }
+  .page-shell { height: auto; min-height: 100vh; }
+  .storage-layout { grid-template-columns: 1fr; }
+  .detail-card { grid-template-columns: 1fr; }
+  .portrait-panel { position: static; }
+  .team-modal-grid { grid-template-columns: 1fr; }
+  .team-slots { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 720px) {
+  .form-grid, .stats-grid, .iv-grid, .skill-selects, .move-grid, .magic-options { grid-template-columns: 1fr; }
+  .team-slots { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .storage-layout { gap: 10px; }
+}
 </style>
 </head>
 <body>
@@ -37,97 +409,773 @@
     </nav>
   </header>
   <main class="page-main">
-    <div class="toolbar">
-      <input id="q" class="roco-input" placeholder="搜索仓库精灵、技能或来源队伍" autocomplete="off">
-      <button class="roco-btn" onclick="importFromTeams()">从已保存队伍同步</button>
-      <button class="roco-btn" onclick="exportStorage()">导出仓库</button>
+    <div class="storage-layout">
+      <aside class="panel">
+        <div class="panel-head">
+          <div class="panel-title">精灵仓库</div>
+          <div class="head-actions">
+            <button class="small-btn" type="button" onclick="startNewSpirit()">新建精灵</button>
+            <button class="primary-btn" type="button" onclick="openTeamModal()">新建队伍</button>
+          </div>
+        </div>
+        <div class="search-wrap">
+          <input id="list-q" class="roco-input" placeholder="搜索精灵" autocomplete="off">
+        </div>
+        <div class="panel-body">
+          <div id="spirit-list" class="spirit-list"></div>
+        </div>
+      </aside>
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title" id="detail-title">精灵详情</div>
+          <button class="small-btn" type="button" onclick="location.href='/simulator'">打开队伍页</button>
+        </div>
+        <div id="detail-pane" class="detail-pane"></div>
+      </section>
     </div>
-    <section id="grid" class="storage-grid"></section>
   </main>
 </div>
+
+<div id="pokemon-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">选择精灵</div>
+      <button class="icon-btn" type="button" onclick="closePokemonModal()">关闭</button>
+    </div>
+    <div class="modal-body">
+      <input id="pokemon-q" class="roco-input" placeholder="搜索名称或系别" autocomplete="off">
+      <div id="pokemon-list" class="pokemon-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="team-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">新建队伍</div>
+      <button class="icon-btn" type="button" onclick="closeTeamModal()">关闭</button>
+    </div>
+    <div id="team-modal-body" class="modal-body"></div>
+  </div>
+</div>
+
+<div id="skill-tip" class="skill-tip hidden"></div>
+
 <script>
-const STORAGE_KEY = 'nrc_spirit_storage';
-const TEAM_KEY = 'nrc_teams';
-let presets = [];
-function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-function load(){
-  try { presets = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
-  catch { presets = []; }
-  render();
+const STORAGE_KEY = 'roco_spirit_storage_v2';
+const TEAM_KEY = 'roco_user_teams_v2';
+const LEGACY_STORAGE_KEY = 'nrc_spirit_storage';
+const TYPES = ['普通','草','火','水','光','地','冰','龙','电','毒','虫','武','翼','萌','幽','恶','机械','幻','首领'];
+const ALLOWED_MAGIC = new Set(['强化术', '进化之力']);
+const IV_LABELS = [
+  ['hp','生命'], ['atk','物攻'], ['def','物防'],
+  ['spatk','魔攻'], ['spdef','魔防'], ['speed','速度'],
+];
+const STAT_LABELS = [
+  ['hp','生命','base_hp',''],
+  ['atk','物攻','base_atk','atk'],
+  ['def','物防','base_def','defense'],
+  ['spatk','魔攻','base_spatk','sp_atk'],
+  ['spdef','魔防','base_spdef','sp_defense'],
+  ['speed','速度','base_speed','speed'],
+];
+let allPokemon = [];
+let allNatures = [];
+let spirits = [];
+let teams = [];
+let magicOptions = [];
+let selectedSpiritId = '';
+let draft = emptySpiritDraft();
+let currentSkills = [];
+let teamDraft = null;
+let teamFocusId = '';
+
+function esc(v){ return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function loadJson(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || '') || fallback; } catch { return fallback; } }
+function saveJson(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+function nowId(prefix){ return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+function clone(value){ return JSON.parse(JSON.stringify(value || null)); }
+function elementIcon(name){ return name ? `/skill-meta-icons/elements/${encodeURIComponent(name)}.png` : ''; }
+function bloodlineIcon(name){ return name === '首领' ? '/lineup-icons/%E9%A6%96%E9%A2%86%E8%A1%80%E8%84%89.svg' : elementIcon(name); }
+function magicLabel(value){ return value === '强化术' ? '愿力冲击' : (value || '未配置'); }
+function pokemonByName(name){ return allPokemon.find(p => p.name === name) || null; }
+function currentPokemon(){ return pokemonByName(draft.name) || null; }
+function defaultNature(){ return allNatures.some(n => n.name === '坦率') ? '坦率' : ((allNatures[0] || {}).name || '坦率'); }
+function firstElement(value){ return (value || '').split(/[,，、/]/).map(s => s.trim()).filter(Boolean)[0] || ''; }
+function typeIconsHtml(pokemon){
+  return (pokemon?.element_icons || []).map(icon => `<img class="type-icon" src="${esc(icon.icon_url)}" alt="${esc(icon.name)}">`).join('');
 }
-function save(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+function typeChipsHtml(pokemon){
+  if(!pokemon?.element) return '';
+  return `<span class="type-chip">${typeIconsHtml(pokemon)}${esc(pokemon.element)}</span>`;
 }
-function keyOf(p){ return `${p.name}|${(p.skills||[]).join(',')}|${p.ability||''}|${p.nature||''}`; }
-function importFromTeams(){
-  let teams = [];
-  try { teams = JSON.parse(localStorage.getItem(TEAM_KEY) || '[]'); } catch { teams = []; }
-  const seen = new Set(presets.map(keyOf));
-  teams.forEach(team => {
-    (team.pokemon || []).forEach(p => {
-      if(!p || !p.name) return;
-      const item = {
-        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        source: team.name || '队伍',
-        name: p.name,
-        element: p.element || '',
-        ability: p.ability || '',
-        nature: p.nature || '坦率',
-        iv_config: p.iv_config || null,
-        skills: Array.isArray(p.skills) ? p.skills : [],
-      };
-      const key = keyOf(item);
-      if(!seen.has(key)){
-        presets.push(item);
-        seen.add(key);
-      }
-    });
+function bloodlineChipHtml(value){
+  if(!value) return '<span class="pill">血脉未定</span>';
+  const icon = bloodlineIcon(value);
+  return `<span class="type-chip">${icon ? `<img class="type-icon" src="${esc(icon)}" alt="">` : ''}血脉 ${esc(value)}</span>`;
+}
+function emptyIvConfig(){ return { hp:0, atk:0, def:0, spatk:0, spdef:0, speed:0 }; }
+function emptySpiritDraft(){
+  return {
+    id: '',
+    name: '',
+    nickname: '',
+    icon_url: '',
+    element: '',
+    element_icons: [],
+    ability: '',
+    ability_effect: '',
+    ability_icon_url: '',
+    nature: '坦率',
+    bloodline: '',
+    iv_config: emptyIvConfig(),
+    iv_names: [],
+    skills: [],
+    skill_details: [],
+  };
+}
+
+async function init(){
+  const [pokemonRes, natureRes, lineupRes] = await Promise.all([
+    fetch('/api/pokemon/list?q='),
+    fetch('/api/nature/list'),
+    fetch('/api/lineups/pvp?limit=1'),
+  ]);
+  allPokemon = await pokemonRes.json();
+  allNatures = await natureRes.json();
+  const lineupData = await lineupRes.json();
+  magicOptions = normalizeMagicOptions(lineupData.magic_icons || []);
+  loadLocalData();
+  document.getElementById('list-q').addEventListener('input', renderSpiritList);
+  document.getElementById('pokemon-q').addEventListener('input', renderPokemonModalList);
+  if(spirits.length) await selectSpirit(spirits[0].id);
+  else await startNewSpirit();
+  renderSpiritList();
+}
+
+function normalizeMagicOptions(rows){
+  const map = new Map();
+  rows.forEach(row => {
+    if(ALLOWED_MAGIC.has(row.name)) {
+      map.set(row.name, { name: row.name, label: row.label || magicLabel(row.name), icon_url: row.local_url || row.icon_url || '' });
+    }
   });
-  save();
-  render();
+  if(!map.has('强化术')) map.set('强化术', { name: '强化术', label: '愿力冲击', icon_url: '/lineup-icons/%E5%BC%BA%E5%8C%96%E6%9C%AF.png' });
+  if(!map.has('进化之力')) map.set('进化之力', { name: '进化之力', label: '进化之力', icon_url: '/lineup-icons/%E8%BF%9B%E5%8C%96%E4%B9%8B%E5%8A%9B.png' });
+  return [...map.values()];
 }
-function removePreset(id){
-  presets = presets.filter(p => p.id !== id);
-  save();
-  render();
+
+function loadLocalData(){
+  spirits = loadJson(STORAGE_KEY, []);
+  if(!spirits.length){
+    const legacy = loadJson(LEGACY_STORAGE_KEY, []);
+    spirits = legacy.map(item => ({
+      ...emptySpiritDraft(),
+      id: item.id || nowId('sp'),
+      name: item.name,
+      nickname: item.name,
+      element: item.element || '',
+      ability: item.ability || '',
+      nature: item.nature || defaultNature(),
+      iv_config: item.iv_config || emptyIvConfig(),
+      iv_names: ivNames(item.iv_config || {}),
+      skills: item.skills || [],
+      skill_details: (item.skills || []).map(name => ({ name })),
+    })).filter(item => item.name);
+    if(spirits.length) saveJson(STORAGE_KEY, spirits);
+  }
+  teams = loadJson(TEAM_KEY, []);
+  const cleaned = teams.filter(team => ALLOWED_MAGIC.has(team.magic) && (team.members || []).length === 6 && (team.members || []).every(member => member.icon_url));
+  if(cleaned.length !== teams.length) {
+    teams = cleaned;
+    saveJson(TEAM_KEY, teams);
+  }
 }
-function exportStorage(){
-  const blob = new Blob([JSON.stringify({spirits: presets}, null, 2)], {type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'nrc_spirit_storage.json';
-  a.click();
-  URL.revokeObjectURL(url);
+
+function ivNames(config){
+  return IV_LABELS.filter(([key]) => Number((config || {})[key] || 0) === 60).map(([,label]) => label);
 }
-function filtered(){
-  const q = document.getElementById('q').value.trim();
-  if(!q) return presets;
-  return presets.filter(p => [p.name,p.element,p.ability,p.source,...(p.skills||[])].some(v => String(v||'').includes(q)));
-}
-function render(){
-  const rows = filtered();
-  const grid = document.getElementById('grid');
+
+function renderSpiritList(){
+  const q = document.getElementById('list-q').value.trim().toLowerCase();
+  const rows = spirits.filter(s => [s.name, s.nickname, s.element, s.ability, s.bloodline, s.nature, ...(s.skills || [])].join(' ').toLowerCase().includes(q));
+  const wrap = document.getElementById('spirit-list');
   if(!rows.length){
-    grid.innerHTML = '<div class="empty">仓库还是空的。先在队伍页保存队伍，再点“从已保存队伍同步”。</div>';
+    wrap.innerHTML = '<div class="empty">暂无仓库精灵</div>';
     return;
   }
-  grid.innerHTML = rows.map(p => `
-    <article class="preset-card">
-      <div class="preset-head">
-        <div>
-          <div class="preset-name">${esc(p.name)}</div>
-          <div class="preset-meta">${esc(p.element || '未知')} · ${esc(p.nature || '坦率')} · ${esc(p.source || '仓库')}</div>
-          <div class="preset-meta">特性：${esc(p.ability || '未配置')}</div>
-        </div>
-        <button class="small-btn" onclick="removePreset('${esc(p.id)}')">删除</button>
+  wrap.innerHTML = rows.map(s => `
+    <button class="spirit-row ${s.id === selectedSpiritId ? 'active' : ''}" type="button" data-spirit-id="${esc(s.id)}">
+      <img class="row-avatar" src="${esc(s.icon_url || '')}" alt="${esc(s.name)}">
+      <div>
+        <div class="row-name">${esc(s.nickname || s.name)}</div>
+        <div class="row-meta">${esc(s.name)} · ${esc(s.nature || defaultNature())} · 血脉 ${esc(s.bloodline || '未定')}</div>
       </div>
-      <div class="skill-list">${(p.skills||[]).map(s => `<span class="skill-chip">${esc(s)}</span>`).join('') || '<span class="skill-chip">未配置技能</span>'}</div>
-    </article>
+    </button>
+  `).join('');
+  wrap.querySelectorAll('[data-spirit-id]').forEach(btn => {
+    btn.addEventListener('click', () => selectSpirit(btn.dataset.spiritId));
+  });
+}
+
+async function selectSpirit(id){
+  const item = spirits.find(s => s.id === id);
+  if(!item) return;
+  selectedSpiritId = id;
+  draft = normalizeStoredSpirit(item);
+  await loadSkillsFor(draft.name, draft.skills || []);
+  pruneUnavailableSkills();
+  renderSpiritList();
+  renderDetail();
+}
+
+async function startNewSpirit(){
+  selectedSpiritId = '';
+  draft = emptySpiritDraft();
+  draft.nature = defaultNature();
+  currentSkills = [];
+  renderSpiritList();
+  renderDetail();
+}
+
+function normalizeStoredSpirit(item){
+  const p = pokemonByName(item.name) || {};
+  return {
+    ...emptySpiritDraft(),
+    ...clone(item),
+    icon_url: item.icon_url || p.icon_url || '',
+    element: item.element || p.element || '',
+    element_icons: item.element_icons || p.element_icons || [],
+    ability: item.ability || p.ability || '',
+    ability_effect: item.ability_effect || p.ability_effect || '',
+    ability_icon_url: item.ability_icon_url || p.ability_icon_url || '',
+    nature: item.nature || defaultNature(),
+    iv_config: { ...emptyIvConfig(), ...(item.iv_config || {}) },
+    skills: (item.skills || []).slice(0, 4),
+    skill_details: item.skill_details || [],
+  };
+}
+
+function renderDetail(){
+  const p = currentPokemon();
+  document.getElementById('detail-title').textContent = selectedSpiritId ? '精灵详情' : '新建精灵';
+  const pane = document.getElementById('detail-pane');
+  pane.innerHTML = `
+    <form class="detail-card" onsubmit="event.preventDefault(); saveSpirit();">
+      <aside class="portrait-panel">
+        <button class="avatar-button" type="button" onclick="openPokemonModal()">
+          ${p ? `<img class="detail-avatar" src="${esc(p.icon_url || draft.icon_url || '')}" alt="${esc(p.name)}">` : '<div class="avatar-placeholder">选择精灵</div>'}
+        </button>
+        <div class="dex-number">${esc(p?.number || '')}</div>
+        <div class="chip-row">
+          ${typeChipsHtml(p)}
+          ${bloodlineChipHtml(draft.bloodline)}
+        </div>
+      </aside>
+      <section class="form-grid">
+        <div class="field">
+          <label>精灵名字</label>
+          <input id="draft-nickname" class="roco-input" value="${esc(draft.nickname || '')}" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>精灵样子</label>
+          <button class="small-btn" type="button" onclick="openPokemonModal()">${esc(p?.name || '选择精灵')}</button>
+        </div>
+        <div class="field">
+          <label>性格</label>
+          <select id="draft-nature" class="roco-select" onchange="onNatureChange()">
+            ${allNatures.map(n => `<option value="${esc(n.name)}" ${n.name === draft.nature ? 'selected' : ''}>${esc(n.name)}${n.is_neutral ? '' : '（有修正）'}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>血脉</label>
+          <select id="draft-bloodline" class="roco-select" onchange="onBloodlineChange()" ${p ? '' : 'disabled'}>
+            ${TYPES.map(t => `<option value="${esc(t)}" ${t === draft.bloodline ? 'selected' : ''}>${esc(t)}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field full">
+          <label>特性</label>
+          ${abilityHtml(p)}
+        </div>
+        <div class="field full">
+          <div class="section-label">种族值</div>
+          <div class="stats-grid">${statsHtml(p)}</div>
+        </div>
+        <div class="field full">
+          <div class="section-label">个体值</div>
+          <div class="iv-grid">${ivHtml()}</div>
+        </div>
+        <div class="field full">
+          <div class="section-label">技能配招</div>
+          <div class="skill-selects">${skillSelectsHtml(p)}</div>
+          <div class="move-grid">${moveCardsHtml()}</div>
+        </div>
+        <div class="actions">
+          ${selectedSpiritId ? '<button class="small-btn" type="button" onclick="deleteSpirit()">删除精灵</button>' : ''}
+          <button class="primary-btn" type="submit" ${p ? '' : 'disabled'}>保存精灵</button>
+        </div>
+      </section>
+    </form>
+  `;
+  applySkillSelectValues();
+}
+
+function abilityHtml(p){
+  if(!p) return '<div class="ability-box no-icon"><div><div class="ability-name">待选择</div></div></div>';
+  const icon = p.ability_icon_url || draft.ability_icon_url || '';
+  return `
+    <div class="ability-box ${icon ? '' : 'no-icon'}">
+      ${icon ? `<img class="ability-icon" src="${esc(icon)}" alt="">` : ''}
+      <div>
+        <div class="ability-name">${esc(p.ability || draft.ability || '未记录特性')}</div>
+        <div class="ability-effect">${esc(p.ability_effect || draft.ability_effect || '未记录效果')}</div>
+      </div>
+    </div>
+  `;
+}
+
+function natureBonus(statKey){
+  if(!statKey) return 0;
+  const nature = allNatures.find(n => n.name === draft.nature);
+  return Number((nature?.bonuses || {})[statKey] || 0);
+}
+
+function statsHtml(p){
+  if(!p) return STAT_LABELS.map(([,label]) => `<div class="stat"><span class="stat-name">${esc(label)}</span><span class="stat-value">-</span></div>`).join('');
+  return STAT_LABELS.map(([,label,baseKey,natureKey]) => {
+    const bonus = natureBonus(natureKey);
+    const arrow = bonus > 0 ? '<span class="nature-up">↑</span>' : (bonus < 0 ? '<span class="nature-down">↓</span>' : '');
+    return `<div class="stat"><span class="stat-name">${esc(label)}</span><span class="stat-value">${Math.round(Number(p[baseKey] || 0))}${arrow}</span></div>`;
+  }).join('');
+}
+
+function ivHtml(){
+  const iv = draft.iv_config || emptyIvConfig();
+  return IV_LABELS.map(([key,label]) => `
+    <label><input type="checkbox" data-iv="${esc(key)}" ${Number(iv[key] || 0) === 60 ? 'checked' : ''} onchange="onIvChange()"> ${esc(label)}</label>
   `).join('');
 }
-document.getElementById('q').addEventListener('input', render);
-load();
+
+function availableSkills(){
+  const seen = new Set();
+  return currentSkills.filter(skill => {
+    if(!skill?.name || seen.has(skill.name)) return false;
+    const isBloodlineSkill = String(skill.learn_group || '').includes('血脉');
+    if(isBloodlineSkill && draft.bloodline === '首领') return false;
+    if(isBloodlineSkill && draft.bloodline && skill.element && skill.element !== draft.bloodline) return false;
+    seen.add(skill.name);
+    return true;
+  });
+}
+
+function skillSelectsHtml(p){
+  const skills = availableSkills();
+  const options = ['<option value="">未选择</option>', ...skills.map(skill => {
+    const level = skill.learn_level ? ` Lv.${skill.learn_level}` : '';
+    const meta = [skill.element, skill.learn_group].filter(Boolean).join(' · ');
+    return `<option value="${esc(skill.name)}">${esc(skill.name)}${meta ? ` · ${esc(meta)}` : ''}${esc(level)}</option>`;
+  })].join('');
+  return [0,1,2,3].map(i => `
+    <select id="draft-skill-${i}" class="roco-select" onchange="onSkillChange()" ${p ? '' : 'disabled'}>
+      ${options}
+    </select>
+  `).join('');
+}
+
+function moveCardsHtml(){
+  return [0,1,2,3].map(i => {
+    const name = draft.skills[i] || '';
+    const skill = skillByName(name);
+    if(!skill) return '<button class="move-card empty-move" type="button" disabled><span class="move-name">未配置</span></button>';
+    return `
+      <button class="move-card" type="button" data-skill-name="${esc(skill.name)}">
+        ${skill.icon_url ? `<img class="skill-icon" src="${esc(skill.icon_url)}" alt="">` : ''}
+        <span class="move-name">${esc(skill.name)}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+function applySkillSelectValues(){
+  for(let i = 0; i < 4; i++){
+    const el = document.getElementById(`draft-skill-${i}`);
+    if(el) el.value = draft.skills[i] || '';
+  }
+}
+
+async function loadSkillsFor(name, chosen = []){
+  if(!name) {
+    currentSkills = [];
+    return;
+  }
+  const res = await fetch(`/api/pokemon/skills?name=${encodeURIComponent(name)}`);
+  currentSkills = await res.json();
+  const known = new Set(currentSkills.map(skill => skill.name));
+  chosen.filter(Boolean).forEach(name => {
+    if(!known.has(name)) currentSkills.push({ name, learn_group: '已保存', learn_level: '' });
+  });
+}
+
+function pruneUnavailableSkills(){
+  const allowed = new Set(availableSkills().map(skill => skill.name));
+  draft.skills = (draft.skills || []).filter(name => allowed.has(name)).slice(0, 4);
+}
+
+function syncDraftFromForm(){
+  const p = currentPokemon();
+  const nickname = document.getElementById('draft-nickname');
+  const nature = document.getElementById('draft-nature');
+  const bloodline = document.getElementById('draft-bloodline');
+  if(nickname) draft.nickname = nickname.value.trim();
+  if(nature) draft.nature = nature.value || defaultNature();
+  if(bloodline) draft.bloodline = bloodline.value || '';
+  const iv = emptyIvConfig();
+  document.querySelectorAll('[data-iv]').forEach(cb => {
+    iv[cb.dataset.iv] = cb.checked ? 60 : 0;
+  });
+  draft.iv_config = iv;
+  draft.iv_names = ivNames(iv);
+  draft.skills = [...new Set([0,1,2,3].map(i => document.getElementById(`draft-skill-${i}`)?.value || '').filter(Boolean))].slice(0, 4);
+  if(p) {
+    draft.name = p.name;
+    draft.icon_url = p.icon_url || '';
+    draft.element = p.element || '';
+    draft.element_icons = p.element_icons || [];
+    draft.ability = p.ability || '';
+    draft.ability_effect = p.ability_effect || '';
+    draft.ability_icon_url = p.ability_icon_url || '';
+  }
+}
+
+function onNatureChange(){
+  syncDraftFromForm();
+  renderDetail();
+  applySkillSelectValues();
+}
+
+function onIvChange(){
+  const checked = [...document.querySelectorAll('[data-iv]')].filter(cb => cb.checked);
+  if(checked.length > 3) checked[checked.length - 1].checked = false;
+  syncDraftFromForm();
+}
+
+function onSkillChange(){
+  syncDraftFromForm();
+  document.querySelector('.move-grid').innerHTML = moveCardsHtml();
+}
+
+function onBloodlineChange(){
+  syncDraftFromForm();
+  pruneUnavailableSkills();
+  renderDetail();
+  applySkillSelectValues();
+}
+
+function skillByName(name){
+  return currentSkills.find(skill => skill.name === name) || (draft.skill_details || []).find(skill => skill.name === name) || null;
+}
+
+function skillDetailsByNames(names){
+  return names.map(name => skillByName(name) || { name }).filter(skill => skill.name);
+}
+
+async function choosePokemon(name){
+  syncDraftFromForm();
+  const p = pokemonByName(name);
+  if(!p) return;
+  draft.name = p.name;
+  draft.nickname = draft.nickname || p.name;
+  draft.icon_url = p.icon_url || '';
+  draft.element = p.element || '';
+  draft.element_icons = p.element_icons || [];
+  draft.ability = p.ability || '';
+  draft.ability_effect = p.ability_effect || '';
+  draft.ability_icon_url = p.ability_icon_url || '';
+  draft.bloodline = p.is_leader ? '首领' : (firstElement(p.element) || '普通');
+  draft.skills = [];
+  await loadSkillsFor(p.name);
+  closePokemonModal();
+  renderDetail();
+}
+
+function saveSpirit(){
+  syncDraftFromForm();
+  const p = currentPokemon();
+  if(!p) return;
+  const id = selectedSpiritId || draft.id || nowId('sp');
+  const payload = {
+    ...draft,
+    id,
+    nickname: draft.nickname || p.name,
+    skill_details: skillDetailsByNames(draft.skills),
+    updated_at: new Date().toISOString(),
+  };
+  const idx = spirits.findIndex(s => s.id === id);
+  if(idx >= 0) spirits[idx] = payload;
+  else spirits.unshift(payload);
+  selectedSpiritId = id;
+  draft = normalizeStoredSpirit(payload);
+  saveJson(STORAGE_KEY, spirits);
+  renderSpiritList();
+  renderDetail();
+}
+
+async function deleteSpirit(){
+  if(!selectedSpiritId) return;
+  if(!confirm('删除这只精灵？')) return;
+  const deletedId = selectedSpiritId;
+  spirits = spirits.filter(s => s.id !== deletedId);
+  teams = teams.filter(team => !(team.spirit_ids || []).includes(deletedId));
+  saveJson(STORAGE_KEY, spirits);
+  saveJson(TEAM_KEY, teams);
+  if(spirits.length) await selectSpirit(spirits[0].id);
+  else await startNewSpirit();
+}
+
+function openPokemonModal(){
+  syncDraftFromForm();
+  document.getElementById('pokemon-modal').classList.remove('hidden');
+  document.getElementById('pokemon-q').value = '';
+  renderPokemonModalList();
+}
+
+function closePokemonModal(){
+  document.getElementById('pokemon-modal').classList.add('hidden');
+}
+
+function renderPokemonModalList(){
+  const q = document.getElementById('pokemon-q').value.trim().toLowerCase();
+  const rows = allPokemon.filter(p => [p.name, p.number, p.element, p.ability].join(' ').toLowerCase().includes(q)).slice(0, 240);
+  const wrap = document.getElementById('pokemon-list');
+  wrap.innerHTML = rows.map(p => `
+    <button class="pokemon-row" type="button" data-pokemon-name="${esc(p.name)}">
+      <img class="pokemon-avatar" src="${esc(p.icon_url || '')}" alt="${esc(p.name)}">
+      <div>
+        <div class="row-name">${esc(p.name)}</div>
+        <div class="row-meta">${esc(p.number || '')} · ${esc(p.element || '')}</div>
+      </div>
+    </button>
+  `).join('') || '<div class="empty">没有匹配的精灵</div>';
+  wrap.querySelectorAll('[data-pokemon-name]').forEach(btn => {
+    btn.addEventListener('click', () => choosePokemon(btn.dataset.pokemonName));
+  });
+}
+
+function openTeamModal(){
+  syncDraftFromForm();
+  teamDraft = {
+    id: '',
+    name: '',
+    description: '',
+    magic: '强化术',
+    spirit_ids: [],
+  };
+  teamFocusId = spirits[0]?.id || '';
+  document.getElementById('team-modal').classList.remove('hidden');
+  renderTeamModal();
+}
+
+function closeTeamModal(){
+  document.getElementById('team-modal').classList.add('hidden');
+}
+
+function renderTeamModal(){
+  const ids = teamDraft?.spirit_ids || [];
+  document.getElementById('team-modal-body').innerHTML = `
+    <div class="team-modal-grid">
+      <section>
+        <div class="team-slots">${[0,1,2,3,4,5].map(slotHtml).join('')}</div>
+        <div class="team-warehouse">${spirits.map(teamPetHtml).join('') || '<div class="empty">暂无仓库精灵</div>'}</div>
+      </section>
+      <aside class="team-side">
+        <div class="field">
+          <label>配队名字</label>
+          <input id="team-name" class="roco-input" value="${esc(teamDraft.name || '')}" autocomplete="off" onchange="syncTeamDraft()">
+        </div>
+        <div class="field">
+          <label>血脉魔法</label>
+          <div class="magic-options">${magicOptions.map(magicOptionHtml).join('')}</div>
+        </div>
+        <div class="field">
+          <label>描述</label>
+          <textarea id="team-desc" class="roco-textarea" onchange="syncTeamDraft()">${esc(teamDraft.description || '')}</textarea>
+        </div>
+        ${teamFocusHtml()}
+        <div class="actions">
+          <button class="small-btn" type="button" onclick="closeTeamModal()">取消</button>
+          <button class="primary-btn" type="button" onclick="saveTeam()" ${ids.length === 6 ? '' : 'disabled'}>保存并添加</button>
+        </div>
+      </aside>
+    </div>
+  `;
+  const body = document.getElementById('team-modal-body');
+  body.querySelectorAll('[data-add-spirit]').forEach(btn => btn.addEventListener('click', () => addSpiritToTeam(btn.dataset.addSpirit)));
+  body.querySelectorAll('[data-focus-spirit]').forEach(btn => btn.addEventListener('click', () => focusTeamSpirit(btn.dataset.focusSpirit)));
+  body.querySelectorAll('[data-remove-slot]').forEach(btn => btn.addEventListener('click', event => {
+    event.stopPropagation();
+    removeTeamSlot(Number(btn.dataset.removeSlot));
+  }));
+  body.querySelectorAll('input[name="team-magic"]').forEach(input => input.addEventListener('change', syncTeamDraft));
+}
+
+function slotHtml(i){
+  const id = teamDraft.spirit_ids[i] || '';
+  const s = spirits.find(item => item.id === id);
+  if(!s) return `<div class="team-slot" data-focus-spirit=""><span class="slot-name">${i + 1}</span></div>`;
+  return `
+    <div class="team-slot ${id === teamFocusId ? 'active' : ''}" data-focus-spirit="${esc(id)}">
+      <button class="remove-slot" type="button" data-remove-slot="${i}">×</button>
+      <img class="team-avatar" src="${esc(s.icon_url || '')}" alt="${esc(s.name)}">
+      <span class="slot-name">${esc(s.nickname || s.name)}</span>
+    </div>
+  `;
+}
+
+function teamPetHtml(s){
+  const inTeam = (teamDraft.spirit_ids || []).includes(s.id);
+  return `
+    <button class="team-pet ${inTeam ? 'in-team' : ''}" type="button" data-add-spirit="${esc(s.id)}">
+      <img class="team-avatar" src="${esc(s.icon_url || '')}" alt="${esc(s.name)}">
+      <span class="slot-name">${esc(s.nickname || s.name)}</span>
+      <span class="row-meta">${esc(s.name)}</span>
+    </button>
+  `;
+}
+
+function magicOptionHtml(m){
+  return `
+    <label class="magic-option">
+      <input type="radio" name="team-magic" value="${esc(m.name)}" ${m.name === teamDraft.magic ? 'checked' : ''}>
+      ${m.icon_url ? `<img class="magic-icon" src="${esc(m.icon_url)}" alt="">` : ''}
+      <span>${esc(m.label || magicLabel(m.name))}</span>
+    </label>
+  `;
+}
+
+function teamFocusHtml(){
+  const focus = spirits.find(s => s.id === teamFocusId) || spirits.find(s => (teamDraft.spirit_ids || []).includes(s.id));
+  if(!focus) return '<div class="focus-box"><div class="row-meta">未选择精灵</div></div>';
+  const p = pokemonByName(focus.name);
+  return `
+    <div class="focus-box">
+      <div class="focus-head">
+        <img class="team-avatar" src="${esc(focus.icon_url || '')}" alt="${esc(focus.name)}">
+        <div>
+          <div class="focus-name">${esc(focus.nickname || focus.name)}</div>
+          <div class="focus-meta">${esc(focus.name)} · ${esc(focus.nature || defaultNature())}</div>
+        </div>
+      </div>
+      <div class="chip-row" style="justify-content:flex-start;margin-top:8px;">
+        ${typeChipsHtml(p || focus)}
+        ${bloodlineChipHtml(focus.bloodline)}
+      </div>
+      <div class="skill-row" style="margin-top:8px;">${(focus.skills || []).map(name => `<span class="skill-chip">${esc(name)}</span>`).join('')}</div>
+    </div>
+  `;
+}
+
+function syncTeamDraft(){
+  if(!teamDraft) return;
+  const name = document.getElementById('team-name');
+  const desc = document.getElementById('team-desc');
+  const magic = document.querySelector('input[name="team-magic"]:checked');
+  if(name) teamDraft.name = name.value.trim();
+  if(desc) teamDraft.description = desc.value.trim();
+  if(magic) teamDraft.magic = magic.value;
+}
+
+function addSpiritToTeam(id){
+  syncTeamDraft();
+  if(!id) return;
+  teamFocusId = id;
+  if((teamDraft.spirit_ids || []).includes(id)) {
+    renderTeamModal();
+    return;
+  }
+  if(teamDraft.spirit_ids.length >= 6) return;
+  teamDraft.spirit_ids.push(id);
+  renderTeamModal();
+}
+
+function focusTeamSpirit(id){
+  syncTeamDraft();
+  if(id) teamFocusId = id;
+  renderTeamModal();
+}
+
+function removeTeamSlot(index){
+  syncTeamDraft();
+  teamDraft.spirit_ids.splice(index, 1);
+  teamFocusId = teamDraft.spirit_ids[index] || teamDraft.spirit_ids[index - 1] || spirits[0]?.id || '';
+  renderTeamModal();
+}
+
+function magicIconUrl(value){
+  return (magicOptions.find(m => m.name === value) || {}).icon_url || '';
+}
+
+function saveTeam(){
+  syncTeamDraft();
+  const ids = (teamDraft.spirit_ids || []).slice(0, 6);
+  const members = ids.map(id => spirits.find(s => s.id === id)).filter(Boolean);
+  if(members.length !== 6 || !ALLOWED_MAGIC.has(teamDraft.magic)) return;
+  const payload = {
+    id: nowId('team'),
+    name: teamDraft.name || `配队 ${teams.length + 1}`,
+    description: teamDraft.description || '',
+    magic: teamDraft.magic,
+    magic_label: magicLabel(teamDraft.magic),
+    magic_icon_url: magicIconUrl(teamDraft.magic),
+    source_type: 'user',
+    spirit_ids: ids,
+    members: members.map((member, idx) => ({ ...clone(member), slot: idx + 1 })),
+    updated_at: new Date().toLocaleDateString('zh-CN'),
+  };
+  teams.unshift(payload);
+  saveJson(TEAM_KEY, teams);
+  closeTeamModal();
+}
+
+function showSkillTip(name, anchor){
+  const skill = skillByName(name);
+  if(!skill) return;
+  const tip = document.getElementById('skill-tip');
+  tip.innerHTML = `
+    <div class="tip-head">
+      ${skill.icon_url ? `<img class="skill-icon" src="${esc(skill.icon_url)}" alt="">` : '<span></span>'}
+      <div>
+        <div class="tip-title">${esc(skill.name)}</div>
+        <div class="tip-meta">
+          ${skill.attribute_icon_url ? `<span class="type-chip"><img class="type-icon" src="${esc(skill.attribute_icon_url)}" alt="">${esc(skill.element || '')}</span>` : ''}
+          ${skill.category_icon_url ? `<span class="type-chip"><img class="type-icon" src="${esc(skill.category_icon_url)}" alt="">${esc(skill.category || '')}</span>` : ''}
+          ${skill.energy_cost ? `<span class="pill">能耗 ${esc(skill.energy_cost)}</span>` : ''}
+          ${skill.power ? `<span class="pill">威力 ${esc(skill.power)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="tip-desc">${esc(skill.description || '未记录描述')}</div>
+    ${(skill.learn_group || skill.learn_level) ? `<div class="tip-desc">${esc(skill.learn_group || '')}${skill.learn_level ? ` · Lv.${esc(skill.learn_level)}` : ''}</div>` : ''}
+  `;
+  const rect = anchor.getBoundingClientRect();
+  tip.classList.remove('hidden');
+  const top = Math.min(window.innerHeight - tip.offsetHeight - 10, rect.bottom + 8);
+  const left = Math.min(window.innerWidth - tip.offsetWidth - 10, Math.max(10, rect.left));
+  tip.style.top = `${Math.max(10, top)}px`;
+  tip.style.left = `${left}px`;
+}
+
+document.addEventListener('click', event => {
+  const move = event.target.closest('[data-skill-name]');
+  if(move) {
+    showSkillTip(move.dataset.skillName, move);
+    return;
+  }
+  if(!event.target.closest('.skill-tip')) document.getElementById('skill-tip').classList.add('hidden');
+});
+
+init().catch(err => {
+  document.querySelector('.page-main').innerHTML = `<div class="empty">仓库加载失败：${esc(err.message || err)}</div>`;
+});
 </script>
 </body>
 </html>

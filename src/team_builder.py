@@ -66,7 +66,8 @@ class TeamBuilder:
             ability = "未知"
             hp, atk, dfn, spatk, spdef, spd = 500.0, 350.0, 350.0, 350.0, 350.0, 350.0
 
-        type_enum = TeamBuilder.TYPE_MAP.get(ptype_str, Type.NORMAL)
+        primary_type = str(ptype_str or "").replace("，", ",").split(",")[0].strip()
+        type_enum = TeamBuilder.TYPE_MAP.get(primary_type, Type.NORMAL)
         skills = [get_skill(n) for n in skill_names]
 
         # 加载特性效果

@@ -40,6 +40,7 @@ _ABILITY_ICON_CACHE: Optional[dict[str, str]] = None
 _EGG_GROUPS_CACHE: Optional[dict] = None
 _EGG_MEASUREMENTS_CACHE: Optional[dict] = None
 _MECHANIC_ICON_CACHE: Optional[dict[str, str]] = None
+_PVP_LINEUPS_CACHE: Optional[dict] = None
 
 _MECHANIC_EXCLUDED_TITLES = {
     "传说印记",
@@ -951,6 +952,12 @@ session = BattleSession()
 # 精灵图标映射（名字 → /icons/NOxxx_名字.png）
 # ═══════════════════════════════════════
 _ICON_CACHE: dict = {}
+_ALLOWED_LINEUP_MAGIC = {"强化术", "进化之力"}
+
+
+def _lineup_magic_label(value: str) -> str:
+    value = (value or "").strip()
+    return "愿力冲击" if value == "强化术" else value
 
 def _build_icon_cache():
     global _ICON_CACHE
@@ -970,7 +977,136 @@ def _build_icon_cache():
 
 def _get_icon_url(name: str) -> str:
     _build_icon_cache()
-    return _ICON_CACHE.get(name, "")
+    if name in _ICON_CACHE:
+        return _ICON_CACHE[name]
+    base = re.split(r"[（(]", name or "", 1)[0].strip()
+    if base and base in _ICON_CACHE:
+        return _ICON_CACHE[base]
+    if base:
+        for key, url in _ICON_CACHE.items():
+            if key.startswith(base):
+                return url
+    return ""
+
+
+def _lineup_icon_url(filename: str) -> str:
+    filename = (filename or "").strip()
+    return f"/lineup-icons/{urllib.parse.quote(filename)}" if filename else ""
+
+
+def _pvp_lineups_data() -> dict:
+    """读取本地 PVP 阵容库。"""
+    global _PVP_LINEUPS_CACHE
+    if _PVP_LINEUPS_CACHE is not None:
+        return _PVP_LINEUPS_CACHE
+
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    path = os.path.join(root, "data", "pvp_lineups.json")
+    if not os.path.exists(path):
+        _PVP_LINEUPS_CACHE = {"ok": True, "lineups": [], "magic_icons": []}
+        return _PVP_LINEUPS_CACHE
+
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    data.setdefault("lineups", [])
+    data.setdefault("magic_icons", [])
+    _PVP_LINEUPS_CACHE = data
+    return _PVP_LINEUPS_CACHE
+
+
+def _pokemon_row_for_name(name: str):
+    from src.pokemon_db import _get_conn
+    conn = _get_conn()
+    c = conn.cursor()
+    c.execute("""
+        SELECT id, name, element, ability, base_total, spirit_no, evo_stage
+        FROM pokemon WHERE name = ?
+    """, (name,))
+    row = c.fetchone()
+    if row:
+        return row
+    base = re.split(r"[（(]", name or "", 1)[0].strip()
+    if base:
+        c.execute("""
+            SELECT id, name, element, ability, base_total, spirit_no, evo_stage
+            FROM pokemon WHERE name LIKE ?
+            ORDER BY CASE WHEN evo_stage LIKE '%最终%' THEN 0 ELSE 1 END, id
+            LIMIT 1
+        """, (f"{base}%",))
+        return c.fetchone()
+    return None
+
+
+def _lineup_skill_payload(name: str) -> dict:
+    from src.skill_db import _get_conn
+    if not name:
+        return {"name": ""}
+    conn = _get_conn()
+    c = conn.cursor()
+    c.execute("""
+        SELECT name, element, category, energy_cost, power, description
+        FROM skill WHERE name = ?
+    """, (name,))
+    row = c.fetchone()
+    if not row:
+        return {"name": name, "icon_url": _get_skill_icon_url(name)}
+    return {
+        "name": row["name"],
+        "element": row["element"],
+        "category": row["category"],
+        "energy_cost": row["energy_cost"],
+        "power": row["power"],
+        "description": row["description"] or "",
+        "icon_url": _get_skill_icon_url(row["name"]),
+        "attribute_icon_url": _get_skill_meta_icon_url("elements", row["element"]),
+        "category_icon_url": _get_skill_meta_icon_url("categories", row["category"]),
+        "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
+    }
+
+
+def _enrich_lineup_member(member: dict) -> dict:
+    item = dict(member)
+    row = _pokemon_row_for_name(item.get("name", ""))
+    if row:
+        ability_name, ability_effect = _split_ability_text(row["ability"])
+        meta = _get_spirit_icon_meta(row["name"])
+        number = _normalize_spirit_no(row["spirit_no"] or meta.get("number", ""))
+        item.update({
+            "dex_name": row["name"],
+            "number": number,
+            "element": row["element"],
+            "element_icons": _element_icon_payload(row["element"]),
+            "ability": ability_name,
+            "ability_effect": ability_effect,
+            "ability_icon_url": _get_ability_icon_url(ability_name),
+            "base_total": row["base_total"],
+            "is_leader": _is_leader_form(row["name"], row["evo_stage"]),
+            "icon_url": _get_icon_url(item.get("name", "")) or _get_icon_url(row["name"]) or meta.get("icon_url", ""),
+        })
+    else:
+        item.setdefault("element", "")
+        item.setdefault("element_icons", [])
+        item.setdefault("icon_url", _get_icon_url(item.get("name", "")))
+    item["skill_details"] = [_lineup_skill_payload(name) for name in item.get("skills", [])]
+    return item
+
+
+def _enrich_lineup(lineup: dict) -> dict:
+    item = dict(lineup)
+    item["magic_label"] = _lineup_magic_label(item.get("magic", item.get("magic_label", "")))
+    item["members"] = [_enrich_lineup_member(member) for member in lineup.get("members", [])]
+    return item
+
+
+def _displayable_lineup(lineup: dict) -> dict | None:
+    """阵容页只展示当前能完整复用的 PVP 配队。"""
+    if lineup.get("magic") not in _ALLOWED_LINEUP_MAGIC:
+        return None
+    item = _enrich_lineup(lineup)
+    members = item.get("members", [])
+    if len(members) != 6 or any(not member.get("icon_url") for member in members):
+        return None
+    return item
 
 
 def _normalize_spirit_no(value: str) -> str:
@@ -1865,7 +2001,7 @@ def _build_team_from_config(team_cfg: list, label: str):
 
         pokemon = Pokemon(
             name=pname,
-            pokemon_type=type_map.get(data["属性"], Type.NORMAL),
+            pokemon_type=type_map.get(str(data["属性"] or "").replace("，", ",").split(",")[0].strip(), Type.NORMAL),
             hp=stats["hp"],
             attack=stats["atk"],
             defense=stats["def"],
@@ -3053,6 +3189,71 @@ async def api_nature_list():
     return JSONResponse(result)
 
 
+@app.get("/api/lineups/pvp")
+async def api_pvp_lineups(q: str = "", magic: str = "", limit: int = 0):
+    """本地 PVP 阵容库，包含阵容配置和前端展示所需的本地图标。"""
+    _ensure_loaded()
+    data = _pvp_lineups_data()
+    raw_lineups = list(data.get("lineups", []))
+    lineups = [
+        item for item in (_displayable_lineup(row) for row in raw_lineups)
+        if item is not None
+    ]
+    displayable_count = len(lineups)
+
+    if magic:
+        lineups = [item for item in lineups if item.get("magic") == magic]
+
+    tokens = [token.casefold() for token in re.split(r"\s+", q.strip()) if token.strip()]
+    if tokens:
+        def searchable(item: dict) -> str:
+            parts = [
+                item.get("name", ""),
+                item.get("magic", ""),
+                item.get("magic_label", ""),
+                item.get("description", ""),
+                item.get("author", ""),
+            ]
+            for member in item.get("members", []):
+                parts.extend([
+                    member.get("name", ""),
+                    member.get("bloodline", ""),
+                    member.get("nature", ""),
+                    " ".join(member.get("iv_names", []) or []),
+                    " ".join(member.get("skills", []) or []),
+                ])
+            return " ".join(str(part or "") for part in parts).casefold()
+
+        lineups = [
+            item for item in lineups
+            if all(token in searchable(item) for token in tokens)
+        ]
+
+    if limit and limit > 0:
+        lineups = lineups[:min(limit, 300)]
+
+    magic_icons = []
+    for icon in data.get("magic_icons", []):
+        payload = dict(icon)
+        if payload.get("name") not in _ALLOWED_LINEUP_MAGIC:
+            continue
+        payload["label"] = _lineup_magic_label(payload.get("name", ""))
+        if not payload.get("local_url"):
+            payload["local_url"] = _lineup_icon_url(payload.get("filename", ""))
+        magic_icons.append(payload)
+
+    return JSONResponse({
+        "ok": True,
+        "source": data.get("source", ""),
+        "updated_at": data.get("updated_at", ""),
+        "total_count": len(lineups),
+        "all_count": displayable_count,
+        "raw_count": len(raw_lineups),
+        "magic_icons": magic_icons,
+        "lineups": lineups,
+    })
+
+
 # ═══════════════════════════════════════
 # 静态文件 & 路由
 # ═══════════════════════════════════════
@@ -3117,6 +3318,10 @@ if os.path.exists(SKILL_META_ICONS_DIR):
 ABILITY_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "ability_icons")
 if os.path.exists(ABILITY_ICONS_DIR):
     app.mount("/ability-icons", StaticFiles(directory=ABILITY_ICONS_DIR), name="ability-icons")
+
+LINEUP_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "lineup_icons")
+if os.path.exists(LINEUP_ICONS_DIR):
+    app.mount("/lineup-icons", StaticFiles(directory=LINEUP_ICONS_DIR), name="lineup-icons")
 
 EGG_GROUP_AVATARS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "egg_group_avatars")
 if os.path.exists(EGG_GROUP_AVATARS_DIR):
