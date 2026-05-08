@@ -2,8 +2,8 @@
 技能数据库 — 从 SQLite 加载技能，效果由 EffectTag 系统驱动
 
 加载优先级（高→低）:
-  1. effect_data.SKILL_EFFECTS          (手动精确配置，35 个)
-  2. skill_effects_generated.SKILL_EFFECTS_GENERATED  (自动转换，387 个)
+  1. effect_data.SKILL_EFFECTS          (手动精确配置)
+  2. skill_effects_generated.SKILL_EFFECTS_GENERATED  (描述批量转换)
   3. 空列表 (无效果，仅数值)
 """
 import os

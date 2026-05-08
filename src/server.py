@@ -2744,7 +2744,7 @@ async def api_skills_list(q: str = "", element: str = "", category: str = ""):
                s.icon_url, s.attribute_icon_url, s.category_icon_url, s.skill_group, s.wiki_url, s.source,
                COUNT(DISTINCT ps.pokemon_id) AS learners_count
         FROM skill s
-        LEFT JOIN pokemon_skill ps ON ps.skill_id = s.id
+        JOIN pokemon_skill ps ON ps.skill_id = s.id
         {where_sql}
         GROUP BY s.id
         ORDER BY s.element, s.energy_cost, s.name
