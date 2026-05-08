@@ -472,13 +472,26 @@ const IV_LABELS = [
   ['spatk','魔攻'], ['spdef','魔防'], ['speed','速度'],
 ];
 const STAT_LABELS = [
-  ['hp','生命','base_hp',''],
+  ['hp','生命','base_hp','hp'],
   ['atk','物攻','base_atk','atk'],
   ['def','物防','base_def','defense'],
   ['spatk','魔攻','base_spatk','sp_atk'],
   ['spdef','魔防','base_spdef','sp_defense'],
   ['speed','速度','base_speed','speed'],
 ];
+const NATURE_NAME_ALIASES = {
+  '实干': '逞强',
+  '孤僻': '稳重',
+  '淘气': '天真',
+  '无虑': '懒散',
+  '保守': '聪明',
+  '马虎': '偏执',
+  '沉着': '警惕',
+  '狂妄': '慎重',
+  '浮躁': '焦虑',
+  '认真': '热情',
+  '紧张': '急躁',
+};
 let allPokemon = [];
 let allNatures = [];
 let spirits = [];
@@ -501,6 +514,7 @@ function magicLabel(value){ return value === '强化术' ? '愿力冲击' : (val
 function pokemonByName(name){ return allPokemon.find(p => p.name === name) || null; }
 function currentPokemon(){ return pokemonByName(draft.name) || null; }
 function defaultNature(){ return allNatures.some(n => n.name === '坦率') ? '坦率' : ((allNatures[0] || {}).name || '坦率'); }
+function normalizeNatureName(name){ return NATURE_NAME_ALIASES[name] || name || defaultNature(); }
 function firstElement(value){ return (value || '').split(/[,，、/]/).map(s => s.trim()).filter(Boolean)[0] || ''; }
 function typeIconsHtml(pokemon){
   return (pokemon?.element_icons || []).map(icon => `<img class="type-icon" src="${esc(icon.icon_url)}" alt="${esc(icon.name)}">`).join('');
@@ -576,7 +590,7 @@ function loadLocalData(){
       nickname: item.name,
       element: item.element || '',
       ability: item.ability || '',
-      nature: item.nature || defaultNature(),
+      nature: normalizeNatureName(item.nature || defaultNature()),
       iv_config: item.iv_config || emptyIvConfig(),
       iv_names: ivNames(item.iv_config || {}),
       skills: item.skills || [],
@@ -649,7 +663,7 @@ function normalizeStoredSpirit(item){
     ability: item.ability || p.ability || '',
     ability_effect: item.ability_effect || p.ability_effect || '',
     ability_icon_url: item.ability_icon_url || p.ability_icon_url || '',
-    nature: item.nature || defaultNature(),
+    nature: normalizeNatureName(item.nature || defaultNature()),
     iv_config: { ...emptyIvConfig(), ...(item.iv_config || {}) },
     skills: (item.skills || []).slice(0, 4),
     skill_details: item.skill_details || [],

@@ -37,7 +37,7 @@ class TeamBuilder:
           skill_names: 技能名称列表
           iv_config: 个体值配置 {"hp":60,"atk":60,"spatk":0,"def":0,"spdef":0,"speed":60}
                      默认全 0
-          nature: 性格名称（25 种性格之一），默认"坦率"（无修正）
+          nature: 性格名称（30 种性格之一），默认"坦率"
         """
         data = get_pokemon(name)
         if data:

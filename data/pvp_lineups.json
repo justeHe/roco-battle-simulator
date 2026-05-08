@@ -285,7 +285,7 @@
           "name": "尖嘴狐仙",
           "card_name": "尖嘴狐仙",
           "bloodline": "萌",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -312,7 +312,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "萌",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "魔攻",
@@ -792,7 +792,7 @@
           "name": "蹦床松鼠",
           "card_name": "蹦床松鼠",
           "bloodline": "冰",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -819,7 +819,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "武",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -1024,7 +1024,7 @@
           "name": "红绒十字",
           "card_name": "红绒十字",
           "bloodline": "地",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -1299,7 +1299,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "首领",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -1833,7 +1833,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "首领",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -1914,7 +1914,7 @@
           "name": "抹茶布丁",
           "card_name": "抹茶布丁",
           "bloodline": "草",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -2448,7 +2448,7 @@
           "name": "尖嘴狐仙",
           "card_name": "尖嘴狐仙",
           "bloodline": "普通",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -3133,7 +3133,7 @@
           "name": "水灵",
           "card_name": "水灵",
           "bloodline": "首领",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -3257,7 +3257,7 @@
           "name": "贝古斯",
           "card_name": "贝古斯",
           "bloodline": "翼",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -3284,7 +3284,7 @@
           "name": "怖哭菇",
           "card_name": "怖哭菇",
           "bloodline": "电",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -3365,7 +3365,7 @@
           "name": "抹茶布丁",
           "card_name": "抹茶布丁",
           "bloodline": "草",
-          "nature": "天真",
+          "nature": "莽撞",
           "iv_names": [
             "生命",
             "魔攻",
@@ -3721,7 +3721,7 @@
           "name": "圆号鱼",
           "card_name": "圆号鱼",
           "bloodline": "水",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -5830,7 +5830,7 @@
           "name": "落陨星兔",
           "card_name": "落陨星兔",
           "bloodline": "幽",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -5954,7 +5954,7 @@
           "name": "古卷执政官",
           "card_name": "古卷执政官",
           "bloodline": "普通",
-          "nature": "孤僻",
+          "nature": "大胆",
           "iv_names": [
             "物攻",
             "魔攻",
@@ -6008,7 +6008,7 @@
           "name": "九幽菇",
           "card_name": "九幽菇",
           "bloodline": "草",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -6035,7 +6035,7 @@
           "name": "巨灵石",
           "card_name": "巨灵石",
           "bloodline": "地",
-          "nature": "马虎",
+          "nature": "偏执",
           "iv_names": [
             "生命",
             "魔攻",
@@ -6105,7 +6105,7 @@
           "name": "蹦床松鼠",
           "card_name": "蹦床松鼠",
           "bloodline": "普通",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物攻",
@@ -6186,7 +6186,7 @@
           "name": "鳗尾兽",
           "card_name": "鳗尾兽",
           "bloodline": "机械",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -6213,7 +6213,7 @@
           "name": "迷迷箱怪",
           "card_name": "迷迷箱怪",
           "bloodline": "光",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -6898,7 +6898,7 @@
           "name": "落陨星兔",
           "card_name": "落陨星兔",
           "bloodline": "幽",
-          "nature": "沉着",
+          "nature": "警惕",
           "iv_names": [
             "生命",
             "物防",
@@ -7405,7 +7405,7 @@
           "name": "晶石蜗（西瓜碧玺的样子）",
           "card_name": "晶石蜗",
           "bloodline": "草",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -7459,7 +7459,7 @@
           "name": "食尘短绒",
           "card_name": "食尘短绒",
           "bloodline": "地",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -7556,7 +7556,7 @@
           "name": "幻影灵菇",
           "card_name": "幻影灵菇",
           "bloodline": "武",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物攻",
@@ -7637,7 +7637,7 @@
           "name": "嗜波螺",
           "card_name": "嗜波螺",
           "bloodline": "电",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "魔攻",
@@ -8063,7 +8063,7 @@
           "name": "贝古斯",
           "card_name": "贝古斯",
           "bloodline": "草",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -8527,7 +8527,7 @@
           "name": "利灯鱼",
           "card_name": "利灯鱼",
           "bloodline": "电",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -8624,7 +8624,7 @@
           "name": "彩蝶鲨",
           "card_name": "彩蝶鲨",
           "bloodline": "首领",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -8705,7 +8705,7 @@
           "name": "食尘短绒",
           "card_name": "食尘短绒",
           "bloodline": "地",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -9417,7 +9417,7 @@
           "name": "幽影树",
           "card_name": "幽影树",
           "bloodline": "首领",
-          "nature": "大胆",
+          "nature": "稳重",
           "iv_names": [
             "生命",
             "物防",
@@ -9665,7 +9665,7 @@
           "name": "怖哭菇",
           "card_name": "怖哭菇",
           "bloodline": "幽",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -9692,7 +9692,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "电",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -10199,7 +10199,7 @@
           "name": "炽心勇狮",
           "card_name": "炽心勇狮",
           "bloodline": "武",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -10226,7 +10226,7 @@
           "name": "寂灭骨龙",
           "card_name": "寂灭骨龙",
           "bloodline": "恶",
-          "nature": "孤僻",
+          "nature": "大胆",
           "iv_names": [
             "生命",
             "物攻",
@@ -10307,7 +10307,7 @@
           "name": "圣羽翼王",
           "card_name": "圣羽翼王",
           "bloodline": "龙",
-          "nature": "认真",
+          "nature": "热情",
           "iv_names": [
             "生命",
             "魔攻",
@@ -10334,7 +10334,7 @@
           "name": "伊兰亚龙",
           "card_name": "伊兰亚龙",
           "bloodline": "恶",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -10663,7 +10663,7 @@
           "name": "雪影娃娃",
           "card_name": "雪影娃娃",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -11402,7 +11402,7 @@
           "name": "水灵",
           "card_name": "水灵",
           "bloodline": "恶",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -11580,7 +11580,7 @@
           "name": "水灵",
           "card_name": "水灵",
           "bloodline": "恶",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -11909,7 +11909,7 @@
           "name": "魔力猫",
           "card_name": "魔力猫",
           "bloodline": "地",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -12033,7 +12033,7 @@
           "name": "化蝶（幽冥眼的样子）",
           "card_name": "化蝶",
           "bloodline": "虫",
-          "nature": "浮躁",
+          "nature": "焦虑",
           "iv_names": [
             "物攻",
             "魔攻",
@@ -12513,7 +12513,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "武",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -12745,7 +12745,7 @@
           "name": "画间沉铁兽",
           "card_name": "画间沉铁兽",
           "bloodline": "冰",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物攻",
@@ -12826,7 +12826,7 @@
           "name": "圆号鱼",
           "card_name": "圆号鱼",
           "bloodline": "水",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -13074,7 +13074,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "萌",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -13101,7 +13101,7 @@
           "name": "寂灭骨龙",
           "card_name": "寂灭骨龙",
           "bloodline": "龙",
-          "nature": "慎重",
+          "nature": "害羞",
           "iv_names": [
             "生命",
             "物防",
@@ -13128,7 +13128,7 @@
           "name": "卡瓦重（雪山附近的样子）",
           "card_name": "卡瓦重",
           "bloodline": "冰",
-          "nature": "天真",
+          "nature": "莽撞",
           "iv_names": [
             "生命",
             "物防",
@@ -13333,7 +13333,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "萌",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -13635,7 +13635,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "普通",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -13759,7 +13759,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "火",
-          "nature": "马虎",
+          "nature": "偏执",
           "iv_names": [
             "魔攻",
             "物防",
@@ -13937,7 +13937,7 @@
           "name": "怖哭菇",
           "card_name": "怖哭菇",
           "bloodline": "虫",
-          "nature": "沉着",
+          "nature": "警惕",
           "iv_names": [
             "生命",
             "物防",
@@ -13964,7 +13964,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "电",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -14169,7 +14169,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "普通",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -14347,7 +14347,7 @@
           "name": "鳗尾兽",
           "card_name": "鳗尾兽",
           "bloodline": "火",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -14676,7 +14676,7 @@
           "name": "瞌睡王",
           "card_name": "瞌睡王",
           "bloodline": "普通",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "物攻",
             "物防",
@@ -14730,7 +14730,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "光",
-          "nature": "狂妄",
+          "nature": "慎重",
           "iv_names": [
             "生命",
             "魔攻",
@@ -14757,7 +14757,7 @@
           "name": "水泡壳（蜕皮时的样子）",
           "card_name": "水泡壳",
           "bloodline": "虫",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -14935,7 +14935,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "光",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -15291,7 +15291,7 @@
           "name": "雪影娃娃",
           "card_name": "雪影娃娃",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "魔攻",
@@ -15469,7 +15469,7 @@
           "name": "雪影娃娃",
           "card_name": "雪影娃娃",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "魔攻",
@@ -15647,7 +15647,7 @@
           "name": "雪影娃娃",
           "card_name": "雪影娃娃",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "魔攻",
@@ -15717,7 +15717,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "机械",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "魔攻",
@@ -15744,7 +15744,7 @@
           "name": "混乱鱿彩",
           "card_name": "混乱鱿彩",
           "bloodline": "武",
-          "nature": "孤僻",
+          "nature": "大胆",
           "iv_names": [
             "生命",
             "物攻",
@@ -15771,7 +15771,7 @@
           "name": "抹茶布丁",
           "card_name": "抹茶布丁",
           "bloodline": "冰",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -15895,7 +15895,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "机械",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "魔攻",
@@ -15922,7 +15922,7 @@
           "name": "混乱鱿彩",
           "card_name": "混乱鱿彩",
           "bloodline": "武",
-          "nature": "孤僻",
+          "nature": "大胆",
           "iv_names": [
             "生命",
             "物攻",
@@ -15949,7 +15949,7 @@
           "name": "抹茶布丁",
           "card_name": "抹茶布丁",
           "bloodline": "冰",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -16127,7 +16127,7 @@
           "name": "寂灭骨龙",
           "card_name": "寂灭骨龙",
           "bloodline": "龙",
-          "nature": "慎重",
+          "nature": "害羞",
           "iv_names": [
             "物攻",
             "物防",
@@ -16251,7 +16251,7 @@
           "name": "红绒十字",
           "card_name": "红绒十字",
           "bloodline": "普通",
-          "nature": "沉着",
+          "nature": "警惕",
           "iv_names": [
             "生命",
             "魔攻",
@@ -16305,7 +16305,7 @@
           "name": "烈火守护",
           "card_name": "烈火守护",
           "bloodline": "龙",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -16332,7 +16332,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "普通",
-          "nature": "狂妄",
+          "nature": "慎重",
           "iv_names": [
             "生命",
             "物防",
@@ -16359,7 +16359,7 @@
           "name": "水泡壳（蜕皮时的样子）",
           "card_name": "水泡壳",
           "bloodline": "虫",
-          "nature": "沉着",
+          "nature": "警惕",
           "iv_names": [
             "生命",
             "物防",
@@ -16429,7 +16429,7 @@
           "name": "红绒十字",
           "card_name": "红绒十字",
           "bloodline": "普通",
-          "nature": "沉着",
+          "nature": "警惕",
           "iv_names": [
             "生命",
             "魔攻",
@@ -16483,7 +16483,7 @@
           "name": "烈火守护",
           "card_name": "烈火守护",
           "bloodline": "龙",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -16510,7 +16510,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "普通",
-          "nature": "狂妄",
+          "nature": "慎重",
           "iv_names": [
             "生命",
             "物防",
@@ -16537,7 +16537,7 @@
           "name": "水泡壳（蜕皮时的样子）",
           "card_name": "水泡壳",
           "bloodline": "虫",
-          "nature": "沉着",
+          "nature": "警惕",
           "iv_names": [
             "生命",
             "物防",
@@ -16634,7 +16634,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "普通",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -16812,7 +16812,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "普通",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -17071,7 +17071,7 @@
           "name": "幽影树",
           "card_name": "幽影树",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -17249,7 +17249,7 @@
           "name": "幽影树",
           "card_name": "幽影树",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -17346,7 +17346,7 @@
           "name": "冰钻布鲁斯",
           "card_name": "冰钻布鲁斯",
           "bloodline": "冰",
-          "nature": "孤僻",
+          "nature": "大胆",
           "iv_names": [
             "生命",
             "物攻",
@@ -17373,7 +17373,7 @@
           "name": "迪莫",
           "card_name": "迪莫",
           "bloodline": "武",
-          "nature": "天真",
+          "nature": "莽撞",
           "iv_names": [
             "生命",
             "魔攻",
@@ -17400,7 +17400,7 @@
           "name": "鸭吉吉（等一等鸭）",
           "card_name": "鸭吉吉",
           "bloodline": "幻",
-          "nature": "稳重",
+          "nature": "专注",
           "iv_names": [
             "魔攻",
             "物防",
@@ -17454,7 +17454,7 @@
           "name": "鸭吉吉（蓬松的样子）",
           "card_name": "鸭吉吉",
           "bloodline": "萌",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "魔攻",
             "物防",
@@ -18975,7 +18975,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "火",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -19153,7 +19153,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "火",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -19331,7 +19331,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "火",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -19660,7 +19660,7 @@
           "name": "海枝枝（碧蓝珊瑚）",
           "card_name": "海枝枝",
           "bloodline": "电",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -20167,7 +20167,7 @@
           "name": "尖嘴狐仙",
           "card_name": "尖嘴狐仙",
           "bloodline": "冰",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -20194,7 +20194,7 @@
           "name": "獠牙猪",
           "card_name": "獠牙猪",
           "bloodline": "冰",
-          "nature": "慎重",
+          "nature": "害羞",
           "iv_names": [
             "生命",
             "物防",
@@ -20275,7 +20275,7 @@
           "name": "椰浆布丁",
           "card_name": "椰浆布丁",
           "bloodline": "水",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "物攻",
@@ -20345,7 +20345,7 @@
           "name": "尖嘴狐仙",
           "card_name": "尖嘴狐仙",
           "bloodline": "冰",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -20372,7 +20372,7 @@
           "name": "獠牙猪",
           "card_name": "獠牙猪",
           "bloodline": "冰",
-          "nature": "慎重",
+          "nature": "害羞",
           "iv_names": [
             "生命",
             "物防",
@@ -20453,7 +20453,7 @@
           "name": "椰浆布丁",
           "card_name": "椰浆布丁",
           "bloodline": "水",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "物攻",
@@ -20550,7 +20550,7 @@
           "name": "古卷匣魔像",
           "card_name": "古卷匣魔像",
           "bloodline": "武",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -20604,7 +20604,7 @@
           "name": "晶石蜗（莲花刚玉的样子）",
           "card_name": "晶石蜗",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "魔攻",
@@ -20631,7 +20631,7 @@
           "name": "利灯鱼",
           "card_name": "利灯鱼",
           "bloodline": "电",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -20782,7 +20782,7 @@
           "name": "黑猫巫师",
           "card_name": "黑猫巫师",
           "bloodline": "普通",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -20836,7 +20836,7 @@
           "name": "小皮球",
           "card_name": "小皮球",
           "bloodline": "草",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -21316,7 +21316,7 @@
           "name": "奇丽花",
           "card_name": "奇丽花",
           "bloodline": "首领",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -21370,7 +21370,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "萌",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -21467,7 +21467,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "萌",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -21904,7 +21904,7 @@
           "name": "芋香巨角蛛",
           "card_name": "芋香巨角蛛",
           "bloodline": "电",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -22055,7 +22055,7 @@
           "name": "圆号鱼",
           "card_name": "圆号鱼",
           "bloodline": "萌",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -22179,7 +22179,7 @@
           "name": "幻影灵菇",
           "card_name": "幻影灵菇",
           "bloodline": "翼",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -22330,7 +22330,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "火",
-          "nature": "马虎",
+          "nature": "偏执",
           "iv_names": [
             "生命",
             "魔攻",
@@ -22411,7 +22411,7 @@
           "name": "绒光优优",
           "card_name": "绒光优优",
           "bloodline": "光",
-          "nature": "浮躁",
+          "nature": "焦虑",
           "iv_names": [
             "生命",
             "魔攻",
@@ -22438,7 +22438,7 @@
           "name": "圆号鱼",
           "card_name": "圆号鱼",
           "bloodline": "萌",
-          "nature": "大胆",
+          "nature": "稳重",
           "iv_names": [
             "生命",
             "物防",
@@ -22508,7 +22508,7 @@
           "name": "化蝶（平常的样子）",
           "card_name": "化蝶",
           "bloodline": "火",
-          "nature": "马虎",
+          "nature": "偏执",
           "iv_names": [
             "生命",
             "魔攻",
@@ -22589,7 +22589,7 @@
           "name": "绒光优优",
           "card_name": "绒光优优",
           "bloodline": "光",
-          "nature": "浮躁",
+          "nature": "焦虑",
           "iv_names": [
             "生命",
             "魔攻",
@@ -22616,7 +22616,7 @@
           "name": "圆号鱼",
           "card_name": "圆号鱼",
           "bloodline": "萌",
-          "nature": "大胆",
+          "nature": "稳重",
           "iv_names": [
             "生命",
             "物防",
@@ -22659,7 +22659,7 @@
           "name": "迪莫",
           "card_name": "迪莫",
           "bloodline": "光",
-          "nature": "马虎",
+          "nature": "偏执",
           "iv_names": [
             "物攻",
             "魔攻",
@@ -22713,7 +22713,7 @@
           "name": "火神",
           "card_name": "火神",
           "bloodline": "首领",
-          "nature": "马虎",
+          "nature": "偏执",
           "iv_names": [
             "物攻",
             "魔攻",
@@ -22767,7 +22767,7 @@
           "name": "龙息帕尔",
           "card_name": "龙息帕尔",
           "bloodline": "恶",
-          "nature": "马虎",
+          "nature": "偏执",
           "iv_names": [
             "物攻",
             "魔攻",
@@ -23220,7 +23220,7 @@
           "name": "布克棱岩",
           "card_name": "布克棱岩",
           "bloodline": "地",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -23274,7 +23274,7 @@
           "name": "迷迷箱怪",
           "card_name": "迷迷箱怪",
           "bloodline": "翼",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "物攻",
             "物防",
@@ -23328,7 +23328,7 @@
           "name": "食尘短绒",
           "card_name": "食尘短绒",
           "bloodline": "地",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "生命",
             "物防",
@@ -23630,7 +23630,7 @@
           "name": "利灯鱼",
           "card_name": "利灯鱼",
           "bloodline": "火",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -23808,7 +23808,7 @@
           "name": "利灯鱼",
           "card_name": "利灯鱼",
           "bloodline": "火",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -24439,7 +24439,7 @@
           "name": "贝古斯",
           "card_name": "贝古斯",
           "bloodline": "翼",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -24520,7 +24520,7 @@
           "name": "梦想三三",
           "card_name": "梦想三三",
           "bloodline": "首领",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -24574,7 +24574,7 @@
           "name": "兽花蕾",
           "card_name": "兽花蕾",
           "bloodline": "萌",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -25000,7 +25000,7 @@
           "name": "菊花梨",
           "card_name": "菊花梨",
           "bloodline": "水",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",
@@ -25410,7 +25410,7 @@
           "name": "晶石蜗（西瓜碧玺的样子）",
           "card_name": "晶石蜗",
           "bloodline": "草",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物防",
@@ -25615,7 +25615,7 @@
           "name": "小皮球",
           "card_name": "小皮球",
           "bloodline": "火",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "物攻",
@@ -25863,7 +25863,7 @@
           "name": "泥吼牙",
           "card_name": "泥吼牙",
           "bloodline": "地",
-          "nature": "害羞",
+          "nature": "理性",
           "iv_names": [
             "物攻",
             "物防",
@@ -25917,7 +25917,7 @@
           "name": "落陨星兔",
           "card_name": "落陨星兔",
           "bloodline": "冰",
-          "nature": "沉着",
+          "nature": "警惕",
           "iv_names": [
             "魔攻",
             "魔防",
@@ -25971,7 +25971,7 @@
           "name": "鳗尾兽",
           "card_name": "鳗尾兽",
           "bloodline": "草",
-          "nature": "紧张",
+          "nature": "急躁",
           "iv_names": [
             "生命",
             "物攻",
@@ -25998,7 +25998,7 @@
           "name": "海豹船长",
           "card_name": "海豹船长",
           "bloodline": "恶",
-          "nature": "淘气",
+          "nature": "天真",
           "iv_names": [
             "物攻",
             "物抗",
@@ -26273,7 +26273,7 @@
           "name": "卡洛儿",
           "card_name": "卡洛儿",
           "bloodline": "水",
-          "nature": "保守",
+          "nature": "聪明",
           "iv_names": [
             "生命",
             "魔攻",

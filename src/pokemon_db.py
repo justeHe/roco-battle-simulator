@@ -53,7 +53,7 @@ def _get_speed_median() -> float:
 #   其他  = [1.1 × base_stat  + 0.55 × IV + 10] × (1 + mod) + 50
 #
 # 个体值 (IV): 用户配置，6 项属性中选择 3 项为 60，其余 3 项为 0
-# 性格修正：从 pokemon_nature_table.py 获取，25 种性格之一
+# 性格修正：从 pokemon_nature_table.py 获取，包含生命在内的 30 种有效性格
 # ────────────────────────────────────────────────────────────
 
 def calc_combat_stats(
@@ -69,7 +69,7 @@ def calc_combat_stats(
       base_*: 种族值
       iv_config: 个体值配置 {"hp":60,"atk":60,"spatk":0,"def":0,"spdef":0,"speed":60}
                  默认全 0（用户未配置时）
-      nature_name: 性格名称（25 种性格之一），默认"坦率"（无修正）
+      nature_name: 性格名称（30 种性格之一），默认"坦率"
 
     返回:
       {"hp":..., "atk":..., "spatk":..., "def":..., "spdef":..., "speed":...}
@@ -89,13 +89,13 @@ def calc_combat_stats(
     try:
         nature_bonus = get_nature_bonus(nature_name)
     except KeyError:
-        # 未知性格时使用坦率（无修正）
-        nature_bonus = {"atk": 0.0, "defense": 0.0, "sp_atk": 0.0, "sp_defense": 0.0, "speed": 0.0}
+        # 未知性格时使用坦率，避免旧数据里的已删除平衡性格中断计算。
+        nature_bonus = get_nature_bonus("坦率")
 
     # 性格加成字段名映射：pokemon_nature_table.py → calc_combat_stats
-    # atk → atk, defense → def, sp_atk → spatk, sp_defense → spdef, speed → speed
+    # hp → hp, atk → atk, defense → def, sp_atk → spatk, sp_defense → spdef, speed → speed
     nature_config = {
-        "hp": 0.0,
+        "hp": nature_bonus.get("hp", 0.0),
         "atk": nature_bonus.get("atk", 0.0),
         "spatk": nature_bonus.get("sp_atk", 0.0),
         "def": nature_bonus.get("defense", 0.0),

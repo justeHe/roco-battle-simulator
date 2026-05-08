@@ -287,7 +287,7 @@ class Pokemon:
     iv_spdef: int = 0
     iv_speed: int = 0
 
-    # 性格名称（25 种性格之一，默认坦率无修正）
+    # 性格名称（30 种性格之一，默认坦率）
     nature: str = "坦率"
 
 

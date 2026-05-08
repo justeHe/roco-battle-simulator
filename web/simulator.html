@@ -153,6 +153,19 @@ const USER_TEAMS_KEY = 'roco_user_teams_v2';
 const STORAGE_KEY = 'roco_spirit_storage_v2';
 const PICKS_KEY = 'roco_battle_picks_v1';
 const ALLOWED_MAGIC = new Set(['强化术', '进化之力']);
+const NATURE_NAME_ALIASES = {
+  '实干': '逞强',
+  '孤僻': '稳重',
+  '淘气': '天真',
+  '无虑': '懒散',
+  '保守': '聪明',
+  '马虎': '偏执',
+  '沉着': '警惕',
+  '狂妄': '慎重',
+  '浮躁': '焦虑',
+  '认真': '热情',
+  '紧张': '急躁',
+};
 let pvpLineups = [];
 let userLineups = [];
 let activeSource = 'all';
@@ -165,6 +178,7 @@ function saveJson(key, value){ localStorage.setItem(key, JSON.stringify(value));
 function elementIconUrl(name){ return name ? `/skill-meta-icons/elements/${encodeURIComponent(name)}.png` : ''; }
 function bloodlineIconUrl(name){ return name === '首领' ? '/lineup-icons/%E9%A6%96%E9%A2%86%E8%A1%80%E8%84%89.svg' : elementIconUrl(name); }
 function magicLabel(value){ return value === '强化术' ? '愿力冲击' : (value || '未配置'); }
+function normalizeNatureName(name){ return NATURE_NAME_ALIASES[name] || name || '坦率'; }
 function sourceLabel(lineup){ return lineup.source_type === 'user' ? '我的配队' : 'PVP'; }
 function lineupKey(lineup){ return `${lineup.source_type}:${lineup.id}`; }
 function uniq(arr){ return [...new Set(arr.filter(Boolean))]; }
@@ -198,6 +212,7 @@ function normalizeLineup(item, source){
     members: (item.members || []).map((member, idx) => ({
       ...member,
       slot: member.slot || idx + 1,
+      nature: normalizeNatureName(member.nature),
       skills: member.skills || (member.skill_details || []).map(s => s.name).filter(Boolean),
       skill_details: member.skill_details || (member.skills || []).map(name => ({ name })),
     })),

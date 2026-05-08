@@ -55,6 +55,25 @@ IV_KEY_MAP = {
     "速度": "speed",
 }
 
+SOURCE_NATURE_RENAMES = {
+    "孤僻": "大胆",
+    "大胆": "稳重",
+    "淘气": "天真",
+    "无虑": "懒散",
+    "保守": "聪明",
+    "稳重": "专注",
+    "马虎": "偏执",
+    "沉着": "警惕",
+    "慎重": "害羞",
+    "狂妄": "慎重",
+    "浮躁": "焦虑",
+    "天真": "莽撞",
+    "认真": "热情",
+    "实干": "逞强",
+    "害羞": "理性",
+    "紧张": "急躁",
+}
+
 
 def fetch_text(url: str, retries: int = 3, timeout: int = 30) -> str:
     for attempt in range(retries):
@@ -104,6 +123,11 @@ def normalize_image_url(url: str) -> str:
     if url.startswith("//"):
         return "https:" + url
     return urljoin(BASE_URL, url)
+
+
+def normalize_nature_name(value: str) -> str:
+    text = (value or "").strip()
+    return SOURCE_NATURE_RENAMES.get(text, text)
 
 
 def safe_filename(name: str, url: str = "") -> str:
@@ -230,7 +254,7 @@ def parse_member(fields: dict[str, str], index: int, preview: dict | None = None
         "name": fields.get(prefix, "").strip(),
         "card_name": preview.get("card_name", ""),
         "bloodline": fields.get(f"{prefix}血脉", "").strip(),
-        "nature": fields.get(f"{prefix}性格", "").strip(),
+        "nature": normalize_nature_name(fields.get(f"{prefix}性格", "")),
         "iv_names": iv_names,
         "iv_config": iv_config_from_names(iv_names),
         "skills": skills,
