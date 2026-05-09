@@ -23,7 +23,7 @@ from src.effect_engine import EffectExecutor
 from src.team_builder import TeamBuilder
 from src.battle import (
     execute_full_turn, check_winner,
-    auto_switch, leader_evolution_status
+    auto_switch, leader_evolution_status, will_impact_status
 )
 
 app = FastAPI()
@@ -1880,6 +1880,7 @@ def serialize_state(state: BattleState, waiting: bool = False,
         d["is_current"] = (i == state.current_a)
         if i == state.current_a:
             d["leader_evolution"] = leader_evolution_status(state, "a")
+            d["will_impact"] = will_impact_status(state, "a")
         team_a_data.append(d)
 
     team_b_data = []
@@ -1888,6 +1889,7 @@ def serialize_state(state: BattleState, waiting: bool = False,
         d["is_current"] = (i == state.current_b)
         if i == state.current_b:
             d["leader_evolution"] = leader_evolution_status(state, "b")
+            d["will_impact"] = will_impact_status(state, "b")
         team_b_data.append(d)
 
     # 为 A 队每个精灵计算对当前 B 精灵的最高克制倍率
@@ -2070,6 +2072,11 @@ def _parse_side_action(state: BattleState, side: str, action_data: dict):
         if not status.get("can_use"):
             return None, f"{side_name}{current.name} 无法首领进化：{status.get('reason', '')}"
         return (-3,), None
+    if action_type == "will_impact":
+        status = will_impact_status(state, side)
+        if not status.get("can_use"):
+            return None, f"{side_name}{current.name} 无法使用愿力冲击：{status.get('reason', '')}"
+        return (-4,), None
     if action_type == "skill":
         idx = int(action_data.get("index", -1))
         if idx < 0 or idx >= len(current.skills):
@@ -2106,6 +2113,13 @@ def _log_declared_action(state: BattleState, side: str, action):
         status = leader_evolution_status(state, side)
         target = status.get("target_name", "下一形态")
         session.add_log(f"  {icon} {side_name}选择：{pokemon.name} 使用【进化之力】→ {target}")
+    elif action[0] == -4:
+        status = will_impact_status(state, side)
+        type_name = _TYPE_LABELS.get(status.get("type", ""), status.get("type", ""))
+        session.add_log(
+            f"  {icon} {side_name}：{pokemon.name} 发动【愿力冲击】"
+            f"（{type_name} {status.get('category', '')} 消耗{status.get('energy_cost', 0)}能 威力{status.get('power', 80)}）"
+        )
     else:
         skill = pokemon.skills[action[0]]
         session.add_log(

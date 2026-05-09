@@ -1000,7 +1000,16 @@ function renderManualSide(side, team, curIdx){
   panel.innerHTML = '';
 
   addManualChoice(panel, side, {type:'charge'}, '汇合聚能', '+5 能量', false);
-  if(current.leader_evolution){
+  const teamItem = side === 'a' ? (state && state.team_item_a) : (state && state.team_item_b);
+  if(current.will_impact && (teamItem === '强化术' || teamItem === '愿力冲击')){
+    const wish = current.will_impact;
+    const typeName = TYPE_ZH[wish.type] || wish.type || '';
+    const meta = wish.can_use
+      ? `${typeName} · ${wish.category || ''} · 威${wish.power || 80} · 耗${wish.energy_cost || 0} · 应对状态×${wish.counter_status_multiplier || 2.5}`
+      : `愿力冲击 · ${wish.reason || '当前不可用'}`;
+    addManualChoice(panel, side, {type:'will_impact'}, '愿力冲击', meta, !wish.can_use);
+  }
+  if(current.leader_evolution && teamItem === '进化之力'){
     const evo = current.leader_evolution;
     const target = evo.target_name || '首领形态';
     const meta = evo.can_use

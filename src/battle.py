@@ -16,7 +16,7 @@ from src.models import (
     StatusType, get_type_effectiveness
 )
 from src.skill_db import get_skill
-from src.effect_models import E, Timing
+from src.effect_models import E, Timing, EffectTag, SkillEffect, SkillTiming
 from src.effect_engine import (
     EffectExecutor, _add_mark_to_marks, _apply_permanent_mod,
     _apply_status_stacks, _adjust_cost_delta,
@@ -319,8 +319,9 @@ class DamageCalculator:
 ACTION_CHARGE = -1
 ACTION_SWITCH = -2
 ACTION_LEADER_EVOLVE = -3
+ACTION_WILL_IMPACT = -4
 
-Action = Tuple[int, ...]  # (skill_idx,) | (-1,) 汇合聚能 | (-2, switch_idx) 换人 | (-3,) 首领进化
+Action = Tuple[int, ...]  # (skill_idx,) | (-1,) 聚能 | (-2, 换人) | (-3,) 首领进化 | (-4,) 愿力冲击
 
 
 _PASSIVE_ABILITY_STATE_KEYS = {
@@ -350,8 +351,117 @@ def _team_item(state: BattleState, team: str) -> str:
     return (value or "").strip()
 
 
+def _has_will_impact_item(state: BattleState, team: str) -> bool:
+    return _team_item(state, team) in {"愿力冲击", "强化术"}
+
+
 def _is_leader_bloodline(pokemon: Pokemon) -> bool:
     return "首领" in (getattr(pokemon, "bloodline", "") or "")
+
+
+_BLOODLINE_TYPE_MAP = {
+    "普通": Type.NORMAL,
+    "火": Type.FIRE,
+    "水": Type.WATER,
+    "草": Type.GRASS,
+    "电": Type.ELECTRIC,
+    "冰": Type.ICE,
+    "武": Type.FIGHTING,
+    "格斗": Type.FIGHTING,
+    "毒": Type.POISON,
+    "地": Type.GROUND,
+    "地面": Type.GROUND,
+    "翼": Type.FLYING,
+    "飞行": Type.FLYING,
+    "幻": Type.PSYCHIC,
+    "超能": Type.PSYCHIC,
+    "虫": Type.BUG,
+    "幽": Type.GHOST,
+    "幽灵": Type.GHOST,
+    "龙": Type.DRAGON,
+    "恶": Type.DARK,
+    "机械": Type.STEEL,
+    "钢": Type.STEEL,
+    "萌": Type.FAIRY,
+    "妖精": Type.FAIRY,
+    "光": Type.LIGHT,
+}
+
+
+def _bloodline_type(pokemon: Pokemon) -> Optional[Type]:
+    text = (getattr(pokemon, "bloodline", "") or "").strip()
+    text = text.replace("血脉", "").replace("系", "").strip()
+    if not text or "首领" in text:
+        return None
+    return _BLOODLINE_TYPE_MAP.get(text)
+
+
+def _build_will_impact_skill(pokemon: Pokemon) -> Skill:
+    blood_type = _bloodline_type(pokemon) or pokemon.pokemon_type
+    base_skill = pokemon.skills[0] if getattr(pokemon, "skills", None) else None
+    category = (
+        SkillCategory.PHYSICAL
+        if pokemon.effective_atk() >= pokemon.effective_spatk()
+        else SkillCategory.MAGICAL
+    )
+    skill = Skill(
+        name="愿力冲击",
+        skill_type=blood_type,
+        category=category,
+        power=80,
+        energy_cost=base_skill.energy_cost if base_skill else 0,
+    )
+    skill.effects = [
+        SkillEffect(SkillTiming.ON_USE, [EffectTag(E.DAMAGE)]),
+        SkillEffect(
+            SkillTiming.ON_COUNTER,
+            [EffectTag(E.POWER_DYNAMIC, {"condition": "counter", "multiplier": 2.5})],
+            {"category": "status"},
+        ),
+    ]
+    skill._is_will_impact = True
+    skill._defer_counter_to_own_action = True
+    skill._last_actual_cost = 0
+    return skill
+
+
+def will_impact_status(state: BattleState, team: str) -> dict:
+    team_list = state.team_a if team == "a" else state.team_b
+    idx = state.current_a if team == "a" else state.current_b
+    pokemon = team_list[idx]
+    if pokemon.is_fainted:
+        return {"can_use": False, "reason": "当前精灵已倒下"}
+    if not _has_will_impact_item(state, team):
+        return {"can_use": False, "reason": "队伍未携带愿力冲击"}
+    blood_type = _bloodline_type(pokemon)
+    if not blood_type:
+        return {"can_use": False, "reason": "只有元素血脉精灵可以使用"}
+    if not pokemon.skills:
+        return {"can_use": False, "reason": "没有可替换的一号技能"}
+    first_skill = pokemon.skills[0]
+    first_cd = pokemon.cooldowns.get(0, 0)
+    if first_cd > 0:
+        return {"can_use": False, "reason": f"一号技能仍在冷却{first_cd}回合"}
+    if pokemon.energy < first_skill.energy_cost:
+        return {"can_use": False, "reason": "能量不足"}
+    slot_lock = pokemon.ability_state.get("skill_slot_lock")
+    if slot_lock is not None and 0 not in slot_lock:
+        return {"can_use": False, "reason": "一号技能位被限制"}
+    category = (
+        SkillCategory.PHYSICAL
+        if pokemon.effective_atk() >= pokemon.effective_spatk()
+        else SkillCategory.MAGICAL
+    )
+    return {
+        "can_use": True,
+        "reason": "",
+        "skill_name": "愿力冲击",
+        "power": 80,
+        "energy_cost": first_skill.energy_cost,
+        "type": blood_type.value,
+        "category": category.value,
+        "counter_status_multiplier": 2.5,
+    }
 
 
 def _apply_passive_ability_flags_for_battle(pokemon: Pokemon) -> None:
@@ -546,6 +656,8 @@ def get_actions(state: BattleState, team: str) -> List[Action]:
     actions.append((ACTION_CHARGE,))  # 汇合聚能
     if leader_evolution_status(state, team).get("can_use"):
         actions.append((ACTION_LEADER_EVOLVE,))
+    if will_impact_status(state, team).get("can_use"):
+        actions.append((ACTION_WILL_IMPACT,))
 
     for i, skill in enumerate(current.skills):
         cd = current.cooldowns.get(i, 0)
@@ -1136,6 +1248,10 @@ def _apply_share_gains(state: BattleState, team: str, hp_before: int, energy_bef
 
 def _get_skill_for_action(state: BattleState, team: str, action: Action) -> Optional[Skill]:
     """从 action 中获取技能对象，换人/跳过返回 None。"""
+    if action[0] == ACTION_WILL_IMPACT:
+        team_list = state.team_a if team == "a" else state.team_b
+        idx = state.current_a if team == "a" else state.current_b
+        return _build_will_impact_skill(team_list[idx])
     if action[0] < 0:
         return None
     team_list = state.team_a if team == "a" else state.team_b
@@ -1404,8 +1520,8 @@ def _execute_with_counter(state: BattleState, team: str, action: Action,
     if action[0] == ACTION_CHARGE:
         # 检查对方技能是否有打断效果（打断可阻止聚能回能）
         enemy_skill_obj = None
-        if enemy_action[0] >= 0 and not enemy.is_fainted:
-            enemy_skill_obj = enemy.skills[enemy_action[0]] if enemy_action[0] < len(enemy.skills) else None
+        if not enemy.is_fainted:
+            enemy_skill_obj = _get_skill_for_action(state, enemy_team, enemy_action)
         interrupted = False
         if enemy_skill_obj and hasattr(enemy_skill_obj, "effects"):
             for se in (enemy_skill_obj.effects or []):
@@ -1423,17 +1539,21 @@ def _execute_with_counter(state: BattleState, team: str, action: Action,
         current.ability_state.pop("barrel_active", None)
         return
 
-    skill = current.skills[action[0]]
+    if action[0] == ACTION_WILL_IMPACT:
+        skill = _build_will_impact_skill(current)
+    else:
+        skill = current.skills[action[0]]
 
     # ── 技能槽锁定检查（正位宝剑/宝剑王牌）──
     slot_lock = current.ability_state.get("skill_slot_lock")
-    if slot_lock is not None and action[0] not in slot_lock:
+    action_slot = 0 if action[0] == ACTION_WILL_IMPACT else action[0]
+    if action_slot >= 0 and slot_lock is not None and action_slot not in slot_lock:
         # 该位置技能被锁定，自动转为聚能
         current.gain_energy(5)
         return
 
     # ── 蓄力逻辑（增强版）──
-    if skill.charge:
+    if action[0] >= 0 and skill.charge:
         if current.charging_skill_idx != action[0]:
             # 嫉妒特性：蓄力状态下可用任一技能（直接释放，无需等待第二次点击）
             if current.ability_state.get("charge_free_skill") and current.charging_skill_idx >= 0:
@@ -1632,8 +1752,8 @@ def _execute_new_engine(state: BattleState, team: str, enemy_team: str,
     # 获取对方技能 (用于应对判定)
     enemy_skill = None
     enemy_list = state.team_b if team == "a" else state.team_a
-    if enemy_action[0] >= 0 and not enemy.is_fainted:
-        enemy_skill = enemy.skills[enemy_action[0]]
+    if not enemy.is_fainted:
+        enemy_skill = _get_skill_for_action(state, enemy_team, enemy_action)
 
     # ── 前置打断检查 ──
     # 如果对方技能有针对本技能类型的应对打断（INTERRUPT），本技能主效果不执行
@@ -1750,6 +1870,8 @@ def _resolve_enemy_counters(state, current, enemy, skill, enemy_skill,
                             team_list, idx) -> None:
     """处理对方技能的应对效果（防御/状态技能应对我方攻击）。"""
     if not (enemy_skill and hasattr(enemy_skill, "effects") and enemy_skill.effects):
+        return
+    if getattr(enemy_skill, "_defer_counter_to_own_action", False):
         return
 
     _counter_items = []
@@ -2066,14 +2188,16 @@ def _is_first_action(state: BattleState, team: str, action: Action,
 
 def get_priority(state: BattleState, team: str, action: Action) -> int:
     """获取先手等级。换人优先级最高(+99)，聚能正常(0)，技能看先手加成。"""
+    team_list = state.team_a if team == "a" else state.team_b
+    idx = state.current_a if team == "a" else state.current_b
     if action[0] == ACTION_SWITCH:
         return 99  # 换人优先级最高，总是在技能之前执行
     if action[0] == ACTION_LEADER_EVOLVE:
         return 98  # 道具进化在技能前、换人后执行
+    if action[0] == ACTION_WILL_IMPACT:
+        return getattr(team_list[idx], "priority_stage", 0)
     if action[0] < 0:
         return 0   # 聚能正常优先级
-    team_list = state.team_a if team == "a" else state.team_b
-    idx = state.current_a if team == "a" else state.current_b
     if action[0] >= len(team_list[idx].skills):
         return 0
     pokemon = team_list[idx]
