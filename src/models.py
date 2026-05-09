@@ -230,6 +230,12 @@ class Pokemon:
     speed: int
     ability: str = ""
     skills: List[Skill] = field(default_factory=list)
+    bloodline: str = ""
+    battle_item: str = ""
+    dex_name: str = ""
+    evo_stage: str = ""
+    spirit_no: str = ""
+    is_leader_evolved: bool = False
 
     current_hp: int = 0
     energy: int = 10  # 登场时满能量，上限10
@@ -401,6 +407,12 @@ class Pokemon:
             sp_attack=self.sp_attack, sp_defense=self.sp_defense,
             speed=self.speed, ability=self.ability,
             skills=[s.copy() for s in self.skills],
+            bloodline=self.bloodline,
+            battle_item=self.battle_item,
+            dex_name=self.dex_name,
+            evo_stage=self.evo_stage,
+            spirit_no=self.spirit_no,
+            is_leader_evolved=self.is_leader_evolved,
             current_hp=self.current_hp, energy=self.energy,
             status=self.status,
         )
@@ -455,6 +467,8 @@ class BattleState:
     current_b: int = 0
     turn: int = 1
     weather: Optional[str] = None
+    team_item_a: str = ""
+    team_item_b: str = ""
 
     # 魔法值：初始4，精灵倒下-1，降到0则败北
     mp_a: int = 4
@@ -482,6 +496,7 @@ class BattleState:
 
     # 聚能事件日志 (供 server.py 战斗播报使用)
     energy_recharge_log: list = field(default_factory=list)
+    battle_event_log: list = field(default_factory=list)
 
     # 待处理的换人请求 (脱离/强制换人时暂存，由 server.py 让玩家选择)
     pending_switch_requests: list = field(default_factory=list)
@@ -519,6 +534,7 @@ class BattleState:
             team_b=[p.copy_state() for p in self.team_b],
             current_a=self.current_a, current_b=self.current_b,
             turn=self.turn, weather=self.weather,
+            team_item_a=self.team_item_a, team_item_b=self.team_item_b,
             mp_a=self.mp_a, mp_b=self.mp_b,
             marks_a=dict(self.marks_a), marks_b=dict(self.marks_b),
             counter_count_a=self.counter_count_a,
@@ -529,6 +545,7 @@ class BattleState:
             weather_turns=self.weather_turns,
             sandstorm_original_costs=dict(self.sandstorm_original_costs),
             energy_recharge_log=[],
+            battle_event_log=[],
             pending_switch_requests=[],
             skill_use_counts_a=dict(self.skill_use_counts_a),
             skill_use_counts_b=dict(self.skill_use_counts_b),

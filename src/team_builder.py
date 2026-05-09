@@ -17,12 +17,11 @@ class TeamBuilder:
 
     TYPE_MAP = {
         "普通": Type.NORMAL, "火": Type.FIRE, "水": Type.WATER, "草": Type.GRASS,
-        "电": Type.ELECTRIC, "冰": Type.ICE, "格斗": Type.FIGHTING, "毒": Type.POISON,
-        "地面": Type.GROUND, "飞行": Type.FLYING, "超能": Type.PSYCHIC, "虫": Type.BUG,
-        "幽灵": Type.GHOST, "龙": Type.DRAGON, "恶": Type.DARK,
+        "电": Type.ELECTRIC, "冰": Type.ICE, "格斗": Type.FIGHTING, "武": Type.FIGHTING, "毒": Type.POISON,
+        "地": Type.GROUND, "地面": Type.GROUND, "飞行": Type.FLYING, "翼": Type.FLYING, "超能": Type.PSYCHIC, "虫": Type.BUG,
+        "幽灵": Type.GHOST, "幽": Type.GHOST, "龙": Type.DRAGON, "恶": Type.DARK,
         "钢": Type.STEEL, "妖精": Type.FAIRY, "机械": Type.STEEL, "萌": Type.FAIRY,
-        "翼": Type.FLYING, "武": Type.FIGHTING, "幽": Type.GHOST, "幻": Type.PSYCHIC,
-        "光": Type.LIGHT,
+        "幻": Type.PSYCHIC, "光": Type.LIGHT,
     }
 
     @staticmethod

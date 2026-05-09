@@ -23,7 +23,7 @@ from src.effect_engine import EffectExecutor
 from src.team_builder import TeamBuilder
 from src.battle import (
     execute_full_turn, check_winner,
-    auto_switch
+    auto_switch, leader_evolution_status
 )
 
 app = FastAPI()
@@ -1739,6 +1739,11 @@ def serialize_pokemon(p, is_current=False):
     return {
         "name":            p.name,
         "type":            p.pokemon_type.value,
+        "bloodline":       getattr(p, "bloodline", ""),
+        "battle_item":     getattr(p, "battle_item", ""),
+        "evo_stage":       getattr(p, "evo_stage", ""),
+        "spirit_no":       getattr(p, "spirit_no", ""),
+        "is_leader_evolved": getattr(p, "is_leader_evolved", False),
         "hp":              math.floor(p.hp * 100) / 100,
         "current_hp":      max(0, math.floor(p.current_hp * 100) / 100),
         "energy":          p.energy,
@@ -1873,12 +1878,16 @@ def serialize_state(state: BattleState, waiting: bool = False,
     for i, p in enumerate(state.team_a):
         d = serialize_pokemon(p, is_current=(i == state.current_a))
         d["is_current"] = (i == state.current_a)
+        if i == state.current_a:
+            d["leader_evolution"] = leader_evolution_status(state, "a")
         team_a_data.append(d)
 
     team_b_data = []
     for i, p in enumerate(state.team_b):
         d = serialize_pokemon(p, is_current=(i == state.current_b))
         d["is_current"] = (i == state.current_b)
+        if i == state.current_b:
+            d["leader_evolution"] = leader_evolution_status(state, "b")
         team_b_data.append(d)
 
     # 为 A 队每个精灵计算对当前 B 精灵的最高克制倍率
@@ -1896,6 +1905,8 @@ def serialize_state(state: BattleState, waiting: bool = False,
         "turn":               state.turn,
         "mp_a":               state.mp_a,
         "mp_b":               state.mp_b,
+        "team_item_a":        state.team_item_a,
+        "team_item_b":        state.team_item_b,
         "team_a":             team_a_data,
         "team_b":             team_b_data,
         "current_a":          state.current_a,
@@ -2009,6 +2020,12 @@ def _build_team_from_config(team_cfg: list, label: str):
             speed=stats["speed"],
             ability=ability,
             skills=[get_skill(n) for n in skill_names],
+            bloodline=(entry.get("bloodline") or "").strip(),
+            battle_item=(entry.get("battle_item") or "").strip(),
+            dex_name=data["名称"],
+            evo_stage=data["进化阶段"],
+            spirit_no=data.get("图鉴编号", ""),
+            is_leader_evolved="首领" in (data["进化阶段"] or ""),
         )
         if iv_config:
             pokemon.iv_hp = iv_config.get("hp", 0)
@@ -2028,6 +2045,17 @@ def _build_team_from_config(team_cfg: list, label: str):
     return built_team, errors
 
 
+def _team_item_from_config(team_cfg: list, explicit: str = "") -> str:
+    value = (explicit or "").strip()
+    if value:
+        return value
+    for entry in team_cfg or []:
+        value = (entry.get("battle_item") or entry.get("magic") or "").strip()
+        if value:
+            return value
+    return ""
+
+
 def _parse_side_action(state: BattleState, side: str, action_data: dict):
     team = state.team_a if side == "a" else state.team_b
     current_idx = state.current_a if side == "a" else state.current_b
@@ -2037,6 +2065,11 @@ def _parse_side_action(state: BattleState, side: str, action_data: dict):
     action_type = action_data.get("type")
     if action_type == "charge":
         return (-1,), None
+    if action_type == "leader_evolve":
+        status = leader_evolution_status(state, side)
+        if not status.get("can_use"):
+            return None, f"{side_name}{current.name} 无法首领进化：{status.get('reason', '')}"
+        return (-3,), None
     if action_type == "skill":
         idx = int(action_data.get("index", -1))
         if idx < 0 or idx >= len(current.skills):
@@ -2069,6 +2102,10 @@ def _log_declared_action(state: BattleState, side: str, action):
         session.add_log(f"  {icon} {side_name}选择：汇合聚能（+5能）")
     elif action[0] == -2:
         session.add_log(f"  {icon} {side_name}选择：换上 {team[action[1]].name}（优先执行）")
+    elif action[0] == -3:
+        status = leader_evolution_status(state, side)
+        target = status.get("target_name", "下一形态")
+        session.add_log(f"  {icon} {side_name}选择：{pokemon.name} 使用【进化之力】→ {target}")
     else:
         skill = pokemon.skills[action[0]]
         session.add_log(
@@ -2168,6 +2205,8 @@ async def start_manual_custom_battle(ws: WebSocket, msg: dict):
 
     team_a_cfg = msg.get("team_a") or msg.get("player_team") or []
     team_b_cfg = msg.get("team_b") or msg.get("enemy_team") or []
+    team_item_a = _team_item_from_config(team_a_cfg, msg.get("team_item_a", ""))
+    team_item_b = _team_item_from_config(team_b_cfg, msg.get("team_item_b", ""))
     team_a, errors_a = _build_team_from_config(team_a_cfg, "我方")
     team_b, errors_b = _build_team_from_config(team_b_cfg, "对方")
     errors = errors_a + errors_b
@@ -2181,6 +2220,8 @@ async def start_manual_custom_battle(ws: WebSocket, msg: dict):
         current_a=0,
         current_b=0,
         turn=1,
+        team_item_a=team_item_a,
+        team_item_b=team_item_b,
     )
     session.state = state
     session.game_over = False
@@ -2190,6 +2231,8 @@ async def start_manual_custom_battle(ws: WebSocket, msg: dict):
     session.add_log("⚔️  手动模拟对战开始！")
     session.add_log(f"🟦 我方: {', '.join(p.name for p in team_a)}")
     session.add_log(f"🟥 对方: {', '.join(p.name for p in team_b)}")
+    if team_item_a or team_item_b:
+        session.add_log(f"🎒 携带物: 我方={_lineup_magic_label(team_item_a) or '无'} | 对方={_lineup_magic_label(team_item_b) or '无'}")
     session.add_log("═══════════════════════════")
 
     snap_before = _snapshot(state)
@@ -2248,6 +2291,16 @@ async def receive_manual_turn(ws: WebSocket, msg: dict):
         return
 
     snap_after = _snapshot(state)
+
+    if getattr(state, "battle_event_log", None):
+        for ev in state.battle_event_log:
+            if ev.get("type") == "leader_evolve":
+                side_str = "我方" if ev.get("team") == "a" else "对方"
+                ability = ev.get("ability", "")
+                ability_name = ability.split(":")[0].split("：")[0] if ability else ""
+                detail = f"，特性变为【{ability_name}】" if ability_name else ""
+                session.add_log(f"  👑 {side_str} {ev.get('from')} 进化为 {ev.get('to')}{detail}")
+        state.battle_event_log.clear()
 
     for ev in state.energy_recharge_log:
         side_str = "我方" if ev["team"] == "a" else "对方"

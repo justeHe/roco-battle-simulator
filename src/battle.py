@@ -316,7 +316,191 @@ class DamageCalculator:
 # ============================================================
 # 回合执行
 # ============================================================
-Action = Tuple[int, ...]  # (skill_idx,) | (-1,) 汇合聚能 | (-2, switch_idx) 换人
+ACTION_CHARGE = -1
+ACTION_SWITCH = -2
+ACTION_LEADER_EVOLVE = -3
+
+Action = Tuple[int, ...]  # (skill_idx,) | (-1,) 汇合聚能 | (-2, switch_idx) 换人 | (-3,) 首领进化
+
+
+_PASSIVE_ABILITY_STATE_KEYS = {
+    "cost_invert",
+    "immune_zero_energy_attacker",
+    "immune_low_cost_attack",
+    "fixed_hit_count_all",
+    "hit_count_per_poison",
+    "faint_no_mp_loss",
+    "extra_poison_tick",
+    "heal_per_turn_pct",
+    "share_gains",
+    "half_meteor_full_damage",
+    "charge_free_skill",
+    "cost_change_double",
+    "turn_end_repeat",
+    "turn_end_skip",
+    "buff_extra_layers",
+    "mark_stack_additive",
+    "cute_no_cap",
+    "cute_hit_per_stack",
+}
+
+
+def _team_item(state: BattleState, team: str) -> str:
+    value = state.team_item_a if team == "a" else state.team_item_b
+    return (value or "").strip()
+
+
+def _is_leader_bloodline(pokemon: Pokemon) -> bool:
+    return "首领" in (getattr(pokemon, "bloodline", "") or "")
+
+
+def _apply_passive_ability_flags_for_battle(pokemon: Pokemon) -> None:
+    """刷新特性切换后需要立即生效的被动标记。"""
+    from src.effect_models import E
+
+    pokemon.ability_state = getattr(pokemon, "ability_state", {}) or {}
+    for key in _PASSIVE_ABILITY_STATE_KEYS:
+        pokemon.ability_state.pop(key, None)
+
+    for ae in getattr(pokemon, "ability_effects", []) or []:
+        for tag in ae.effects:
+            if tag.type == E.COST_INVERT:
+                pokemon.ability_state["cost_invert"] = True
+            elif tag.type == E.IMMUNE_ZERO_ENERGY_ATTACKER:
+                pokemon.ability_state["immune_zero_energy_attacker"] = True
+            elif tag.type == E.IMMUNE_LOW_COST_ATTACK:
+                pokemon.ability_state["immune_low_cost_attack"] = tag.params.get("cost_threshold", 1)
+            elif tag.type == E.FIXED_HIT_COUNT_ALL:
+                pokemon.ability_state["fixed_hit_count_all"] = tag.params.get("count", 2)
+            elif tag.type == E.HIT_COUNT_PER_POISON:
+                pokemon.ability_state["hit_count_per_poison"] = True
+            elif tag.type == E.FAINT_NO_MP_LOSS:
+                pokemon.ability_state["faint_no_mp_loss"] = True
+            elif tag.type == E.EXTRA_POISON_TICK:
+                pokemon.ability_state["extra_poison_tick"] = True
+            elif tag.type == E.HEAL_PER_TURN:
+                pokemon.ability_state["heal_per_turn_pct"] = tag.params.get("heal_pct", 0.12)
+            elif tag.type == E.SHARE_GAINS:
+                pokemon.ability_state["share_gains"] = True
+            elif tag.type == E.HALF_METEOR_FULL_DAMAGE:
+                pokemon.ability_state["half_meteor_full_damage"] = True
+            elif tag.type == E.CHARGE_FREE_SKILL:
+                pokemon.ability_state["charge_free_skill"] = True
+            elif tag.type == E.COST_CHANGE_DOUBLE:
+                pokemon.ability_state["cost_change_double"] = True
+            elif tag.type == E.TURN_END_REPEAT:
+                delta = tag.params.get("delta", 1)
+                pokemon.ability_state["turn_end_repeat"] = pokemon.ability_state.get("turn_end_repeat", 0) + delta
+            elif tag.type == E.TURN_END_SKIP:
+                delta = tag.params.get("delta", 1)
+                pokemon.ability_state["turn_end_skip"] = pokemon.ability_state.get("turn_end_skip", 0) + delta
+            elif tag.type == E.BUFF_EXTRA_LAYERS:
+                pokemon.ability_state["buff_extra_layers"] = tag.params.get("extra", 2)
+            elif tag.type == E.MARK_STACK_NO_REPLACE:
+                pokemon.ability_state["mark_stack_additive"] = True
+            elif tag.type == E.CUTE_NO_CAP:
+                pokemon.ability_state["cute_no_cap"] = True
+            elif tag.type == E.CUTE_HIT_PER_STACK:
+                pokemon.ability_state["cute_hit_per_stack"] = tag.params.get("per", 2)
+
+
+def _leader_evolution_target(pokemon: Pokemon):
+    from src.pokemon_db import get_leader_evolution_target
+
+    return get_leader_evolution_target(getattr(pokemon, "dex_name", "") or pokemon.name)
+
+
+def leader_evolution_status(state: BattleState, team: str) -> dict:
+    team_list = state.team_a if team == "a" else state.team_b
+    idx = state.current_a if team == "a" else state.current_b
+    pokemon = team_list[idx]
+    if pokemon.is_fainted:
+        return {"can_use": False, "reason": "当前精灵已倒下"}
+    if _team_item(state, team) != "进化之力":
+        return {"can_use": False, "reason": "队伍未携带进化之力"}
+    if not _is_leader_bloodline(pokemon):
+        return {"can_use": False, "reason": "只有首领血脉精灵可以使用"}
+    if getattr(pokemon, "is_leader_evolved", False) or "首领" in (getattr(pokemon, "evo_stage", "") or ""):
+        return {"can_use": False, "reason": "已经是首领形态"}
+    target = _leader_evolution_target(pokemon)
+    if not target:
+        return {"can_use": False, "reason": "没有可用的首领进化目标"}
+    return {
+        "can_use": True,
+        "reason": "",
+        "target_name": target["名称"],
+        "target_stage": target["进化阶段"],
+        "is_leader_target": "首领" in (target["进化阶段"] or ""),
+    }
+
+
+def execute_leader_evolution(state: BattleState, team: str) -> tuple[bool, str]:
+    status = leader_evolution_status(state, team)
+    if not status.get("can_use"):
+        return False, status.get("reason", "无法首领进化")
+
+    from src.models import Type
+    from src.pokemon_db import calc_combat_stats
+    from src.skill_db import load_ability_effects
+    from src.team_builder import TeamBuilder
+
+    team_list = state.team_a if team == "a" else state.team_b
+    idx = state.current_a if team == "a" else state.current_b
+    pokemon = team_list[idx]
+    target = _leader_evolution_target(pokemon)
+    if not target:
+        return False, "没有可用的首领进化目标"
+
+    old_name = pokemon.name
+    old_hp = max(1, pokemon.hp)
+    hp_ratio = max(0.0, min(1.0, pokemon.current_hp / old_hp))
+    iv_config = {
+        "hp": pokemon.iv_hp,
+        "atk": pokemon.iv_atk,
+        "spatk": pokemon.iv_spatk,
+        "def": pokemon.iv_def,
+        "spdef": pokemon.iv_spdef,
+        "speed": pokemon.iv_speed,
+    }
+    stats = calc_combat_stats(
+        base_hp=target["生命种族值"],
+        base_atk=target["物攻种族值"],
+        base_spatk=target["魔攻种族值"],
+        base_def=target["物防种族值"],
+        base_spdef=target["魔防种族值"],
+        base_speed=target["速度种族值"],
+        iv_config=iv_config,
+        nature_name=pokemon.nature,
+    )
+
+    primary_type = str(target["属性"] or "").replace("，", ",").split(",")[0].strip()
+    pokemon.name = target["名称"]
+    pokemon.dex_name = target["名称"]
+    pokemon.evo_stage = target["进化阶段"]
+    pokemon.spirit_no = target.get("图鉴编号", "")
+    pokemon.pokemon_type = TeamBuilder.TYPE_MAP.get(primary_type, Type.NORMAL)
+    pokemon.hp = stats["hp"]
+    pokemon.attack = stats["atk"]
+    pokemon.defense = stats["def"]
+    pokemon.sp_attack = stats["spatk"]
+    pokemon.sp_defense = stats["spdef"]
+    pokemon.speed = stats["speed"]
+    pokemon.current_hp = max(1, min(pokemon.hp, round(pokemon.hp * hp_ratio)))
+    pokemon.ability = (target["特性"] or "").strip()
+    pokemon.ability_effects = load_ability_effects(pokemon.ability) if pokemon.ability else []
+    pokemon.is_leader_evolved = "首领" in (pokemon.evo_stage or "")
+    _apply_passive_ability_flags_for_battle(pokemon)
+
+    if hasattr(state, "battle_event_log"):
+        state.battle_event_log.append({
+            "type": "leader_evolve",
+            "team": team,
+            "from": old_name,
+            "to": pokemon.name,
+            "ability": pokemon.ability,
+            "is_leader": pokemon.is_leader_evolved,
+        })
+    return True, ""
 
 
 def _compare_action_order(state: BattleState, action_a: Action, action_b: Action) -> int:
@@ -356,17 +540,19 @@ def get_actions(state: BattleState, team: str) -> List[Action]:
     if current.is_fainted:
         for i, p in enumerate(team_list):
             if i != idx and not p.is_fainted:
-                actions.append((-2, i))
-        return actions if actions else [(-1,)]
+                actions.append((ACTION_SWITCH, i))
+        return actions if actions else [(ACTION_CHARGE,)]
 
-    actions.append((-1,))  # 汇合聚能
+    actions.append((ACTION_CHARGE,))  # 汇合聚能
+    if leader_evolution_status(state, team).get("can_use"):
+        actions.append((ACTION_LEADER_EVOLVE,))
 
     for i, skill in enumerate(current.skills):
         cd = current.cooldowns.get(i, 0)
         if current.energy >= skill.energy_cost and cd <= 0:
             actions.append((i,))
 
-    return actions if actions else [(-1,)]
+    return actions if actions else [(ACTION_CHARGE,)]
 
 
 
@@ -1103,7 +1289,7 @@ def _execute_with_counter(state: BattleState, team: str, action: Action,
         return
 
     # 换人
-    if action[0] == -2:
+    if action[0] == ACTION_SWITCH:
         old_pokemon = current
         switch_snapshot = current.copy_state()
         # 先保存属性快照（on_switch_out 会清零 buff）
@@ -1208,8 +1394,14 @@ def _execute_with_counter(state: BattleState, team: str, action: Action,
             )
         return
 
+    # 首领进化
+    if action[0] == ACTION_LEADER_EVOLVE:
+        execute_leader_evolution(state, team)
+        current.ability_state.pop("barrel_active", None)
+        return
+
     # 汇合聚能
-    if action[0] == -1:
+    if action[0] == ACTION_CHARGE:
         # 检查对方技能是否有打断效果（打断可阻止聚能回能）
         enemy_skill_obj = None
         if enemy_action[0] >= 0 and not enemy.is_fainted:
@@ -1874,8 +2066,10 @@ def _is_first_action(state: BattleState, team: str, action: Action,
 
 def get_priority(state: BattleState, team: str, action: Action) -> int:
     """获取先手等级。换人优先级最高(+99)，聚能正常(0)，技能看先手加成。"""
-    if action[0] == -2:
+    if action[0] == ACTION_SWITCH:
         return 99  # 换人优先级最高，总是在技能之前执行
+    if action[0] == ACTION_LEADER_EVOLVE:
+        return 98  # 道具进化在技能前、换人后执行
     if action[0] < 0:
         return 0   # 聚能正常优先级
     team_list = state.team_a if team == "a" else state.team_b

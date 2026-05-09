@@ -219,6 +219,104 @@ def get_pokemon(name: str) -> Optional[Dict]:
     return None
 
 
+def _pokemon_row_by_name(name: str):
+    """按名称查找 DB 行：精确 > 基础名/前缀 > 包含。"""
+    conn = _get_conn()
+    c = conn.cursor()
+    raw = (name or "").strip()
+    if not raw:
+        return None
+
+    row = c.execute("SELECT * FROM pokemon WHERE name = ?", (raw,)).fetchone()
+    if row:
+        return row
+
+    base = raw.split("（")[0].split("(")[0].strip()
+    candidates = []
+    if base and base != raw:
+        candidates.append(f"{base}%")
+    candidates.append(f"{raw}%")
+    candidates.append(f"%{raw}%")
+
+    for pattern in candidates:
+        row = c.execute(
+            """
+            SELECT * FROM pokemon
+            WHERE name LIKE ?
+            ORDER BY
+              CASE WHEN evo_stage LIKE '%首领%' THEN 2
+                   WHEN evo_stage LIKE '%最终%' THEN 0
+                   ELSE 1 END,
+              id
+            LIMIT 1
+            """,
+            (pattern,),
+        ).fetchone()
+        if row:
+            return row
+    return None
+
+
+def get_leader_evolution_target(name: str) -> Optional[Dict]:
+    """
+    返回首领进化的下一个形态。
+
+    规则：
+    - 当前不是普通进化链最高阶时，先进入下一阶普通形态。
+    - 当前已是非首领最高阶时，进入相同 spirit_no 的首领形态。
+    - 当前已是首领形态，或没有可用目标时，返回 None。
+    """
+    conn = _get_conn()
+    c = conn.cursor()
+    current = _pokemon_row_by_name(name)
+    if not current:
+        return None
+    if "首领" in (current["evo_stage"] or ""):
+        return None
+
+    current_name = current["name"]
+    current_base = current_name.split("（")[0].split("(")[0].strip()
+    edge_rows = c.execute(
+        """
+        SELECT e.to_name, e.condition, p.*
+        FROM evolution e
+        JOIN pokemon p
+          ON p.name = e.to_name
+          OR p.name LIKE e.to_name || '（%'
+          OR p.name LIKE e.to_name || '(%'
+        WHERE e.from_name = ?
+           OR e.from_name = ?
+           OR ? LIKE e.from_name || '（%'
+           OR ? LIKE e.from_name || '(%'
+        ORDER BY
+          CASE WHEN COALESCE(e.condition, '') = '' THEN 0 ELSE 1 END,
+          p.id
+        """,
+        (current_name, current_base, current_name, current_name),
+    ).fetchall()
+    for row in edge_rows:
+        if "首领" not in (row["evo_stage"] or ""):
+            return _row_to_dict(row)
+
+    spirit_no = (current["spirit_no"] or "").strip()
+    if spirit_no:
+        row = c.execute(
+            """
+            SELECT * FROM pokemon
+            WHERE spirit_no = ?
+              AND evo_stage LIKE '%首领%'
+              AND name <> ?
+            ORDER BY id
+            LIMIT 1
+            """,
+            (spirit_no, current_name),
+        ).fetchone()
+        if row:
+            return _row_to_dict(row)
+
+    return None
+
+
 def search_pokemon(keyword: str) -> List[Dict]:
     """搜索精灵"""
     conn = _get_conn()
@@ -305,6 +403,7 @@ def _row_to_dict(row) -> Dict:
         "名称": row["name"],
         "属性": row["element"],
         "进化阶段": row["evo_stage"],
+        "图鉴编号": row["spirit_no"],
         "特性": row["ability"],
         "生命种族值": row["base_hp"],
         "物攻种族值": row["base_atk"],
@@ -312,4 +411,5 @@ def _row_to_dict(row) -> Dict:
         "物防种族值": row["base_def"],
         "魔防种族值": row["base_spdef"],
         "速度种族值": row["base_speed"],
+        "种族值总和": row["base_total"],
     }

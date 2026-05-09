@@ -1000,6 +1000,14 @@ function renderManualSide(side, team, curIdx){
   panel.innerHTML = '';
 
   addManualChoice(panel, side, {type:'charge'}, '汇合聚能', '+5 能量', false);
+  if(current.leader_evolution){
+    const evo = current.leader_evolution;
+    const target = evo.target_name || '首领形态';
+    const meta = evo.can_use
+      ? `进化之力 · 目标 ${target}`
+      : `进化之力 · ${evo.reason || '当前不可用'}`;
+    addManualChoice(panel, side, {type:'leader_evolve'}, '首领进化', meta, !evo.can_use);
+  }
 
   if(current.skills && current.skills.length){
     current.skills.forEach((skill, idx) => {
