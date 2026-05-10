@@ -119,6 +119,15 @@ def _type_id(value: Any, default: str = "normal") -> str:
     return TYPE_NAME_TO_ID.get(primary, default)
 
 
+def _type_ids(value: Any) -> list[str]:
+    items = []
+    for part in str(value or "").replace("，", ",").replace("、", ",").split(","):
+        type_id = _type_id(part.strip(), default="")
+        if type_id and type_id not in items:
+            items.append(type_id)
+    return items or ["normal"]
+
+
 def _type_enum(type_id: str) -> Type:
     for item in Type:
         if item.value == type_id:
@@ -169,9 +178,12 @@ def _load_pokemon_stats(payload: dict[str, Any], role: str) -> dict[str, Any]:
         nature_name=nature,
     )
     type_id = _type_id(data["属性"])
+    type_ids = _type_ids(data["属性"])
     return {
         "name": data["名称"],
+        "element": data["属性"],
         "type": type_id,
+        "types": type_ids,
         "type_name": TYPE_LABELS.get(type_id, type_id),
         "nature": nature,
         "iv": iv,
@@ -250,6 +262,8 @@ def _skill_payload(payload: dict[str, Any], attacker: dict[str, Any]) -> dict[st
 
     if will_impact:
         blood_type = _bloodline_type(skill_input.get("bloodline")) or attacker["type"]
+        counter_multiplier = 2.5 if bool(skill_input.get("counter_status")) else 1.0
+        counter_multiplier = max(counter_multiplier, _float(skill_input.get("counter_multiplier"), counter_multiplier))
         atk_for_axis = attacker["stats"]["atk"] * (
             1 + _ratio(payload.get("attacker_mods", {}).get("atk_up"), 0)
         ) / max(0.1, 1 + _ratio(payload.get("attacker_mods", {}).get("atk_down"), 0, maximum=0.9))
@@ -267,10 +281,12 @@ def _skill_payload(payload: dict[str, Any], attacker: dict[str, Any]) -> dict[st
             "hit_count": 1,
             "will_impact": True,
             "counter_status": bool(skill_input.get("counter_status")),
+            "counter_multiplier": counter_multiplier,
         }
 
     type_id = _type_id(skill_input.get("type"), default_type)
     category = _category_value(skill_input.get("category"), default_category)
+    counter_multiplier = max(1.0, _float(skill_input.get("counter_multiplier"), 1.0))
     return {
         "name": skill_name if skill_name and skill_name != "__manual__" else "自定义技能",
         "type": type_id,
@@ -280,7 +296,8 @@ def _skill_payload(payload: dict[str, Any], attacker: dict[str, Any]) -> dict[st
         "energy_cost": max(0, _int(skill_input.get("energy_cost"), default_energy)),
         "hit_count": max(1, min(10, _int(skill_input.get("hit_count"), default_hit_count or 1))),
         "will_impact": False,
-        "counter_status": False,
+        "counter_status": bool(skill_input.get("counter_status")),
+        "counter_multiplier": counter_multiplier,
         "from_db": base_skill is not None,
     }
 
@@ -318,20 +335,20 @@ def calculate_damage_preview(payload: dict[str, Any]) -> dict[str, Any]:
     base_atk = float(attacker["stats"][attack_stat_key])
     base_def = max(1.0, float(defender["stats"][defense_stat_key]))
     ability_level = (1.0 + atk_up + def_down) / max(0.1, 1.0 + atk_down + def_up)
-    effective_atk = base_atk * ability_level
-
     power_bonus = _int(attacker_mods.get("skill_power_bonus"), 0)
     power_pct = _ratio(attacker_mods.get("skill_power_pct_mod"), 0, minimum=-0.95, maximum=4.0)
-    final_power = max(0, skill["power"] + power_bonus)
-    power_multiplier = 1.0 + power_pct
-    if skill["will_impact"] and skill["counter_status"]:
-        power_multiplier *= 2.5
-    final_power = max(0, int(final_power * power_multiplier))
+    counter_multiplier = max(1.0, _float(skill.get("counter_multiplier"), 1.0))
 
-    if final_power <= 0:
-        base_damage = 0.0
-    else:
-        base_damage = (effective_atk / base_def) * final_power * 0.9
+    stab = 1.25 if skill["type"] in attacker.get("types", [attacker["type"]]) else 1.0
+
+    weather = str(field.get("weather") or "").strip()
+    weather_mult = WEATHER_DAMAGE_MULT.get(weather, {}).get(skill["type"], 1.0)
+
+    hit_count = max(1, _int(skill.get("hit_count"), 1))
+    independent_power_mult = _multiplier(attacker_mods.get("power_multiplier"), 1.0)
+    power_buff = independent_power_mult * (1.0 + power_pct)
+    panel_power = max(0.0, (skill["power"] + power_bonus) * ability_level * power_buff * stab * weather_mult)
+    resolved_power = max(0.0, (skill["power"] * counter_multiplier + power_bonus) * ability_level * power_buff * stab * weather_mult)
 
     defense_types = [
         _type_id(field.get("defense_type1"), defender["type"]),
@@ -341,17 +358,8 @@ def calculate_damage_preview(payload: dict[str, Any]) -> dict[str, Any]:
     if bool(field.get("barrel_active")):
         effectiveness = 1.0
 
-    stab_enabled = bool(field.get("stab_enabled", True))
-    stab = 1.25 if stab_enabled and skill["type"] == attacker["type"] else 1.0
-
-    weather = str(field.get("weather") or "").strip()
-    weather_mult = WEATHER_DAMAGE_MULT.get(weather, {}).get(skill["type"], 1.0)
-
-    hit_count = max(1, _int(skill.get("hit_count"), 1))
-    independent_power_mult = _multiplier(attacker_mods.get("power_multiplier"), 1.0)
-
-    raw_damage = base_damage * effectiveness * stab * weather_mult * hit_count * independent_power_mult
-    rounded_before_reduction = 0 if final_power <= 0 else max(1, int(raw_damage))
+    raw_damage = (base_atk / base_def) * 0.9 * resolved_power * effectiveness * hit_count
+    rounded_before_reduction = 0 if resolved_power <= 0 else max(1, int(raw_damage))
     damage_reduction = _ratio(defender_mods.get("damage_reduction"), 0, minimum=0.0, maximum=1.0)
     final_damage = int(rounded_before_reduction * (1.0 - damage_reduction))
     if rounded_before_reduction > 0 and damage_reduction < 1.0:
@@ -372,24 +380,50 @@ def calculate_damage_preview(payload: dict[str, Any]) -> dict[str, Any]:
             "value": f"(1 + {atk_up:.2f} + {def_down:.2f}) / (1 + {atk_down:.2f} + {def_up:.2f})",
             "multiplier": round(ability_level, 4),
         },
-        {"label": "最终威力", "value": str(final_power), "multiplier": final_power},
-        {"label": "对应倍率", "value": f"x{effectiveness:g}", "multiplier": effectiveness},
+        {"label": "技能威力", "value": str(skill["power"]), "multiplier": skill["power"]},
+        {"label": "应对倍率", "value": f"x{counter_multiplier:g}", "multiplier": counter_multiplier},
+        {"label": "威力加成", "value": f"{power_bonus:+d}", "multiplier": power_bonus},
+        {"label": "威力提升buff", "value": f"x{power_buff:g}", "multiplier": round(power_buff, 4)},
         {"label": "本系加成", "value": f"x{stab:g}", "multiplier": stab},
         {"label": "天气影响", "value": f"{WEATHER_LABELS.get(weather, weather or '无天气')} x{weather_mult:g}", "multiplier": weather_mult},
+        {
+            "label": "面板威力",
+            "value": (
+                f"({skill['power']} + {power_bonus}) x "
+                f"{ability_level:.4f} x {power_buff:g} x {stab:g} x {weather_mult:g} "
+                f"= {panel_power:.2f}".rstrip("0").rstrip(".")
+            ),
+            "multiplier": round(panel_power, 4),
+        },
+        {"label": "克制倍率", "value": f"x{effectiveness:g}", "multiplier": effectiveness},
         {"label": "连击", "value": f"x{hit_count}", "multiplier": hit_count},
-        {"label": "威力提升buff", "value": f"x{independent_power_mult:g}", "multiplier": independent_power_mult},
         {"label": "减伤", "value": f"-{damage_reduction * 100:.0f}%", "multiplier": round(1.0 - damage_reduction, 4)},
     ]
 
+    formula_steps = [
+        {"label": "攻防比", "value": f"{base_atk:.2f} / {base_def:.2f}"},
+        {"label": "基础系数", "value": "0.9"},
+        {"label": "面板威力", "value": f"({skill['power']} + {power_bonus}) x {ability_level:.4f} x {power_buff:g} x {stab:g} x {weather_mult:g} = {panel_power:.2f}"},
+        {"label": "结算威力", "value": f"({skill['power']} x {counter_multiplier:g} + {power_bonus}) x {ability_level:.4f} x {power_buff:g} x {stab:g} x {weather_mult:g} = {resolved_power:.2f}"},
+        {"label": "克制倍率", "value": f"x{effectiveness:g}"},
+        {"label": "连击", "value": f"x{hit_count}"},
+        {"label": "减伤", "value": f"x{1.0 - damage_reduction:g}"},
+        {"label": "总伤害", "value": f"({base_atk:.2f} / {base_def:.2f}) x 0.9 x {resolved_power:.2f} x {effectiveness:g} x {hit_count} x {1.0 - damage_reduction:g} = {final_damage}"},
+    ]
     formula = {
         "detail": (
             f"({base_atk:.2f} / {base_def:.2f}) x 0.9 x "
-            f"({final_power} x {effectiveness:g}) x {ability_level:.4f} x "
-            f"{stab:g} x {weather_mult:g} x {hit_count} x {independent_power_mult:g}"
+            f"{resolved_power:.2f} x {effectiveness:g} x {hit_count} x {1.0 - damage_reduction:g}"
         ),
+        "total_damage": f"({base_atk:.2f} / {base_def:.2f}) x 0.9 x {resolved_power:.2f} x {effectiveness:g} x {hit_count} x {1.0 - damage_reduction:g} = {final_damage}",
         "ability_level": ability_level,
+        "panel_power": round(panel_power, 3),
+        "resolved_power": round(resolved_power, 3),
+        "counter_multiplier": counter_multiplier,
+        "power_buff": round(power_buff, 4),
         "raw_damage": raw_damage,
         "rounded_before_reduction": rounded_before_reduction,
+        "steps": formula_steps,
     }
 
     return {
@@ -413,6 +447,9 @@ def calculate_damage_preview(payload: dict[str, Any]) -> dict[str, Any]:
             "effectiveness": effectiveness,
             "effectiveness_parts": effectiveness_parts,
             "barrel_active": bool(field.get("barrel_active")),
+            "counter_multiplier": counter_multiplier,
+            "panel_power": round(panel_power, 3),
+            "resolved_power": round(resolved_power, 3),
         },
         "breakdown": breakdown,
         "formula": formula,

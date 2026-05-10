@@ -499,6 +499,87 @@ def _type_id_from_label(text: str) -> str:
     return _TYPE_ID_BY_LABEL.get(primary, "normal")
 
 
+def _type_ids_from_label(text: str) -> list[str]:
+    items = []
+    for part in re.split(r"[,，/、\s]+", str(text or "")):
+        clean = part.strip().replace("系", "")
+        if not clean:
+            continue
+        type_id = _TYPE_ID_BY_LABEL.get(clean)
+        if type_id and type_id not in items:
+            items.append(type_id)
+    return items or ["normal"]
+
+
+def _counter_multiplier_from_tags(tags: list) -> float:
+    """读取应对阶段的威力倍率；没有显式倍率时为 1。"""
+    multiplier = 1.0
+    for tag in tags or []:
+        if getattr(tag, "type", None) == E.POWER_DYNAMIC:
+            params = getattr(tag, "params", {}) or {}
+            if params.get("condition") == "counter":
+                multiplier = max(multiplier, float(params.get("multiplier", 1.0) or 1.0))
+    return multiplier
+
+
+def _counter_multiplier_from_description(segment: str) -> float:
+    match = re.search(r"威力[^，。；;]*?变为\s*(\d+(?:\.\d+)?)\s*倍", segment)
+    if match:
+        return float(match.group(1))
+    match = re.search(r"威力[^，。；;]*?(\d+(?:\.\d+)?)\s*倍", segment)
+    if match:
+        return float(match.group(1))
+    if "威力" in segment and "翻倍" in segment:
+        return 2.0
+    return 1.0
+
+
+def _skill_counter_info(skill, description: str = "") -> dict:
+    info = {
+        "attack": {"can_counter": False, "multiplier": 1.0},
+        "defense": {"can_counter": False, "multiplier": 1.0},
+        "status": {"can_counter": False, "multiplier": 1.0},
+    }
+
+    def mark(category: str, multiplier: float = 1.0):
+        if category not in info:
+            return
+        info[category]["can_counter"] = True
+        info[category]["multiplier"] = max(info[category]["multiplier"], multiplier or 1.0)
+
+    if getattr(skill, "counter_physical_power_mult", 0) > 0:
+        mark("attack", skill.counter_physical_power_mult)
+    if getattr(skill, "counter_defense_power_mult", 0) > 0:
+        mark("defense", skill.counter_defense_power_mult)
+    if getattr(skill, "counter_status_power_mult", 0) > 0:
+        mark("status", skill.counter_status_power_mult)
+
+    if getattr(skill, "effects", None):
+        from src.effect_models import SkillEffect, SkillTiming
+        for item in skill.effects:
+            if isinstance(item, SkillEffect) and item.timing == SkillTiming.ON_COUNTER:
+                category = item.filter.get("category", "")
+                mark(category, _counter_multiplier_from_tags(item.effects))
+                continue
+            item_type = getattr(item, "type", None)
+            sub_effects = getattr(item, "sub_effects", None) or []
+            if item_type == E.COUNTER_ATTACK:
+                mark("attack", _counter_multiplier_from_tags(sub_effects))
+            elif item_type == E.COUNTER_DEFENSE:
+                mark("defense", _counter_multiplier_from_tags(sub_effects))
+            elif item_type == E.COUNTER_STATUS:
+                mark("status", _counter_multiplier_from_tags(sub_effects))
+
+    desc = description or ""
+    for label, category in [("应对攻击", "attack"), ("应对防御", "defense"), ("应对状态", "status")]:
+        if label not in desc:
+            continue
+        segment = desc.split(label, 1)[1].split("。", 1)[0]
+        mark(category, _counter_multiplier_from_description(segment))
+
+    return info
+
+
 def _type_single_effectiveness(attack_id: str, defense_id: str) -> float:
     from src.models import TYPE_CHART
     return TYPE_CHART.get(attack_id, {}).get(defense_id, 1.0)
@@ -3295,6 +3376,7 @@ async def api_damage_calculator_options():
             "name": row["name"],
             "element": row["element"],
             "type": type_id,
+            "types": _type_ids_from_label(row["element"]),
             "type_name": _TYPE_LABELS.get(type_id, row["element"]),
             "number": number,
             "is_leader": _is_leader_form(row["name"], row["evo_stage"]),
@@ -3310,17 +3392,18 @@ async def api_damage_calculator_options():
                COUNT(DISTINCT ps.pokemon_id) AS learners_count
         FROM skill s
         JOIN pokemon_skill ps ON ps.skill_id = s.id
-        WHERE COALESCE(s.power, 0) > 0
         GROUP BY s.id
         ORDER BY s.element, s.energy_cost, s.name
     """)
     skills = []
+    skills_by_name = {}
     for row in sc.fetchall():
         skill = get_skill(row["name"])
         type_id = skill.skill_type.value if hasattr(skill.skill_type, "value") else _type_id_from_label(row["element"])
         category = skill.category.value if hasattr(skill.category, "value") else row["category"]
         local_icon = _get_skill_icon_url(row["name"])
-        skills.append({
+        counter_info = _skill_counter_info(skill, row["description"] or "")
+        item = {
             "id": row["id"],
             "name": row["name"],
             "type": type_id,
@@ -3336,7 +3419,47 @@ async def api_damage_calculator_options():
             "category_icon_url": _get_skill_meta_icon_url("categories", row["category"]) or row["category_icon_url"] or "",
             "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
             "learners_count": row["learners_count"] or 0,
-        })
+            "counter": counter_info,
+            "can_counter_status": counter_info["status"]["can_counter"],
+            "counter_status_multiplier": counter_info["status"]["multiplier"],
+            "can_counter_defense": counter_info["defense"]["can_counter"],
+            "counter_defense_multiplier": counter_info["defense"]["multiplier"],
+        }
+        skills.append(item)
+        skills_by_name[row["name"]] = item
+
+    sc.execute("""
+        SELECT p.name AS pokemon_name, s.name AS skill_name,
+               COALESCE(ps.learn_group, '') AS learn_group,
+               COALESCE(ps.learn_level, '') AS learn_level
+        FROM pokemon p
+        JOIN pokemon_skill ps ON ps.pokemon_id = p.id
+        JOIN skill s ON s.id = ps.skill_id
+        ORDER BY p.name,
+          CASE
+            WHEN ps.learn_group LIKE '%血脉%' THEN 3
+            WHEN ps.learn_group LIKE '%技能石%' OR ps.learn_group LIKE '%可学%' THEN 2
+            ELSE 1
+          END,
+          ps.learn_level, s.energy_cost, s.name
+    """)
+    learnsets: dict[str, list[dict]] = {}
+    seen_learn_rows: set[tuple[str, str, str, str]] = set()
+    for row in sc.fetchall():
+        key = (row["pokemon_name"], row["skill_name"], row["learn_group"], row["learn_level"])
+        if key in seen_learn_rows:
+            continue
+        seen_learn_rows.add(key)
+        skill_item = skills_by_name.get(row["skill_name"])
+        if not skill_item:
+            continue
+        payload = {
+            **skill_item,
+            "learn_group": row["learn_group"] or "",
+            "learn_level": row["learn_level"] or "",
+            "is_bloodline_skill": "血脉" in (row["learn_group"] or ""),
+        }
+        learnsets.setdefault(row["pokemon_name"], []).append(payload)
 
     natures = [
         {
@@ -3350,6 +3473,7 @@ async def api_damage_calculator_options():
         "ok": True,
         "pokemon": pokemon,
         "skills": skills,
+        "learnsets": learnsets,
         "types": _type_items(),
         "natures": natures,
         "weather": [

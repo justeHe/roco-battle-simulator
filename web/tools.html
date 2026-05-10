@@ -437,15 +437,20 @@ body { min-height: 100vh; }
 }
 .damage-layout {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(300px, 1.05fr) minmax(290px, .9fr) minmax(300px, 1.05fr);
   gap: 10px;
-  align-items: start;
+  align-items: stretch;
 }
 .damage-block {
   border: 1px solid var(--border);
   border-radius: var(--r-md);
   background: var(--bg-input);
   padding: 12px;
+  min-width: 0;
+}
+.damage-side-block {
+  display: flex;
+  flex-direction: column;
 }
 .damage-block h2 {
   margin: 0 0 10px;
@@ -458,6 +463,46 @@ body { min-height: 100vh; }
   gap: 8px;
 }
 .damage-fields.single { grid-template-columns: 1fr; }
+.damage-identity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.damage-identity-grid.defender {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.damage-identity-grid .field-stack {
+  min-width: 0;
+}
+.damage-identity-grid .roco-select,
+.damage-identity-grid .roco-input {
+  width: 100%;
+}
+.damage-field-full {
+  grid-column: 1 / -1;
+}
+.damage-skill-picker {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
+}
+.damage-skill-icon {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: rgba(255,255,255,.72);
+  padding: 3px;
+}
+.damage-skill-icon.empty {
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 900;
+}
 .damage-iv-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -478,6 +523,76 @@ body { min-height: 100vh; }
   padding: 4px 6px;
 }
 .damage-check input { margin: 0; }
+.damage-check.disabled {
+  opacity: .52;
+}
+.damage-pokemon-preview {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  margin: 10px 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,.48);
+  padding: 10px;
+  min-height: 112px;
+}
+.damage-pokemon-preview img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,.7);
+  padding: 4px;
+}
+.damage-pokemon-preview strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+.damage-pokemon-preview span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11px;
+  margin-top: 3px;
+}
+.damage-nature-effect {
+  width: 100%;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: stretch;
+  flex-wrap: nowrap;
+  gap: 6px;
+  margin-top: 6px;
+  overflow: visible;
+}
+.nature-chip {
+  flex: 1 1 0;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.2;
+  padding: 4px 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+.nature-chip.up {
+  color: var(--hp-green);
+  border-color: rgba(92,184,92,.34);
+  background: rgba(92,184,92,.08);
+}
+.nature-chip.down {
+  color: #b6403a;
+  border-color: rgba(217,83,79,.32);
+  background: rgba(217,83,79,.08);
+}
 .damage-actions {
   display: flex;
   align-items: center;
@@ -720,18 +835,24 @@ body { min-height: 100vh; }
 
           <div class="damage-form">
             <div class="damage-layout">
-              <section class="damage-block">
+              <section class="damage-block damage-side-block">
                 <h2>攻击方</h2>
-                <div class="damage-fields single">
-                  <div class="field-stack">
+                <div class="damage-identity-grid">
+                  <div class="field-stack damage-field-full">
                     <label for="damage-attacker">精灵</label>
                     <input id="damage-attacker" class="roco-input" list="damage-pokemon-list" placeholder="搜索精灵名称" autocomplete="on"/>
                   </div>
                   <div class="field-stack">
                     <label for="damage-attacker-nature">性格</label>
                     <select id="damage-attacker-nature" class="roco-select"></select>
+                    <div id="damage-attacker-nature-effect" class="damage-nature-effect"></div>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-bloodline">攻击方血脉</label>
+                    <select id="damage-bloodline" class="roco-select"></select>
                   </div>
                 </div>
+                <div id="damage-attacker-preview" class="damage-pokemon-preview"></div>
                 <div class="damage-iv-grid">
                   <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:hp" checked>生命</label>
                   <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:atk" checked>物攻</label>
@@ -758,8 +879,8 @@ body { min-height: 100vh; }
                     <input id="damage-spatk-down" class="roco-input" type="number" step="10" value="0">
                   </div>
                   <div class="field-stack">
-                    <label for="damage-power-mult">威力提升倍率</label>
-                    <input id="damage-power-mult" class="roco-input" type="number" min="0" step="0.1" value="1">
+                    <label for="damage-power-mult">威力提升buff %</label>
+                    <input id="damage-power-mult" class="roco-input" type="number" step="10" value="0">
                   </div>
                   <div class="field-stack">
                     <label for="damage-skill-power-bonus">威力加成</label>
@@ -777,8 +898,18 @@ body { min-height: 100vh; }
                 <div class="damage-fields">
                   <div class="field-stack" style="grid-column:1/-1">
                     <label for="damage-skill">技能</label>
-                    <input id="damage-skill" class="roco-input" list="damage-skill-list" placeholder="搜索技能名称，或输入自定义技能" autocomplete="off"/>
+                    <div class="damage-skill-picker">
+                      <span id="damage-attack-skill-icon" class="damage-skill-icon empty">攻击</span>
+                      <input id="damage-skill" class="roco-input" list="damage-skill-list" placeholder="搜索技能名称，或输入自定义技能" autocomplete="off"/>
+                    </div>
                     <datalist id="damage-skill-list"></datalist>
+                  </div>
+                  <div class="field-stack" style="grid-column:1/-1">
+                    <label for="damage-defense-skill">防御方技能</label>
+                    <div class="damage-skill-picker">
+                      <span id="damage-defense-skill-icon" class="damage-skill-icon empty">状态</span>
+                      <select id="damage-defense-skill" class="roco-select"></select>
+                    </div>
                   </div>
                   <div class="field-stack">
                     <label for="damage-skill-type">系别</label>
@@ -806,8 +937,8 @@ body { min-height: 100vh; }
                     <select id="damage-weather" class="roco-select"></select>
                   </div>
                   <div class="field-stack">
-                    <label for="damage-bloodline">血脉系别</label>
-                    <select id="damage-bloodline" class="roco-select"></select>
+                    <label for="damage-counter-mult">应对倍率</label>
+                    <input id="damage-counter-mult" class="roco-input" type="number" min="1" step="0.1" value="1" readonly>
                   </div>
                 </div>
                 <div class="damage-iv-grid">
@@ -818,18 +949,24 @@ body { min-height: 100vh; }
                 </div>
               </section>
 
-              <section class="damage-block">
+              <section class="damage-block damage-side-block">
                 <h2>防御方</h2>
-                <div class="damage-fields single">
-                  <div class="field-stack">
+                <div class="damage-identity-grid defender">
+                  <div class="field-stack damage-field-full">
                     <label for="damage-defender">精灵</label>
                     <input id="damage-defender" class="roco-input" list="damage-pokemon-list" placeholder="搜索精灵名称" autocomplete="off"/>
                   </div>
                   <div class="field-stack">
                     <label for="damage-defender-nature">性格</label>
                     <select id="damage-defender-nature" class="roco-select"></select>
+                    <div id="damage-defender-nature-effect" class="damage-nature-effect"></div>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-defender-bloodline">防御方血脉</label>
+                    <select id="damage-defender-bloodline" class="roco-select"></select>
                   </div>
                 </div>
+                <div id="damage-defender-preview" class="damage-pokemon-preview"></div>
                 <div class="damage-iv-grid">
                   <label class="damage-check"><input type="checkbox" data-damage-iv="defender:hp" checked>生命</label>
                   <label class="damage-check"><input type="checkbox" data-damage-iv="defender:atk">物攻</label>
@@ -930,17 +1067,26 @@ const typeEls = {
 const damageEls = {
   attacker: document.getElementById('damage-attacker'),
   attackerNature: document.getElementById('damage-attacker-nature'),
+  attackerNatureEffect: document.getElementById('damage-attacker-nature-effect'),
+  attackerPreview: document.getElementById('damage-attacker-preview'),
   defender: document.getElementById('damage-defender'),
   defenderNature: document.getElementById('damage-defender-nature'),
+  defenderNatureEffect: document.getElementById('damage-defender-nature-effect'),
+  defenderPreview: document.getElementById('damage-defender-preview'),
   skill: document.getElementById('damage-skill'),
+  attackSkillIcon: document.getElementById('damage-attack-skill-icon'),
   skillType: document.getElementById('damage-skill-type'),
   skillCategory: document.getElementById('damage-skill-category'),
   power: document.getElementById('damage-power'),
   hitCount: document.getElementById('damage-hit-count'),
   weather: document.getElementById('damage-weather'),
   bloodline: document.getElementById('damage-bloodline'),
+  defenderBloodline: document.getElementById('damage-defender-bloodline'),
+  defenseSkill: document.getElementById('damage-defense-skill'),
+  defenseSkillIcon: document.getElementById('damage-defense-skill-icon'),
   willImpact: document.getElementById('damage-will-impact'),
   counterStatus: document.getElementById('damage-counter-status'),
+  counterMult: document.getElementById('damage-counter-mult'),
   stab: document.getElementById('damage-stab'),
   barrel: document.getElementById('damage-barrel'),
   defenseType1: document.getElementById('damage-defense-type1'),
@@ -1340,6 +1486,15 @@ function renderDamagePrompt(text){
   damageEls.result.innerHTML = `<div class="empty-state">${esc(text)}</div>`;
 }
 
+const damageStatLabels = {
+  hp: '生命',
+  atk: '物攻',
+  spatk: '魔攻',
+  def: '物防',
+  spdef: '魔防',
+  speed: '速度',
+};
+
 function damageNumber(el, fallback = 0){
   const value = Number(el.value);
   return Number.isFinite(value) ? value : fallback;
@@ -1364,10 +1519,77 @@ function damageSelectedSkill(){
   return (options.skills || []).find(item => item.name === damageEls.skill.value);
 }
 
+function damageLearnsetFor(name){
+  const options = damageState.options || {};
+  return (options.learnsets || {})[name] || [];
+}
+
+function damageNatureByName(name){
+  const options = damageState.options || {};
+  return (options.natures || []).find(item => item.name === name);
+}
+
+function damageNatureHtml(name){
+  const nature = damageNatureByName(name);
+  const bonuses = nature ? (nature.bonuses || {}) : {};
+  const chips = Object.entries({
+    hp: bonuses.hp,
+    atk: bonuses.atk,
+    spatk: bonuses.sp_atk,
+    def: bonuses.defense,
+    spdef: bonuses.sp_defense,
+    speed: bonuses.speed,
+  }).filter(([, value]) => Number(value) !== 0)
+    .map(([key, value]) => {
+      const num = Number(value);
+      const cls = num > 0 ? 'up' : 'down';
+      const sign = num > 0 ? '+' : '';
+      return `<span class="nature-chip ${cls}">${esc(damageStatLabels[key])}${sign}${Math.round(num * 100)}%</span>`;
+    });
+  return chips.join('') || '<span class="nature-chip">无修正</span>';
+}
+
+function damagePokemonTypes(pokemon){
+  return (pokemon && Array.isArray(pokemon.types) && pokemon.types.length) ? pokemon.types : [pokemon?.type || 'normal'];
+}
+
+function damageBloodlineAllows(skill, bloodline, pokemon){
+  if(!skill || !String(skill.learn_group || '').includes('血脉')) return true;
+  if(!bloodline || bloodline === 'leader') return false;
+  if(pokemon && pokemon.is_leader) return false;
+  return skill.type === bloodline;
+}
+
+function damageAttackSkills(){
+  const attacker = damageSelectedPokemon(damageEls.attacker);
+  return damageLearnsetFor(damageEls.attacker.value)
+    .filter(skill => ['物攻', '魔攻'].includes(skill.category))
+    .filter(skill => Number(skill.power || 0) > 0)
+    .filter(skill => damageBloodlineAllows(skill, damageEls.bloodline.value, attacker));
+}
+
+function damageDefenseSkills(){
+  const defender = damageSelectedPokemon(damageEls.defender);
+  const defenseSkills = damageLearnsetFor(damageEls.defender.value)
+    .filter(skill => skill.category === '防御')
+    .filter(skill => damageBloodlineAllows(skill, damageEls.defenderBloodline.value, defender));
+  return [
+    {name: '__status__', label: '状态类技能', category: '状态', type: '', power: 0, counter_target: 'status'},
+    ...defenseSkills.map(skill => ({...skill, label: `${skill.name} · ${skill.type_name || skill.element || ''}`, counter_target: 'defense'})),
+  ];
+}
+
 function fillDamageTypeSelect(select, allowEmpty = false){
   const options = damageState.options || {};
   select.innerHTML = `${allowEmpty ? '<option value="">不选择</option>' : ''}` + (options.types || [])
     .map(type => `<option value="${esc(type.id)}">${esc(type.name)}</option>`)
+    .join('');
+}
+
+function fillDamageBloodlineSelect(select){
+  const options = damageState.options || {};
+  select.innerHTML = '<option value="">无血脉</option><option value="leader">首领血脉</option>' + (options.types || [])
+    .map(type => `<option value="${esc(type.id)}">${esc(type.name)}血脉</option>`)
     .join('');
 }
 
@@ -1385,19 +1607,14 @@ damageEls.pokemonList.innerHTML = pokemonHtml;
   damageEls.attackerNature.innerHTML = natureHtml;
   damageEls.defenderNature.innerHTML = natureHtml;
 
-  damageEls.skillList.innerHTML = (options.skills || [])
-  .map(item => `
-    <option value="${esc(item.name)}">
-      ${esc(item.type_name || item.element || '')} · ${esc(item.category || '')} · 威力 ${esc(item.power || 0)}
-    </option>
-  `)
-  .join('');
-
-  [damageEls.skillType, damageEls.bloodline, damageEls.defenseType1].forEach(select => fillDamageTypeSelect(select));
+  [damageEls.skillType, damageEls.defenseType1].forEach(select => fillDamageTypeSelect(select));
+  [damageEls.bloodline, damageEls.defenderBloodline].forEach(select => fillDamageBloodlineSelect(select));
   fillDamageTypeSelect(damageEls.defenseType2, true);
   damageEls.weather.innerHTML = (options.weather || [])
     .map(item => `<option value="${esc(item.id)}">${esc(item.name)}</option>`)
     .join('');
+  fillDamageAttackSkillList();
+  fillDamageDefenseSkillSelect();
 }
 
 function setDamagePreferred(el, names){
@@ -1434,14 +1651,95 @@ function setDamagePreferred(el, names){
   }
 }
 
+function fillDamageAttackSkillList(){
+  const skills = damageAttackSkills();
+  damageEls.skillList.innerHTML = skills
+    .map(item => `
+      <option value="${esc(item.name)}">
+        ${esc(item.type_name || item.element || '')} · ${esc(item.category || '')} · 威力 ${esc(item.power || 0)} · ${esc(item.learn_group || '')}${item.learn_level ? ` ${esc(item.learn_level)}` : ''}
+      </option>
+    `)
+    .join('');
+  if(!skills.some(skill => skill.name === damageEls.skill.value)){
+    damageEls.skill.value = skills[0]?.name || '';
+  }
+  syncDamageSkillIcons();
+}
+
+function fillDamageDefenseSkillSelect(){
+  const skills = damageDefenseSkills();
+  damageEls.defenseSkill.innerHTML = skills
+    .map(skill => `<option value="${esc(skill.name)}" data-counter-target="${esc(skill.counter_target || '')}">${esc(skill.label || skill.name)}</option>`)
+    .join('');
+  if(!skills.some(skill => skill.name === damageEls.defenseSkill.value)){
+    damageEls.defenseSkill.value = skills[0]?.name || '__status__';
+  }
+  syncDamageSkillIcons();
+}
+
+function renderDamageSkillIcon(target, skill, fallbackText){
+  if(!target) return target;
+  const id = target.id;
+  const icon = skill && skill.icon_url ? skill.icon_url : '';
+  if(icon){
+    target.outerHTML = `<img id="${esc(id)}" class="damage-skill-icon" src="${esc(icon)}" alt="${esc(skill.name || '')}">`;
+  } else {
+    target.outerHTML = `<span id="${esc(id)}" class="damage-skill-icon empty">${esc(fallbackText)}</span>`;
+  }
+  return document.getElementById(id);
+}
+
+function syncDamageSkillIcons(){
+  const attackSkill = damageEls.willImpact.checked && !damageEls.willImpact.disabled ? null : damageSelectedSkill();
+  damageEls.attackSkillIcon = renderDamageSkillIcon(damageEls.attackSkillIcon, attackSkill, damageEls.willImpact.checked ? '愿力' : '攻击');
+  const defenseSkill = damageDefenseSkillMeta();
+  damageEls.defenseSkillIcon = renderDamageSkillIcon(damageEls.defenseSkillIcon, defenseSkill, defenseSkill.name === '__status__' ? '状态' : '防御');
+}
+
+function syncDamagePokemonPreview(which){
+  const isAttacker = which === 'attacker';
+  const pokemon = damageSelectedPokemon(isAttacker ? damageEls.attacker : damageEls.defender);
+  const target = isAttacker ? damageEls.attackerPreview : damageEls.defenderPreview;
+  if(!pokemon){
+    target.innerHTML = '<span>请选择精灵</span>';
+    return;
+  }
+  target.innerHTML = `
+    <img src="${esc(pokemon.icon_url || '')}" alt="${esc(pokemon.name)}">
+    <div>
+      <strong>${esc(pokemon.name)}</strong>
+      <span>${pokemon.is_leader ? '首领形态 · ' : ''}${esc(pokemon.number || '')}${pokemon.base_total ? ` · 种族值 ${esc(pokemon.base_total)}` : ''}</span>
+    </div>
+  `;
+}
+
+function syncDamageNatureEffects(){
+  damageEls.attackerNatureEffect.innerHTML = damageNatureHtml(damageEls.attackerNature.value);
+  damageEls.defenderNatureEffect.innerHTML = damageNatureHtml(damageEls.defenderNature.value);
+}
+
 function syncDamagePokemonDefaults(){
   const attacker = damageSelectedPokemon(damageEls.attacker);
   const defender = damageSelectedPokemon(damageEls.defender);
   if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
-  if(defender) damageEls.defenseType1.value = defender.type || 'normal';
+  if(defender){
+    damageEls.defenderBloodline.value = defender.type || 'normal';
+    const defenderTypes = damagePokemonTypes(defender);
+    damageEls.defenseType1.value = defenderTypes[0] || 'normal';
+    damageEls.defenseType2.value = defenderTypes[1] || '';
+  }
+  syncDamagePokemonPreview('attacker');
+  syncDamagePokemonPreview('defender');
+  syncDamageNatureEffects();
+  fillDamageAttackSkillList();
+  fillDamageDefenseSkillSelect();
 }
 
 function syncDamageSkillFields(){
+  const allowed = damageAttackSkills();
+  if(allowed.length && !allowed.some(item => item.name === damageEls.skill.value)){
+    damageEls.skill.value = allowed[0].name;
+  }
   const skill = damageSelectedSkill();
   if(skill){
     damageEls.skillType.value = skill.type || 'normal';
@@ -1450,21 +1748,66 @@ function syncDamageSkillFields(){
     damageEls.hitCount.value = Number(skill.hit_count || 1);
   }
   syncDamageWillFields();
+  syncDamageCounterFields();
+  syncDamageStabField();
+  syncDamageSkillIcons();
 }
 
 function syncDamageWillFields(){
-  const enabled = damageEls.willImpact.checked;
-  damageEls.counterStatus.disabled = !enabled;
-  damageEls.bloodline.disabled = !enabled;
+  const attacker = damageSelectedPokemon(damageEls.attacker);
+  const blocked = Boolean(attacker && attacker.is_leader) || !damageEls.bloodline.value || damageEls.bloodline.value === 'leader';
+  damageEls.willImpact.disabled = blocked;
+  damageEls.willImpact.closest('.damage-check')?.classList.toggle('disabled', blocked);
+  if(blocked){
+    damageEls.willImpact.checked = false;
+  }
+  const enabled = damageEls.willImpact.checked && !blocked;
   if(!enabled){
-    damageEls.counterStatus.checked = false;
     return;
   }
-  const attacker = damageSelectedPokemon(damageEls.attacker);
   if(attacker && !damageEls.bloodline.value) damageEls.bloodline.value = attacker.type || 'normal';
   damageEls.skillType.value = damageEls.bloodline.value || damageEls.skillType.value;
   damageEls.power.value = 80;
   damageEls.hitCount.value = 1;
+}
+
+function syncDamageStabField(){
+  const attacker = damageSelectedPokemon(damageEls.attacker);
+  const attackerTypes = damagePokemonTypes(attacker);
+  const hasStab = attackerTypes.includes(damageEls.skillType.value);
+  damageEls.stab.checked = hasStab;
+  damageEls.stab.disabled = true;
+  damageEls.stab.closest('.damage-check')?.classList.toggle('disabled', true);
+}
+
+function damageDefenseSkillMeta(){
+  return damageDefenseSkills().find(skill => skill.name === damageEls.defenseSkill.value) || {counter_target: 'status'};
+}
+
+function syncDamageCounterFields(){
+  const selectedSkill = damageSelectedSkill();
+  const defenseSkill = damageDefenseSkillMeta();
+  const target = defenseSkill.counter_target || 'status';
+  let canCounter = false;
+  let multiplier = 1;
+
+  if(damageEls.willImpact.checked && !damageEls.willImpact.disabled && target === 'status'){
+    canCounter = true;
+    multiplier = 2.5;
+  } else if(selectedSkill && selectedSkill.counter && selectedSkill.counter[target]){
+    canCounter = Boolean(selectedSkill.counter[target].can_counter);
+    multiplier = Number(selectedSkill.counter[target].multiplier || 1);
+  }
+
+  if(target === 'status'){
+    damageEls.counterStatus.checked = canCounter;
+    damageEls.counterStatus.disabled = !canCounter;
+  } else {
+    damageEls.counterStatus.checked = false;
+    damageEls.counterStatus.disabled = true;
+  }
+  damageEls.counterStatus.closest('.damage-check')?.classList.toggle('disabled', damageEls.counterStatus.disabled);
+  damageEls.counterMult.value = canCounter ? multiplier : 1;
 }
 
 function readDamageIv(prefix){
@@ -1482,11 +1825,14 @@ function collectDamagePayload(){
       name: damageEls.attacker.value,
       nature: damageEls.attackerNature.value,
       iv: readDamageIv('attacker'),
+      bloodline: damageEls.bloodline.value,
     },
     defender: {
       name: damageEls.defender.value,
       nature: damageEls.defenderNature.value,
       iv: readDamageIv('defender'),
+      bloodline: damageEls.defenderBloodline.value,
+      defense_skill: damageEls.defenseSkill.value,
     },
     skill: {
       name: damageEls.skill.value,
@@ -1497,13 +1843,14 @@ function collectDamagePayload(){
       bloodline: damageEls.bloodline.value,
       will_impact: damageEls.willImpact.checked,
       counter_status: damageEls.counterStatus.checked,
+      counter_multiplier: damageNumber(damageEls.counterMult, 1),
     },
     attacker_mods: {
       atk_up: damagePct(damageEls.atkUp),
       atk_down: damagePct(damageEls.atkDown),
       spatk_up: damagePct(damageEls.spatkUp),
       spatk_down: damagePct(damageEls.spatkDown),
-      power_multiplier: damageNumber(damageEls.powerMult, 1),
+      power_multiplier: 1 + damagePct(damageEls.powerMult),
       skill_power_bonus: damageNumber(damageEls.skillPowerBonus, 0),
       skill_power_pct_mod: damagePct(damageEls.skillPowerPct),
     },
@@ -1543,6 +1890,12 @@ function renderDamageResult(payload){
       <span>${esc(item.value)}</span>
     </div>
   `).join('');
+  const formulaSteps = ((payload.formula && payload.formula.steps) || []).map(step => `
+    <div><strong>${esc(step.label)}：</strong>${esc(step.value)}</div>
+  `).join('');
+  const totalFormula = payload.formula && payload.formula.total_damage
+    ? `<div><strong>总伤害公式：</strong>${esc(payload.formula.total_damage)}</div>`
+    : '';
 
   damageEls.result.innerHTML = `
     <div class="result-head">
@@ -1564,11 +1917,12 @@ function renderDamageResult(payload){
           <span>${esc(payload.skill.type_name)} · ${esc(payload.skill.category)} · 威力 ${esc(payload.skill.power)}</span>
           <span>→</span>
           ${defenderTypes.map(type => typeLabel(type)).join('')}
-          <span>x${esc(multiplierText(payload.field.effectiveness))}</span>
+          <span>克制 x${esc(multiplierText(payload.field.effectiveness))}</span>
         </div>
         <div class="damage-breakdown-grid">${breakdown}</div>
         <div class="damage-formula">
-          公式拆解：${esc(payload.formula.detail)}<br>
+          ${formulaSteps || `公式拆解：${esc(payload.formula.detail)}`}
+          ${totalFormula}<br>
           取整前 ${esc(payload.raw_damage)}，减伤前 ${esc(payload.damage_before_reduction)}。
         </div>
       </section>
@@ -1578,7 +1932,10 @@ function renderDamageResult(payload){
 
 async function runDamageCalc(){
   if(!damageState.inited) return;
+  syncDamageSkillFields();
   syncDamageWillFields();
+  syncDamageCounterFields();
+  syncDamageStabField();
   damageEls.result.innerHTML = '<div class="empty-state">计算中...</div>';
   const res = await fetch('/api/damage-calculator/calculate', {
     method: 'POST',
@@ -1669,6 +2026,8 @@ function bindDamageSkillSearch(){
     if(skill){
       syncDamageSkillFields();
       if(damageState.inited) runDamageCalc();
+    } else {
+      syncDamageSkillIcons();
     }
   });
 
@@ -1684,6 +2043,9 @@ function bindDamagePokemonSearch(){
   damageEls.attacker.addEventListener('input', () => {
     const attacker = damageSelectedPokemon(damageEls.attacker);
     if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
+    syncDamagePokemonPreview('attacker');
+    fillDamageAttackSkillList();
+    syncDamageSkillFields();
     syncDamageWillFields();
     if(damageState.inited && attacker) runDamageCalc();
   });
@@ -1691,19 +2053,38 @@ function bindDamagePokemonSearch(){
   damageEls.attacker.addEventListener('change', () => {
     const attacker = damageSelectedPokemon(damageEls.attacker);
     if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
+    syncDamagePokemonPreview('attacker');
+    fillDamageAttackSkillList();
+    syncDamageSkillFields();
     syncDamageWillFields();
     if(damageState.inited && attacker) runDamageCalc();
   });
 
   damageEls.defender.addEventListener('input', () => {
     const defender = damageSelectedPokemon(damageEls.defender);
-    if(defender) damageEls.defenseType1.value = defender.type || 'normal';
+    if(defender){
+      damageEls.defenderBloodline.value = defender.type || 'normal';
+      const defenderTypes = damagePokemonTypes(defender);
+      damageEls.defenseType1.value = defenderTypes[0] || 'normal';
+      damageEls.defenseType2.value = defenderTypes[1] || '';
+    }
+    syncDamagePokemonPreview('defender');
+    fillDamageDefenseSkillSelect();
+    syncDamageCounterFields();
     if(damageState.inited && defender) runDamageCalc();
   });
 
   damageEls.defender.addEventListener('change', () => {
     const defender = damageSelectedPokemon(damageEls.defender);
-    if(defender) damageEls.defenseType1.value = defender.type || 'normal';
+    if(defender){
+      damageEls.defenderBloodline.value = defender.type || 'normal';
+      const defenderTypes = damagePokemonTypes(defender);
+      damageEls.defenseType1.value = defenderTypes[0] || 'normal';
+      damageEls.defenseType2.value = defenderTypes[1] || '';
+    }
+    syncDamagePokemonPreview('defender');
+    fillDamageDefenseSkillSelect();
+    syncDamageCounterFields();
     if(damageState.inited && defender) runDamageCalc();
   });
 }
@@ -1711,10 +2092,25 @@ bindDamagePokemonSearch();
 
 damageEls.willImpact.addEventListener('change', () => {
   syncDamageWillFields();
+  syncDamageCounterFields();
+  syncDamageStabField();
+  syncDamageSkillIcons();
   if(damageState.inited) runDamageCalc();
 });
 damageEls.bloodline.addEventListener('change', () => {
+  fillDamageAttackSkillList();
   syncDamageWillFields();
+  syncDamageSkillFields();
+  if(damageState.inited) runDamageCalc();
+});
+damageEls.defenderBloodline.addEventListener('change', () => {
+  fillDamageDefenseSkillSelect();
+  syncDamageCounterFields();
+  if(damageState.inited) runDamageCalc();
+});
+damageEls.defenseSkill.addEventListener('change', () => {
+  syncDamageCounterFields();
+  syncDamageSkillIcons();
   if(damageState.inited) runDamageCalc();
 });
 [
@@ -1728,6 +2124,9 @@ damageEls.bloodline.addEventListener('change', () => {
   ...document.querySelectorAll('[data-damage-iv]'),
 ].forEach(el => {
   el.addEventListener('change', () => {
+    syncDamageNatureEffects();
+    syncDamageCounterFields();
+    syncDamageStabField();
     if(damageState.inited) runDamageCalc();
   });
 });

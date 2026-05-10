@@ -71,7 +71,10 @@ def test_damage_preview_will_impact_uses_bloodline_and_counter_power():
     assert result["skill"]["name"] == "愿力冲击"
     assert result["skill"]["type"] == "fire"
     assert result["skill"]["power"] == 80
-    assert any(item["label"] == "最终威力" and item["value"] == "200" for item in result["breakdown"])
+    assert result["field"]["counter_multiplier"] == 2.5
+    assert any(item["label"] == "应对倍率" and item["value"] == "x2.5" for item in result["breakdown"])
+    assert result["formula"]["panel_power"] < result["formula"]["resolved_power"]
+    assert "总伤害" in result["formula"]["steps"][-1]["label"]
 
 
 if __name__ == "__main__":
