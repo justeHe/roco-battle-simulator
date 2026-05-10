@@ -142,6 +142,16 @@ _TYPE_ORDER = [
     "normal", "grass", "fire", "water", "light", "ground", "ice", "dragon", "electric",
     "poison", "bug", "fighting", "flying", "fairy", "ghost", "dark", "steel", "psychic",
 ]
+_TYPE_ID_BY_LABEL = {label: type_id for type_id, label in _TYPE_LABELS.items()}
+_TYPE_ID_BY_LABEL.update({
+    "格斗": "fighting",
+    "飞行": "flying",
+    "超能": "psychic",
+    "幽灵": "ghost",
+    "钢": "steel",
+    "妖精": "fairy",
+    "地面": "ground",
+})
 
 def _ensure_loaded():
     global _db_loaded
@@ -482,6 +492,11 @@ def _type_items() -> list[dict]:
         }
         for type_id in _TYPE_ORDER
     ]
+
+
+def _type_id_from_label(text: str) -> str:
+    primary = str(text or "").replace("，", ",").split(",")[0].strip().replace("系", "")
+    return _TYPE_ID_BY_LABEL.get(primary, "normal")
 
 
 def _type_single_effectiveness(attack_id: str, defense_id: str) -> float:
@@ -3252,6 +3267,112 @@ async def api_nature_list():
             "bonuses": bonus,
         })
 
+    return JSONResponse(result)
+
+
+@app.get("/api/damage-calculator/options")
+async def api_damage_calculator_options():
+    """伤害计算器选项：精灵、技能、系别、性格。"""
+    _ensure_loaded()
+    from src.pokemon_db import _get_conn as _get_pokemon_conn
+    from src.skill_db import _get_conn as _get_skill_conn, get_skill
+    from src.pokemon_nature_table import ALL_NATURES, NATURE_BONUSES
+
+    pokemon_conn = _get_pokemon_conn()
+    pc = pokemon_conn.cursor()
+    pc.execute("""
+        SELECT id, name, element, base_total, spirit_no, evo_stage
+        FROM pokemon
+        ORDER BY base_total DESC, name
+    """)
+    pokemon = []
+    for row in pc.fetchall():
+        meta = _get_spirit_icon_meta(row["name"])
+        number = _normalize_spirit_no(row["spirit_no"] or meta.get("number", ""))
+        type_id = _type_id_from_label(row["element"])
+        pokemon.append({
+            "id": row["id"],
+            "name": row["name"],
+            "element": row["element"],
+            "type": type_id,
+            "type_name": _TYPE_LABELS.get(type_id, row["element"]),
+            "number": number,
+            "is_leader": _is_leader_form(row["name"], row["evo_stage"]),
+            "icon_url": _get_icon_url(row["name"]) or meta.get("icon_url", ""),
+            "base_total": row["base_total"],
+        })
+
+    skill_conn = _get_skill_conn()
+    sc = skill_conn.cursor()
+    sc.execute("""
+        SELECT s.id, s.name, s.element, s.category, s.energy_cost, s.power,
+               s.description, s.icon_url, s.attribute_icon_url, s.category_icon_url,
+               COUNT(DISTINCT ps.pokemon_id) AS learners_count
+        FROM skill s
+        JOIN pokemon_skill ps ON ps.skill_id = s.id
+        WHERE COALESCE(s.power, 0) > 0
+        GROUP BY s.id
+        ORDER BY s.element, s.energy_cost, s.name
+    """)
+    skills = []
+    for row in sc.fetchall():
+        skill = get_skill(row["name"])
+        type_id = skill.skill_type.value if hasattr(skill.skill_type, "value") else _type_id_from_label(row["element"])
+        category = skill.category.value if hasattr(skill.category, "value") else row["category"]
+        local_icon = _get_skill_icon_url(row["name"])
+        skills.append({
+            "id": row["id"],
+            "name": row["name"],
+            "type": type_id,
+            "type_name": _TYPE_LABELS.get(type_id, row["element"]),
+            "element": row["element"],
+            "category": category,
+            "energy_cost": row["energy_cost"],
+            "power": row["power"],
+            "hit_count": getattr(skill, "hit_count", 1) or 1,
+            "description": row["description"] or "",
+            "icon_url": local_icon or row["icon_url"] or "",
+            "attribute_icon_url": _get_skill_meta_icon_url("elements", row["element"]) or row["attribute_icon_url"] or "",
+            "category_icon_url": _get_skill_meta_icon_url("categories", row["category"]) or row["category_icon_url"] or "",
+            "energy_icon_url": _get_skill_meta_icon_url("misc", "energy"),
+            "learners_count": row["learners_count"] or 0,
+        })
+
+    natures = [
+        {
+            "name": name,
+            "bonuses": NATURE_BONUSES[name],
+        }
+        for name in ALL_NATURES
+    ]
+
+    return JSONResponse({
+        "ok": True,
+        "pokemon": pokemon,
+        "skills": skills,
+        "types": _type_items(),
+        "natures": natures,
+        "weather": [
+            {"id": "", "name": "无天气"},
+            {"id": "rain", "name": "雨天"},
+            {"id": "sandstorm", "name": "沙暴"},
+            {"id": "snow", "name": "暴风雪"},
+        ],
+    })
+
+
+@app.post("/api/damage-calculator/calculate")
+async def api_damage_calculator_calculate(payload: dict):
+    """根据前端配置计算伤害预览。"""
+    _ensure_loaded()
+    from src.damage_calculator import DamageCalculatorError, calculate_damage_preview
+
+    try:
+        result = calculate_damage_preview(payload or {})
+    except DamageCalculatorError as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=400)
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": f"计算失败：{exc}"}, status_code=500)
     return JSONResponse(result)
 
 

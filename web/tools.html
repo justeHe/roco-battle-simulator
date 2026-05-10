@@ -431,12 +431,153 @@ body { min-height: 100vh; }
   font-weight: 900;
   color: var(--primary-dark);
 }
+.damage-form {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.damage-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.damage-block {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  padding: 12px;
+}
+.damage-block h2 {
+  margin: 0 0 10px;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+.damage-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.damage-fields.single { grid-template-columns: 1fr; }
+.damage-iv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+}
+.damage-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 6px;
+}
+.damage-check input { margin: 0; }
+.damage-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 10px;
+}
+.damage-actions .hint {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+.damage-result-layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 16px 16px;
+}
+.damage-summary,
+.damage-detail {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  padding: 12px;
+}
+.damage-number {
+  color: var(--primary-dark);
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+}
+.damage-summary-meta {
+  margin-top: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.damage-hpbar {
+  height: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: rgba(217,83,79,.14);
+  overflow: hidden;
+  margin-top: 10px;
+}
+.damage-hpbar span {
+  display: block;
+  height: 100%;
+  background: var(--hp-green);
+}
+.damage-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+.damage-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+.damage-breakdown-item {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--bg-card);
+  padding: 8px;
+}
+.damage-breakdown-item strong {
+  display: block;
+  color: var(--text-primary);
+  font-size: 12px;
+}
+.damage-breakdown-item span {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 11px;
+  margin-top: 3px;
+}
+.damage-formula {
+  margin-top: 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 7px;
+  background: rgba(255,255,255,.55);
+  color: var(--text-secondary);
+  padding: 9px;
+  font-size: 11px;
+  line-height: 1.6;
+}
 @media(max-width:860px) {
   .tools-layout { grid-template-columns: 1fr; }
   .tools-sidebar { position: static; }
   .query-bar,
   .hatch-form-grid,
-  .type-form-grid { grid-template-columns: 1fr; }
+  .type-form-grid,
+  .damage-layout,
+  .damage-result-layout,
+  .damage-fields { grid-template-columns: 1fr; }
   .panel-head { flex-direction: column; }
 }
 </style>
@@ -472,6 +613,10 @@ body { min-height: 100vh; }
         <button class="tool-link" type="button" data-tool="type-calc">
           <span><strong>克制计算器</strong><span>系别 / 关系图</span></span>
           <b class="tool-badge">克制</b>
+        </button>
+        <button class="tool-link" type="button" data-tool="damage-calc">
+          <span><strong>伤害计算器</strong><span>面板 / 倍率</span></span>
+          <b class="tool-badge">战斗</b>
         </button>
       </aside>
 
@@ -563,6 +708,180 @@ body { min-height: 100vh; }
 
           <div id="type-result"></div>
         </section>
+
+        <section id="panel-damage-calc" class="tool-panel" hidden>
+          <div class="panel-head">
+            <div>
+              <h1>伤害计算器</h1>
+              <p>按当前战斗公式预览伤害，包含性格、个体值、能力变化、克制、本系和天气拆解。</p>
+            </div>
+            <div id="damage-tool-count" class="panel-count">加载中...</div>
+          </div>
+
+          <div class="damage-form">
+            <div class="damage-layout">
+              <section class="damage-block">
+                <h2>攻击方</h2>
+                <div class="damage-fields single">
+                  <div class="field-stack">
+                    <label for="damage-attacker">精灵</label>
+                    <select id="damage-attacker" class="roco-select"></select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-attacker-nature">性格</label>
+                    <select id="damage-attacker-nature" class="roco-select"></select>
+                  </div>
+                </div>
+                <div class="damage-iv-grid">
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:hp" checked>生命</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:atk" checked>物攻</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:spatk">魔攻</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:def">物防</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:spdef">魔防</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="attacker:speed" checked>速度</label>
+                </div>
+                <div class="damage-fields" style="margin-top:8px">
+                  <div class="field-stack">
+                    <label for="damage-atk-up">物攻提升 %</label>
+                    <input id="damage-atk-up" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-atk-down">物攻降低 %</label>
+                    <input id="damage-atk-down" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-spatk-up">魔攻提升 %</label>
+                    <input id="damage-spatk-up" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-spatk-down">魔攻降低 %</label>
+                    <input id="damage-spatk-down" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-power-mult">威力提升倍率</label>
+                    <input id="damage-power-mult" class="roco-input" type="number" min="0" step="0.1" value="1">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-skill-power-bonus">威力加成</label>
+                    <input id="damage-skill-power-bonus" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-skill-power-pct">威力额外变化 %</label>
+                    <input id="damage-skill-power-pct" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                </div>
+              </section>
+
+              <section class="damage-block">
+                <h2>技能与场地</h2>
+                <div class="damage-fields">
+                  <div class="field-stack" style="grid-column:1/-1">
+                    <label for="damage-skill">技能</label>
+                    <select id="damage-skill" class="roco-select"></select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-skill-type">系别</label>
+                    <select id="damage-skill-type" class="roco-select"></select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-skill-category">类型</label>
+                    <select id="damage-skill-category" class="roco-select">
+                      <option value="物攻">物攻</option>
+                      <option value="魔攻">魔攻</option>
+                      <option value="防御">防御</option>
+                      <option value="状态">状态</option>
+                    </select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-power">威力</label>
+                    <input id="damage-power" class="roco-input" type="number" min="0" step="5" value="80">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-hit-count">连击次数</label>
+                    <input id="damage-hit-count" class="roco-input" type="number" min="1" max="10" step="1" value="1">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-weather">天气</label>
+                    <select id="damage-weather" class="roco-select"></select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-bloodline">血脉系别</label>
+                    <select id="damage-bloodline" class="roco-select"></select>
+                  </div>
+                </div>
+                <div class="damage-iv-grid">
+                  <label class="damage-check"><input id="damage-will-impact" type="checkbox">愿力冲击</label>
+                  <label class="damage-check"><input id="damage-counter-status" type="checkbox">应对状态</label>
+                  <label class="damage-check"><input id="damage-stab" type="checkbox" checked>本系加成</label>
+                  <label class="damage-check"><input id="damage-barrel" type="checkbox">木桶状态</label>
+                </div>
+              </section>
+
+              <section class="damage-block">
+                <h2>防御方</h2>
+                <div class="damage-fields single">
+                  <div class="field-stack">
+                    <label for="damage-defender">精灵</label>
+                    <select id="damage-defender" class="roco-select"></select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-defender-nature">性格</label>
+                    <select id="damage-defender-nature" class="roco-select"></select>
+                  </div>
+                </div>
+                <div class="damage-iv-grid">
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="defender:hp" checked>生命</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="defender:atk">物攻</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="defender:spatk">魔攻</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="defender:def" checked>物防</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="defender:spdef" checked>魔防</label>
+                  <label class="damage-check"><input type="checkbox" data-damage-iv="defender:speed">速度</label>
+                </div>
+                <div class="damage-fields" style="margin-top:8px">
+                  <div class="field-stack">
+                    <label for="damage-defense-type1">防御属性一</label>
+                    <select id="damage-defense-type1" class="roco-select"></select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-defense-type2">防御属性二</label>
+                    <select id="damage-defense-type2" class="roco-select"></select>
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-def-up">物防提升 %</label>
+                    <input id="damage-def-up" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-def-down">物防降低 %</label>
+                    <input id="damage-def-down" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-spdef-up">魔防提升 %</label>
+                    <input id="damage-spdef-up" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-spdef-down">魔防降低 %</label>
+                    <input id="damage-spdef-down" class="roco-input" type="number" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-reduction">减伤 %</label>
+                    <input id="damage-reduction" class="roco-input" type="number" min="0" max="100" step="10" value="0">
+                  </div>
+                  <div class="field-stack">
+                    <label for="damage-hp-percent">当前生命 %</label>
+                    <input id="damage-hp-percent" class="roco-input" type="number" min="1" max="100" step="1" value="100">
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="damage-actions">
+              <span class="hint">计算结果按现有战斗代码的详细公式预览，特性触发类额外修正先通过手动倍率填写。</span>
+              <button id="damage-calc-btn" class="roco-btn" type="button">计算伤害</button>
+            </div>
+          </div>
+
+          <div id="damage-result"></div>
+        </section>
       </section>
     </div>
   </main>
@@ -573,6 +892,7 @@ const toolPanels = {
   'egg-group': document.getElementById('panel-egg-group'),
   'hatch-query': document.getElementById('panel-hatch-query'),
   'type-calc': document.getElementById('panel-type-calc'),
+  'damage-calc': document.getElementById('panel-damage-calc'),
 };
 const toolLinks = [...document.querySelectorAll('[data-tool]')];
 const currentParams = new URLSearchParams(window.location.search);
@@ -582,6 +902,7 @@ if(!toolPanels[currentTool]) currentTool = 'egg-group';
 const eggState = { q: '', groupId: 0, page: 1, pageSize: 24, groups: [], payload: null, timer: null, inited: false };
 const hatchState = { inited: false, payload: null };
 const typeState = { inited: false, types: [], matrix: [], payload: null };
+const damageState = { inited: false, options: null, payload: null };
 
 const eggEls = {
   q: document.getElementById('egg-q'),
@@ -603,6 +924,40 @@ const typeEls = {
   defenseB: document.getElementById('type-defense-b'),
   result: document.getElementById('type-result'),
   count: document.getElementById('type-tool-count'),
+};
+const damageEls = {
+  attacker: document.getElementById('damage-attacker'),
+  attackerNature: document.getElementById('damage-attacker-nature'),
+  defender: document.getElementById('damage-defender'),
+  defenderNature: document.getElementById('damage-defender-nature'),
+  skill: document.getElementById('damage-skill'),
+  skillType: document.getElementById('damage-skill-type'),
+  skillCategory: document.getElementById('damage-skill-category'),
+  power: document.getElementById('damage-power'),
+  hitCount: document.getElementById('damage-hit-count'),
+  weather: document.getElementById('damage-weather'),
+  bloodline: document.getElementById('damage-bloodline'),
+  willImpact: document.getElementById('damage-will-impact'),
+  counterStatus: document.getElementById('damage-counter-status'),
+  stab: document.getElementById('damage-stab'),
+  barrel: document.getElementById('damage-barrel'),
+  defenseType1: document.getElementById('damage-defense-type1'),
+  defenseType2: document.getElementById('damage-defense-type2'),
+  atkUp: document.getElementById('damage-atk-up'),
+  atkDown: document.getElementById('damage-atk-down'),
+  spatkUp: document.getElementById('damage-spatk-up'),
+  spatkDown: document.getElementById('damage-spatk-down'),
+  powerMult: document.getElementById('damage-power-mult'),
+  skillPowerBonus: document.getElementById('damage-skill-power-bonus'),
+  skillPowerPct: document.getElementById('damage-skill-power-pct'),
+  defUp: document.getElementById('damage-def-up'),
+  defDown: document.getElementById('damage-def-down'),
+  spdefUp: document.getElementById('damage-spdef-up'),
+  spdefDown: document.getElementById('damage-spdef-down'),
+  reduction: document.getElementById('damage-reduction'),
+  hpPercent: document.getElementById('damage-hp-percent'),
+  result: document.getElementById('damage-result'),
+  count: document.getElementById('damage-tool-count'),
 };
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
@@ -646,6 +1001,7 @@ function setTool(tool, updateUrl = true){
   if(currentTool === 'egg-group') initEggTool();
   if(currentTool === 'hatch-query') initHatchTool();
   if(currentTool === 'type-calc') initTypeTool();
+  if(currentTool === 'damage-calc') initDamageTool();
 }
 
 function eggPageName(card){
@@ -976,6 +1332,247 @@ async function initTypeTool(){
   typeState.inited = true;
 }
 
+function renderDamagePrompt(text){
+  damageEls.result.innerHTML = `<div class="empty-state">${esc(text)}</div>`;
+}
+
+function damageNumber(el, fallback = 0){
+  const value = Number(el.value);
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function damagePct(el, fallback = 0){
+  return damageNumber(el, fallback * 100) / 100;
+}
+
+function damageTypeById(typeId){
+  const options = damageState.options || {};
+  return (options.types || []).find(type => type.id === typeId) || {id: typeId, name: typeId, icon_url: ''};
+}
+
+function damageSelectedPokemon(select){
+  const options = damageState.options || {};
+  return (options.pokemon || []).find(item => item.name === select.value);
+}
+
+function damageSelectedSkill(){
+  const options = damageState.options || {};
+  return (options.skills || []).find(item => item.name === damageEls.skill.value);
+}
+
+function fillDamageTypeSelect(select, allowEmpty = false){
+  const options = damageState.options || {};
+  select.innerHTML = `${allowEmpty ? '<option value="">不选择</option>' : ''}` + (options.types || [])
+    .map(type => `<option value="${esc(type.id)}">${esc(type.name)}</option>`)
+    .join('');
+}
+
+function fillDamageOptions(){
+  const options = damageState.options || {};
+  const pokemonHtml = (options.pokemon || [])
+    .map(item => `<option value="${esc(item.name)}">${esc(item.name)}${item.element ? ` · ${esc(item.element)}` : ''}</option>`)
+    .join('');
+  damageEls.attacker.innerHTML = pokemonHtml;
+  damageEls.defender.innerHTML = pokemonHtml;
+
+  const natureHtml = (options.natures || [])
+    .map(item => `<option value="${esc(item.name)}">${esc(item.name)}</option>`)
+    .join('');
+  damageEls.attackerNature.innerHTML = natureHtml;
+  damageEls.defenderNature.innerHTML = natureHtml;
+
+  damageEls.skill.innerHTML = '<option value="__manual__">自定义技能</option>' + (options.skills || [])
+    .map(item => `<option value="${esc(item.name)}">${esc(item.name)} · ${esc(item.type_name || item.element || '')} · ${esc(item.category || '')}</option>`)
+    .join('');
+
+  [damageEls.skillType, damageEls.bloodline, damageEls.defenseType1].forEach(select => fillDamageTypeSelect(select));
+  fillDamageTypeSelect(damageEls.defenseType2, true);
+  damageEls.weather.innerHTML = (options.weather || [])
+    .map(item => `<option value="${esc(item.id)}">${esc(item.name)}</option>`)
+    .join('');
+}
+
+function setDamagePreferred(select, names){
+  const available = new Set([...select.options].map(option => option.value));
+  const found = names.find(name => available.has(name));
+  if(found) select.value = found;
+}
+
+function syncDamagePokemonDefaults(){
+  const attacker = damageSelectedPokemon(damageEls.attacker);
+  const defender = damageSelectedPokemon(damageEls.defender);
+  if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
+  if(defender) damageEls.defenseType1.value = defender.type || 'normal';
+}
+
+function syncDamageSkillFields(){
+  const skill = damageSelectedSkill();
+  if(skill){
+    damageEls.skillType.value = skill.type || 'normal';
+    damageEls.skillCategory.value = skill.category || '物攻';
+    damageEls.power.value = Number(skill.power || 0);
+    damageEls.hitCount.value = Number(skill.hit_count || 1);
+  }
+  syncDamageWillFields();
+}
+
+function syncDamageWillFields(){
+  const enabled = damageEls.willImpact.checked;
+  damageEls.counterStatus.disabled = !enabled;
+  damageEls.bloodline.disabled = !enabled;
+  if(!enabled){
+    damageEls.counterStatus.checked = false;
+    return;
+  }
+  const attacker = damageSelectedPokemon(damageEls.attacker);
+  if(attacker && !damageEls.bloodline.value) damageEls.bloodline.value = attacker.type || 'normal';
+  damageEls.skillType.value = damageEls.bloodline.value || damageEls.skillType.value;
+  damageEls.power.value = 80;
+  damageEls.hitCount.value = 1;
+}
+
+function readDamageIv(prefix){
+  const iv = {hp:0, atk:0, spatk:0, def:0, spdef:0, speed:0};
+  document.querySelectorAll(`[data-damage-iv^="${prefix}:"]`).forEach(input => {
+    const key = input.dataset.damageIv.split(':')[1];
+    iv[key] = input.checked ? 60 : 0;
+  });
+  return iv;
+}
+
+function collectDamagePayload(){
+  return {
+    attacker: {
+      name: damageEls.attacker.value,
+      nature: damageEls.attackerNature.value,
+      iv: readDamageIv('attacker'),
+    },
+    defender: {
+      name: damageEls.defender.value,
+      nature: damageEls.defenderNature.value,
+      iv: readDamageIv('defender'),
+    },
+    skill: {
+      name: damageEls.skill.value,
+      type: damageEls.skillType.value,
+      category: damageEls.skillCategory.value,
+      power: damageNumber(damageEls.power, 80),
+      hit_count: damageNumber(damageEls.hitCount, 1),
+      bloodline: damageEls.bloodline.value,
+      will_impact: damageEls.willImpact.checked,
+      counter_status: damageEls.counterStatus.checked,
+    },
+    attacker_mods: {
+      atk_up: damagePct(damageEls.atkUp),
+      atk_down: damagePct(damageEls.atkDown),
+      spatk_up: damagePct(damageEls.spatkUp),
+      spatk_down: damagePct(damageEls.spatkDown),
+      power_multiplier: damageNumber(damageEls.powerMult, 1),
+      skill_power_bonus: damageNumber(damageEls.skillPowerBonus, 0),
+      skill_power_pct_mod: damagePct(damageEls.skillPowerPct),
+    },
+    defender_mods: {
+      def_up: damagePct(damageEls.defUp),
+      def_down: damagePct(damageEls.defDown),
+      spdef_up: damagePct(damageEls.spdefUp),
+      spdef_down: damagePct(damageEls.spdefDown),
+      damage_reduction: damagePct(damageEls.reduction),
+      hp_percent: damagePct(damageEls.hpPercent, 1),
+    },
+    field: {
+      weather: damageEls.weather.value,
+      defense_type1: damageEls.defenseType1.value,
+      defense_type2: damageEls.defenseType2.value,
+      stab_enabled: damageEls.stab.checked,
+      barrel_active: damageEls.barrel.checked,
+    },
+  };
+}
+
+function damageTypePill(typeId){
+  return typePill({type: damageTypeById(typeId), multiplier: 1}).replace('type-pill neutral', 'type-pill');
+}
+
+function renderDamageResult(payload){
+  if(!payload || !payload.ok){
+    renderDamagePrompt(payload && payload.error ? payload.error : '伤害计算失败。');
+    return;
+  }
+  const skillType = damageTypeById(payload.skill.type);
+  const defenderTypes = (payload.field.effectiveness_parts || []).map(item => damageTypeById(item.type));
+  const remainingPct = Math.max(0, Math.min(100, payload.remaining_hp / Math.max(1, payload.current_hp) * 100));
+  const breakdown = (payload.breakdown || []).map(item => `
+    <div class="damage-breakdown-item">
+      <strong>${esc(item.label)}</strong>
+      <span>${esc(item.value)}</span>
+    </div>
+  `).join('');
+
+  damageEls.result.innerHTML = `
+    <div class="result-head">
+      <h2>${esc(payload.attacker.name)} 使用 ${esc(payload.skill.name)}</h2>
+      <span>${esc(payload.axis.attack)} → ${esc(payload.axis.defense)}</span>
+    </div>
+    <div class="damage-result-layout">
+      <section class="damage-summary">
+        <div class="damage-number">${esc(payload.damage)}</div>
+        <div class="damage-summary-meta">
+          ${payload.ko ? '可以击倒' : `剩余 ${esc(payload.remaining_hp)} / ${esc(payload.current_hp)} HP`}<br>
+          对最大生命约 ${esc(Math.round((payload.hp_percent || 0) * 1000) / 10)}%
+        </div>
+        <div class="damage-hpbar"><span style="width:${remainingPct}%"></span></div>
+      </section>
+      <section class="damage-detail">
+        <div class="damage-title-line">
+          ${typeIcon(skillType)}
+          <span>${esc(payload.skill.type_name)} · ${esc(payload.skill.category)} · 威力 ${esc(payload.skill.power)}</span>
+          <span>→</span>
+          ${defenderTypes.map(type => typeLabel(type)).join('')}
+          <span>x${esc(multiplierText(payload.field.effectiveness))}</span>
+        </div>
+        <div class="damage-breakdown-grid">${breakdown}</div>
+        <div class="damage-formula">
+          公式拆解：${esc(payload.formula.detail)}<br>
+          取整前 ${esc(payload.raw_damage)}，减伤前 ${esc(payload.damage_before_reduction)}。
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+async function runDamageCalc(){
+  if(!damageState.inited) return;
+  syncDamageWillFields();
+  damageEls.result.innerHTML = '<div class="empty-state">计算中...</div>';
+  const res = await fetch('/api/damage-calculator/calculate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(collectDamagePayload()),
+  });
+  const payload = await res.json();
+  damageState.payload = payload;
+  renderDamageResult(payload);
+}
+
+async function initDamageTool(){
+  if(damageState.inited) return;
+  const res = await fetch('/api/damage-calculator/options');
+  const payload = await res.json();
+  damageState.options = payload;
+  damageEls.count.textContent = `${(payload.pokemon || []).length} 精灵 · ${(payload.skills || []).length} 技能`;
+  fillDamageOptions();
+  setDamagePreferred(damageEls.attacker, ['火神', '音速犬', '圣羽翼王']);
+  setDamagePreferred(damageEls.defender, ['魔力猫', '蹦蹦种子', '瞌睡王']);
+  setDamagePreferred(damageEls.skill, ['火焰冲击', '猛烈撞击', '毒沼']);
+  damageEls.attackerNature.value = '固执';
+  damageEls.defenderNature.value = '坦率';
+  syncDamagePokemonDefaults();
+  syncDamageSkillFields();
+  renderDamagePrompt('调整配置后点击“计算伤害”。');
+  damageState.inited = true;
+  await runDamageCalc();
+}
+
 toolLinks.forEach(button => {
   button.addEventListener('click', () => setTool(button.dataset.tool));
 });
@@ -1026,6 +1623,45 @@ document.getElementById('type-clear-btn').addEventListener('click', () => {
   typeEls.defenseA.value = '';
   typeEls.defenseB.value = '';
   runTypeCalc();
+});
+
+document.getElementById('damage-calc-btn').addEventListener('click', runDamageCalc);
+damageEls.skill.addEventListener('change', () => {
+  syncDamageSkillFields();
+  if(damageState.inited) runDamageCalc();
+});
+damageEls.attacker.addEventListener('change', () => {
+  const attacker = damageSelectedPokemon(damageEls.attacker);
+  if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
+  syncDamageWillFields();
+  if(damageState.inited) runDamageCalc();
+});
+damageEls.defender.addEventListener('change', () => {
+  const defender = damageSelectedPokemon(damageEls.defender);
+  if(defender) damageEls.defenseType1.value = defender.type || 'normal';
+  if(damageState.inited) runDamageCalc();
+});
+damageEls.willImpact.addEventListener('change', () => {
+  syncDamageWillFields();
+  if(damageState.inited) runDamageCalc();
+});
+damageEls.bloodline.addEventListener('change', () => {
+  syncDamageWillFields();
+  if(damageState.inited) runDamageCalc();
+});
+[
+  damageEls.attackerNature, damageEls.defenderNature, damageEls.skillType,
+  damageEls.skillCategory, damageEls.power, damageEls.hitCount, damageEls.weather,
+  damageEls.counterStatus, damageEls.stab, damageEls.barrel, damageEls.defenseType1,
+  damageEls.defenseType2, damageEls.atkUp, damageEls.atkDown, damageEls.spatkUp,
+  damageEls.spatkDown, damageEls.powerMult, damageEls.skillPowerBonus,
+  damageEls.skillPowerPct, damageEls.defUp, damageEls.defDown, damageEls.spdefUp,
+  damageEls.spdefDown, damageEls.reduction, damageEls.hpPercent,
+  ...document.querySelectorAll('[data-damage-iv]'),
+].forEach(el => {
+  el.addEventListener('change', () => {
+    if(damageState.inited) runDamageCalc();
+  });
 });
 
 setTool(currentTool, false);
