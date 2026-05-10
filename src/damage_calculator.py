@@ -342,7 +342,7 @@ def calculate_damage_preview(payload: dict[str, Any]) -> dict[str, Any]:
         effectiveness = 1.0
 
     stab_enabled = bool(field.get("stab_enabled", True))
-    stab = 1.5 if stab_enabled and skill["type"] == attacker["type"] else 1.0
+    stab = 1.25 if stab_enabled and skill["type"] == attacker["type"] else 1.0
 
     weather = str(field.get("weather") or "").strip()
     weather_mult = WEATHER_DAMAGE_MULT.get(weather, {}).get(skill["type"], 1.0)

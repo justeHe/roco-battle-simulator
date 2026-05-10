@@ -287,8 +287,8 @@ class DamageCalculator:
         if getattr(defender, "ability_state", {}).get("barrel_active"):
             eff = 1.0
 
-        # 本系加成 1.5x
-        stab = 1.5 if skill.skill_type == attacker.pokemon_type else 1.0
+        # 本系加成 1.25x
+        stab = 1.25 if skill.skill_type == attacker.pokemon_type else 1.0
 
         # 天气修正
         weather_mult = 1.0

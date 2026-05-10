@@ -725,7 +725,7 @@ body { min-height: 100vh; }
                 <div class="damage-fields single">
                   <div class="field-stack">
                     <label for="damage-attacker">精灵</label>
-                    <select id="damage-attacker" class="roco-select"></select>
+                    <input id="damage-attacker" class="roco-input" list="damage-pokemon-list" placeholder="搜索精灵名称" autocomplete="on"/>
                   </div>
                   <div class="field-stack">
                     <label for="damage-attacker-nature">性格</label>
@@ -777,7 +777,8 @@ body { min-height: 100vh; }
                 <div class="damage-fields">
                   <div class="field-stack" style="grid-column:1/-1">
                     <label for="damage-skill">技能</label>
-                    <select id="damage-skill" class="roco-select"></select>
+                    <input id="damage-skill" class="roco-input" list="damage-skill-list" placeholder="搜索技能名称，或输入自定义技能" autocomplete="off"/>
+                    <datalist id="damage-skill-list"></datalist>
                   </div>
                   <div class="field-stack">
                     <label for="damage-skill-type">系别</label>
@@ -822,7 +823,7 @@ body { min-height: 100vh; }
                 <div class="damage-fields single">
                   <div class="field-stack">
                     <label for="damage-defender">精灵</label>
-                    <select id="damage-defender" class="roco-select"></select>
+                    <input id="damage-defender" class="roco-input" list="damage-pokemon-list" placeholder="搜索精灵名称" autocomplete="off"/>
                   </div>
                   <div class="field-stack">
                     <label for="damage-defender-nature">性格</label>
@@ -879,6 +880,7 @@ body { min-height: 100vh; }
               <button id="damage-calc-btn" class="roco-btn" type="button">计算伤害</button>
             </div>
           </div>
+          <datalist id="damage-pokemon-list"></datalist>
 
           <div id="damage-result"></div>
         </section>
@@ -958,6 +960,8 @@ const damageEls = {
   hpPercent: document.getElementById('damage-hp-percent'),
   result: document.getElementById('damage-result'),
   count: document.getElementById('damage-tool-count'),
+  pokemonList: document.getElementById('damage-pokemon-list'),
+  skillList: document.getElementById('damage-skill-list')
 };
 
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
@@ -1370,10 +1374,10 @@ function fillDamageTypeSelect(select, allowEmpty = false){
 function fillDamageOptions(){
   const options = damageState.options || {};
   const pokemonHtml = (options.pokemon || [])
-    .map(item => `<option value="${esc(item.name)}">${esc(item.name)}${item.element ? ` · ${esc(item.element)}` : ''}</option>`)
-    .join('');
-  damageEls.attacker.innerHTML = pokemonHtml;
-  damageEls.defender.innerHTML = pokemonHtml;
+  .map(item => `<option value="${esc(item.name)}">${esc(item.element || '')}</option>`)
+  .join('');
+
+damageEls.pokemonList.innerHTML = pokemonHtml;
 
   const natureHtml = (options.natures || [])
     .map(item => `<option value="${esc(item.name)}">${esc(item.name)}</option>`)
@@ -1381,9 +1385,13 @@ function fillDamageOptions(){
   damageEls.attackerNature.innerHTML = natureHtml;
   damageEls.defenderNature.innerHTML = natureHtml;
 
-  damageEls.skill.innerHTML = '<option value="__manual__">自定义技能</option>' + (options.skills || [])
-    .map(item => `<option value="${esc(item.name)}">${esc(item.name)} · ${esc(item.type_name || item.element || '')} · ${esc(item.category || '')}</option>`)
-    .join('');
+  damageEls.skillList.innerHTML = (options.skills || [])
+  .map(item => `
+    <option value="${esc(item.name)}">
+      ${esc(item.type_name || item.element || '')} · ${esc(item.category || '')} · 威力 ${esc(item.power || 0)}
+    </option>
+  `)
+  .join('');
 
   [damageEls.skillType, damageEls.bloodline, damageEls.defenseType1].forEach(select => fillDamageTypeSelect(select));
   fillDamageTypeSelect(damageEls.defenseType2, true);
@@ -1392,10 +1400,38 @@ function fillDamageOptions(){
     .join('');
 }
 
-function setDamagePreferred(select, names){
-  const available = new Set([...select.options].map(option => option.value));
+function setDamagePreferred(el, names){
+  if(!el) return;
+
+  const options = damageState.options || {};
+  const id = el.id || '';
+
+  let pool = [];
+
+  if(id === 'damage-skill'){
+    pool = (options.skills || [])
+      .map(item => item.name)
+      .filter(Boolean);
+  } else if(id === 'damage-attacker' || id === 'damage-defender'){
+    pool = (options.pokemon || [])
+      .map(item => item.name)
+      .filter(Boolean);
+  } else if(el.tagName === 'SELECT'){
+    pool = [...el.options]
+      .map(option => option.value)
+      .filter(Boolean);
+  }
+
+  if(!pool.length) return;
+
+  const available = new Set(pool);
   const found = names.find(name => available.has(name));
-  if(found) select.value = found;
+
+  if(found){
+    el.value = found;
+  } else if(!el.value){
+    el.value = pool[0];
+  }
 }
 
 function syncDamagePokemonDefaults(){
@@ -1561,11 +1597,11 @@ async function initDamageTool(){
   damageState.options = payload;
   damageEls.count.textContent = `${(payload.pokemon || []).length} 精灵 · ${(payload.skills || []).length} 技能`;
   fillDamageOptions();
-  setDamagePreferred(damageEls.attacker, ['火神', '音速犬', '圣羽翼王']);
-  setDamagePreferred(damageEls.defender, ['魔力猫', '蹦蹦种子', '瞌睡王']);
-  setDamagePreferred(damageEls.skill, ['火焰冲击', '猛烈撞击', '毒沼']);
-  damageEls.attackerNature.value = '固执';
-  damageEls.defenderNature.value = '坦率';
+  setDamagePreferred(damageEls.attacker, ['恶魔狼', '音速犬', '圣羽翼王']);
+  setDamagePreferred(damageEls.defender, ['燃薪虫', '蹦蹦种子', '瞌睡王']);
+  setDamagePreferred(damageEls.skill, ['火焰冲击', '暗突袭', '毒沼']);
+  damageEls.attackerNature.value = '热情';
+  damageEls.defenderNature.value = '固执';
   syncDamagePokemonDefaults();
   syncDamageSkillFields();
   renderDamagePrompt('调整配置后点击“计算伤害”。');
@@ -1626,21 +1662,53 @@ document.getElementById('type-clear-btn').addEventListener('click', () => {
 });
 
 document.getElementById('damage-calc-btn').addEventListener('click', runDamageCalc);
-damageEls.skill.addEventListener('change', () => {
-  syncDamageSkillFields();
-  if(damageState.inited) runDamageCalc();
-});
-damageEls.attacker.addEventListener('change', () => {
-  const attacker = damageSelectedPokemon(damageEls.attacker);
-  if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
-  syncDamageWillFields();
-  if(damageState.inited) runDamageCalc();
-});
-damageEls.defender.addEventListener('change', () => {
-  const defender = damageSelectedPokemon(damageEls.defender);
-  if(defender) damageEls.defenseType1.value = defender.type || 'normal';
-  if(damageState.inited) runDamageCalc();
-});
+function bindDamageSkillSearch(){
+  damageEls.skill.addEventListener('input', () => {
+    const skill = damageSelectedSkill();
+
+    if(skill){
+      syncDamageSkillFields();
+      if(damageState.inited) runDamageCalc();
+    }
+  });
+
+  damageEls.skill.addEventListener('change', () => {
+    syncDamageSkillFields();
+    if(damageState.inited) runDamageCalc();
+  });
+}
+
+bindDamageSkillSearch();
+
+function bindDamagePokemonSearch(){
+  damageEls.attacker.addEventListener('input', () => {
+    const attacker = damageSelectedPokemon(damageEls.attacker);
+    if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
+    syncDamageWillFields();
+    if(damageState.inited && attacker) runDamageCalc();
+  });
+
+  damageEls.attacker.addEventListener('change', () => {
+    const attacker = damageSelectedPokemon(damageEls.attacker);
+    if(attacker) damageEls.bloodline.value = attacker.type || 'normal';
+    syncDamageWillFields();
+    if(damageState.inited && attacker) runDamageCalc();
+  });
+
+  damageEls.defender.addEventListener('input', () => {
+    const defender = damageSelectedPokemon(damageEls.defender);
+    if(defender) damageEls.defenseType1.value = defender.type || 'normal';
+    if(damageState.inited && defender) runDamageCalc();
+  });
+
+  damageEls.defender.addEventListener('change', () => {
+    const defender = damageSelectedPokemon(damageEls.defender);
+    if(defender) damageEls.defenseType1.value = defender.type || 'normal';
+    if(damageState.inited && defender) runDamageCalc();
+  });
+}
+bindDamagePokemonSearch();
+
 damageEls.willImpact.addEventListener('change', () => {
   syncDamageWillFields();
   if(damageState.inited) runDamageCalc();
