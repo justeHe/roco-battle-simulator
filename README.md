@@ -144,3 +144,9 @@ dist/洛克模拟器/
 ```
 
 详细说明见 [docs/PYINSTALLER_PACKAGING.md](/Users/hedong/Desktop/Programming/Github_Project/roco-battle-simulator/docs/PYINSTALLER_PACKAGING.md)。
+
+## 致谢与数据来源
+
+本项目基于 [ColinHong10/NRC_AI](https://github.com/ColinHong10/NRC_AI) 开发，原项目采用 MIT 协议。
+
+项目中的洛克王国图鉴、技能、机制、阵容等资料主要来源于 [洛克王国 BiliGame Wiki](https://wiki.biligame.com/rocom/%E9%A6%96%E9%A1%B5)，相关内容遵循 CC BY-NC-SA 4.0 协议。
