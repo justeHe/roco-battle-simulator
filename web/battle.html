@@ -91,12 +91,29 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 .hpbar-name { font-size: 12px; font-weight: 700; color: var(--text-primary); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .type-badge { font-size: 9px; padding: 1px 6px; border-radius: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0; color: #fff; }
 
-/* 能量圆点 */
-.energy-row { display: flex; gap: 3px; margin-bottom: 4px; align-items: center; }
-.energy-label { font-size: 8px; color: var(--text-secondary); margin-right: 4px; }
-#energy-a, #energy-b { display: flex; gap: 3px; }
-.e-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); border: 1px solid var(--border-strong); transition: background .2s, box-shadow .2s; }
-.e-dot.on { background: var(--energy-blue); border-color: #0288D1; box-shadow: 0 0 4px rgba(79,195,247,.6); }
+/* 能量数值 */
+.energy-row { display: flex; gap: 5px; margin-bottom: 4px; align-items: center; }
+.energy-label { font-size: 8px; color: var(--text-secondary); margin-right: 2px; }
+#energy-a, #energy-b { display: inline-flex; align-items: center; }
+.energy-count {
+  min-width: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(79,195,247,.42);
+  border-radius: var(--r-pill);
+  background: rgba(79,195,247,.13);
+  color: #0277bd;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 3px 7px;
+}
+.energy-count.low {
+  border-color: rgba(217,83,79,.35);
+  background: rgba(217,83,79,.08);
+  color: var(--hp-red);
+}
 
 /* HP 条 */
 .hp-track { height: 8px; background: var(--border); border: 1px solid var(--border-strong); border-radius: 4px; overflow: hidden; margin-bottom: 2px; position: relative; }
@@ -114,12 +131,22 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 .buff-status { background: rgba(230,126,34,.12); color: #d35400; border: 1px solid rgba(230,126,34,.3); }
 .buff-cute { background: rgba(244,114,182,.15); color: #e91e9c; border: 1px solid rgba(244,114,182,.3); }
 
-/* MP 点 */
+/* 魔力心 */
 .mp-wrap { position: absolute; top: 14px; display: flex; gap: 5px; align-items: center; }
 #mp-a { left: 250px; }
 #mp-b { right: 250px; flex-direction: row-reverse; }
-.mp-gem { width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #7dd3fc, #0284c7); box-shadow: 0 0 6px rgba(79,195,247,.6); transition: all .3s; }
-.mp-gem.lost { background: rgba(200,190,170,.3); box-shadow: none; }
+.mp-heart {
+  font-size: 15px;
+  line-height: 1;
+  color: #2fb95d;
+  text-shadow: 0 1px 0 rgba(255,255,255,.8), 0 0 8px rgba(47,185,93,.45);
+  transition: color .2s, opacity .2s, transform .2s;
+}
+.mp-heart.lost {
+  color: rgba(99,122,98,.28);
+  text-shadow: none;
+  opacity: .75;
+}
 
 /* ── 精灵槽 ── */
 .poke-slot {
@@ -250,15 +277,18 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 .skill-btn.cd-btn .sname { color: var(--hp-yellow); }
 
 /* 手动模拟双边行动 */
-#manual-controls { display: none; flex-direction: column; gap: 8px; overflow: hidden; }
+#manual-controls { display: none; flex-direction: column; gap: 8px; overflow: hidden; flex: 1; min-height: 0; }
 #manual-controls.open { display: flex; }
-.manual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-height: 0; }
+.manual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; min-height: 0; flex: 1; }
 .manual-side {
   background: var(--bg-card);
   border: 2px solid var(--border);
   border-radius: var(--r-md);
   padding: 8px;
   min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 .manual-side-title {
   display: flex; align-items: center; justify-content: space-between; gap: 6px;
@@ -268,24 +298,122 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
   font-size: 9px; font-weight: 600; color: var(--text-secondary);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.manual-actions { display: grid; grid-template-columns: 1fr; gap: 5px; max-height: 210px; overflow-y: auto; }
+.manual-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  overflow-y: auto;
+  padding-right: 2px;
+  min-height: 0;
+}
+.manual-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.manual-command-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.manual-switch-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+.manual-switch-list[hidden] {
+  display: none;
+}
 .manual-choice {
   width: 100%;
-  background: var(--bg-input);
+  min-height: 58px;
+  background: linear-gradient(180deg, rgba(255,255,255,.86), rgba(255,253,249,.7));
   border: 1.5px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 6px 8px;
+  border-radius: var(--r-md);
+  padding: 7px;
   color: var(--text-primary);
   cursor: pointer;
   text-align: left;
   font-family: 'RocoBody', system-ui, sans-serif;
   transition: border-color .15s, background .15s, transform .1s;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 7px;
+  align-items: center;
 }
 .manual-choice:hover:not(:disabled) { border-color: var(--primary); background: var(--bg-card-hover); transform: translateY(-1px); }
 .manual-choice.selected { border-color: var(--primary); background: rgba(245,166,35,.14); box-shadow: 0 0 0 2px rgba(245,166,35,.08); }
+.manual-choice.switch-open { border-color: var(--hp-green); background: rgba(92,184,92,.1); }
 .manual-choice:disabled { opacity: .35; cursor: not-allowed; }
-.manual-choice-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; font-weight: 700; }
-.manual-choice-meta { margin-top: 2px; font-size: 9px; color: var(--text-secondary); display: flex; gap: 4px; flex-wrap: wrap; }
+.manual-choice.action-skill {
+  grid-template-columns: 42px minmax(0, 1fr);
+  min-height: 70px;
+}
+.manual-choice.action-charge {
+  border-color: rgba(79,195,247,.42);
+  background: rgba(79,195,247,.08);
+}
+.manual-choice.action-special,
+.manual-choice.action-leader {
+  border-color: rgba(245,166,35,.38);
+  background: rgba(245,166,35,.1);
+}
+.manual-choice.action-switch {
+  border-color: rgba(92,184,92,.3);
+}
+.manual-command-row .manual-choice {
+  grid-template-columns: 1fr;
+  justify-items: center;
+  min-height: 62px;
+  text-align: center;
+}
+.manual-command-row .manual-action-icon {
+  margin: 0 auto;
+}
+.manual-command-row .manual-choice-main {
+  justify-content: center;
+}
+.manual-command-row .manual-choice-meta {
+  justify-content: center;
+}
+.manual-action-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.76);
+  color: var(--primary-dark);
+  font-size: 17px;
+  font-weight: 900;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.04);
+}
+.manual-action-icon.skill {
+  border-radius: 9px;
+  width: 42px;
+  height: 42px;
+}
+.manual-action-icon.skill .skill-icon {
+  width: 34px;
+  height: 34px;
+}
+.manual-action-icon.charge { color: #0277bd; border-color: rgba(79,195,247,.35); }
+.manual-action-icon.special,
+.manual-action-icon.leader { color: var(--primary-dark); border-color: rgba(245,166,35,.38); }
+.manual-action-icon.switch { color: var(--hp-green); border-color: rgba(92,184,92,.34); }
+.manual-choice-text { min-width: 0; }
+.manual-choice-main { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 900; }
+.manual-choice-main span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.manual-choice-meta { margin-top: 4px; font-size: 9px; color: var(--text-secondary); display: flex; gap: 4px; flex-wrap: wrap; }
+.manual-choice-meta span {
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,.58);
+  border-radius: 5px;
+  padding: 1px 4px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
 .manual-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 #manual-hint { font-size: 11px; color: var(--text-secondary); min-width: 0; }
 #manual-submit {
@@ -383,19 +511,46 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 #log-clear { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 10px; transition: color .15s; }
 #log-clear:hover { color: var(--text-secondary); }
 #battle-log {
-  flex: 1; overflow-y: auto; padding: 8px 12px;
-  display: flex; flex-direction: column; gap: 1px;
-  font-size: 11px; line-height: 1.6; color: var(--text-primary);
+  flex: 1; overflow-y: auto; padding: 9px 10px;
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 11px; line-height: 1.45; color: var(--text-primary);
 }
-.log-line { padding: 1px 0; }
-.log-sep { border-top: 1px solid var(--border); margin: 5px 0; color: var(--text-muted); font-weight: 600; font-size: 10px; padding-top: 4px; }
-.log-win { color: var(--hp-green); font-weight: 700; }
-.log-lose { color: var(--hp-red); font-weight: 700; }
-.log-dmg { color: var(--dmg-red); }
-.log-heal { color: var(--heal-green); }
-.log-status { color: var(--status-purple); }
-.log-mp { color: var(--status-orange); }
-.log-cute { color: #e91e9c; }
+.log-line {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 7px;
+  align-items: start;
+  padding: 6px 7px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: rgba(255,255,255,.52);
+}
+.log-icon {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(245,166,35,.1);
+  font-size: 13px;
+}
+.log-body { min-width: 0; }
+.log-sep {
+  border-top: 1px solid var(--border);
+  margin: 4px 0 1px;
+  color: var(--text-muted);
+  font-weight: 800;
+  font-size: 10px;
+  padding-top: 5px;
+  letter-spacing: .3px;
+}
+.log-win { border-color: rgba(92,184,92,.32); background: rgba(92,184,92,.08); color: var(--hp-green); font-weight: 800; }
+.log-lose { border-color: rgba(217,83,79,.28); background: rgba(217,83,79,.07); color: var(--hp-red); font-weight: 800; }
+.log-dmg { border-color: rgba(217,83,79,.28); background: rgba(217,83,79,.06); color: var(--dmg-red); }
+.log-heal { border-color: rgba(92,184,92,.3); background: rgba(92,184,92,.07); color: var(--heal-green); }
+.log-status { border-color: rgba(155,89,182,.25); background: rgba(155,89,182,.07); color: var(--status-purple); }
+.log-mp { border-color: rgba(47,185,93,.3); background: rgba(47,185,93,.08); color: #23864a; }
+.log-cute { border-color: rgba(233,30,156,.22); background: rgba(233,30,156,.06); color: #e91e9c; }
 
 /* ═══ 动画 ═══ */
 @keyframes atk-a { 0% { transform: translateX(-50%) translateX(0); } 40% { transform: translateX(-50%) translateX(42px); } 70% { transform: translateX(-50%) translateX(-4px); } 100% { transform: translateX(-50%) translateX(0); } }
@@ -492,7 +647,7 @@ body { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
         <div class="buff-row" id="buff-b"></div>
       </div>
 
-      <!-- MP 宝石 -->
+      <!-- 魔力心 -->
       <div class="mp-wrap" id="mp-a"></div>
       <div class="mp-wrap" id="mp-b"></div>
 
@@ -619,11 +774,21 @@ const TYPE_ZH = {
 const CAT_ZH = {'物攻':'物','魔攻':'魔','防御':'防','状态':'变','物理':'物','魔法':'魔','变化':'变'};
 
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function energyText(value){ return `能量×${value ?? 0}`; }
 function emoji(name){ return SPRITE_EMOJIS[name] || '🐾'; }
 function skillIconHtml(skill){
   if(skill && skill.icon_url) return `<img class="skill-icon" src="${esc(skill.icon_url)}" alt="${esc(skill.name)}">`;
   const name = skill && skill.name ? skill.name : '?';
   return `<span class="skill-icon missing">${esc(name.slice(0,1))}</span>`;
+}
+function manualActionIcon(kind, skillInfo=null){
+  if(skillInfo) return `<span class="manual-action-icon skill">${skillIconHtml(skillInfo)}</span>`;
+  const icons = {charge:'⚡', special:'✦', leader:'♛', switch:'↔', neutral:'•'};
+  return `<span class="manual-action-icon ${esc(kind || 'neutral')}">${icons[kind] || icons.neutral}</span>`;
+}
+function manualMetaHtml(meta){
+  const items = (Array.isArray(meta) ? meta : String(meta || '').split(' · ')).filter(Boolean);
+  return items.map(item => `<span>${esc(item)}</span>`).join('');
 }
 function showSkillTooltip(skill, ev){
   if(!skill) return;
@@ -640,7 +805,7 @@ function showSkillTooltip(skill, ev){
         <div class="tip-meta">
           <span>${esc(TYPE_ZH[skill.type] || skill.type)}</span>
           <span>${esc(CAT_ZH[skill.category] || skill.category)}</span>
-          <span>耗${esc(skill.energy_cost)}</span>
+          <span>${esc(energyText(skill.energy_cost))}</span>
           <span>${skill.power > 0 ? '威' + esc(skill.power) : '无威力'}</span>
         </div>
       </div>
@@ -787,12 +952,7 @@ function updateHpBar(side,p){
   tb.className = `type-badge ${TYPE_CLASS[p.type]||''}`;
   tb.textContent = TYPE_ZH[p.type]||p.type;
 
-  ec.innerHTML = '';
-  for(let i=0;i<10;i++){
-    const d = document.createElement('div');
-    d.className = 'e-dot' + (i<p.energy?' on':'');
-    ec.appendChild(d);
-  }
+  ec.innerHTML = `<span class="energy-count ${p.energy <= 2 ? 'low' : ''}">×${esc(p.energy)}</span>`;
 
   renderBuffRow(side, p);
 }
@@ -836,8 +996,9 @@ function renderMp(id,cur,max){
   const el=document.getElementById(id);
   el.innerHTML='';
   for(let i=0;i<max;i++){
-    const d=document.createElement('div');
-    d.className='mp-gem'+(i>=cur?' lost':'');
+    const d=document.createElement('span');
+    d.className='mp-heart'+(i>=cur?' lost':'');
+    d.textContent='♥';
     el.appendChild(d);
   }
 }
@@ -900,7 +1061,7 @@ function renderSkills(pa, pb){
     btn.innerHTML=`
       <div class="sname">
         <span class="skill-title-line">${skillIconHtml(s)}<span>${esc(s.name)}</span></span>
-        <span class="scost">⚡${s.energy_cost}</span>
+        <span class="scost">${esc(energyText(s.energy_cost))}</span>
       </div>
       <div class="smeta">
         <span class="type-badge ${tc}" style="font-size:8px;padding:0 4px">${TYPE_ZH[s.type]||s.type}</span>
@@ -926,8 +1087,8 @@ function renderManualControls(s){
   const pa = s.team_a[s.current_a], pb = s.team_b[s.current_b];
   document.getElementById('action-title').textContent = `回合 ${s.turn} · 选择双方行动`;
   document.getElementById('manual-submit').textContent = '结算本回合';
-  document.getElementById('manual-name-a').textContent = `${pa.name} HP ${pa.current_hp}/${pa.hp} E${pa.energy}`;
-  document.getElementById('manual-name-b').textContent = `${pb.name} HP ${pb.current_hp}/${pb.hp} E${pb.energy}`;
+  document.getElementById('manual-name-a').textContent = `${pa.name} · HP ${pa.current_hp}/${pa.hp} · ${energyText(pa.energy)}`;
+  document.getElementById('manual-name-b').textContent = `${pb.name} · HP ${pb.current_hp}/${pb.hp} · ${energyText(pb.energy)}`;
   renderManualSide('a', s.team_a, s.current_a);
   renderManualSide('b', s.team_b, s.current_b);
   updateManualSubmit();
@@ -955,9 +1116,9 @@ function renderManualSwitchSide(side, team, prompt){
 
   if(!prompt){
     const div = document.createElement('div');
-    div.className = 'manual-choice';
+    div.className = 'manual-choice action-neutral';
     div.style.cursor = 'default';
-    div.innerHTML = '<div class="manual-choice-main"><span>本方无需选择</span></div><div class="manual-choice-meta">继续等待另一方补位</div>';
+    div.innerHTML = `${manualActionIcon('neutral')}<div class="manual-choice-text"><div class="manual-choice-main"><span>本方无需选择</span></div><div class="manual-choice-meta">${manualMetaHtml(['继续等待另一方补位'])}</div></div>`;
     panel.appendChild(div);
     return;
   }
@@ -967,10 +1128,13 @@ function renderManualSwitchSide(side, team, prompt){
     if(!allowed.has(idx)) return;
     const pct = p.hp > 0 ? Math.round(p.current_hp / p.hp * 100) : 0;
     const btn = document.createElement('button');
-    btn.className = 'manual-choice';
+    btn.className = 'manual-choice action-switch';
     btn.innerHTML = `
-      <div class="manual-choice-main"><span>${p.name}</span></div>
-      <div class="manual-choice-meta">HP ${pct}% · E${p.energy} · ${TYPE_ZH[p.type] || p.type}</div>`;
+      ${manualActionIcon('switch')}
+      <div class="manual-choice-text">
+        <div class="manual-choice-main"><span>${p.name}</span></div>
+        <div class="manual-choice-meta">${manualMetaHtml([`HP ${pct}%`, energyText(p.energy), TYPE_ZH[p.type] || p.type])}</div>
+      </div>`;
     btn.onclick = () => selectManualSwitch(side, idx, btn, p.name);
     panel.appendChild(btn);
   });
@@ -997,61 +1161,102 @@ function updateManualSwitchSubmit(){
 function renderManualSide(side, team, curIdx){
   const panel = document.getElementById(`manual-actions-${side}`);
   const current = team[curIdx];
-  panel.innerHTML = '';
-
-  addManualChoice(panel, side, {type:'charge'}, '汇合聚能', '+5 能量', false);
+  panel.innerHTML = `
+    <div class="manual-skill-grid" data-role="skills"></div>
+    <div class="manual-command-row" data-role="commands"></div>
+    <div class="manual-switch-list" data-role="switches" hidden></div>
+  `;
+  const skillGrid = panel.querySelector('[data-role="skills"]');
+  const commandRow = panel.querySelector('[data-role="commands"]');
+  const switchList = panel.querySelector('[data-role="switches"]');
   const teamItem = side === 'a' ? (state && state.team_item_a) : (state && state.team_item_b);
-  if(current.will_impact && (teamItem === '强化术' || teamItem === '愿力冲击')){
-    const wish = current.will_impact;
-    const typeName = TYPE_ZH[wish.type] || wish.type || '';
-    const meta = wish.can_use
-      ? `${typeName} · ${wish.category || ''} · 威${wish.power || 80} · 耗${wish.energy_cost || 0} · 应对状态×${wish.counter_status_multiplier || 2.5}`
-      : `愿力冲击 · ${wish.reason || '当前不可用'}`;
-    addManualChoice(panel, side, {type:'will_impact'}, '愿力冲击', meta, !wish.can_use);
-  }
-  if(current.leader_evolution && teamItem === '进化之力'){
-    const evo = current.leader_evolution;
-    const target = evo.target_name || '首领形态';
-    const meta = evo.can_use
-      ? `进化之力 · 目标 ${target}`
-      : `进化之力 · ${evo.reason || '当前不可用'}`;
-    addManualChoice(panel, side, {type:'leader_evolve'}, '首领进化', meta, !evo.can_use);
-  }
 
   if(current.skills && current.skills.length){
-    current.skills.forEach((skill, idx) => {
+    current.skills.slice(0, 4).forEach((skill, idx) => {
       const meta = [
         `${TYPE_ZH[skill.type] || skill.type}`,
         `${CAT_ZH[skill.category] || skill.category}`,
         `威${skill.power || 0}`,
-        `耗${skill.energy_cost}`,
+        energyText(skill.energy_cost),
       ];
       if(skill.on_cooldown) meta.push(`冷却${skill.cooldown}`);
-      const label = `技能 · ${skill.name}`;
-      addManualChoice(panel, side, {type:'skill', index:idx}, label, meta.join(' · '), !skill.can_use, skill);
+      addManualChoice(skillGrid, side, {type:'skill', index:idx}, skill.name, meta, !skill.can_use, skill, 'skill');
     });
   }
 
-  team.forEach((p, idx) => {
-    if(idx === curIdx || p.is_fainted) return;
+  addManualChoice(commandRow, side, {type:'charge'}, '聚能', ['+5 能量'], false, null, 'charge');
+
+  if(teamItem === '进化之力'){
+    const evo = current.leader_evolution;
+    const target = evo.target_name || '首领形态';
+    const meta = evo.can_use
+      ? ['进化之力', `目标 ${target}`]
+      : ['进化之力', evo.reason || '当前不可用'];
+    addManualChoice(commandRow, side, {type:'leader_evolve'}, '首领化', meta, !evo.can_use, null, 'leader');
+  } else if(teamItem === '强化术' || teamItem === '愿力冲击'){
+    const wish = current.will_impact;
+    const typeName = TYPE_ZH[wish.type] || wish.type || '';
+    const left = wish.uses_remaining === undefined ? '' : `剩${wish.uses_remaining}次`;
+    const meta = wish.can_use
+      ? [typeName, wish.category || '', `威${wish.power || 80}`, energyText(wish.energy_cost || 0), left]
+      : ['愿力冲击', left, wish.reason || '当前不可用'];
+    addManualChoice(commandRow, side, {type:'will_impact'}, '愿力', meta, !wish.can_use, null, 'special');
+  } else {
+    addManualChoice(commandRow, side, {type:'item_empty'}, '首领化/愿力', ['未携带'], true, null, 'special');
+  }
+
+  const switchable = team
+    .map((p, idx) => ({p, idx}))
+    .filter(({p, idx}) => idx !== curIdx && !p.is_fainted);
+  addManualChoice(
+    commandRow,
+    side,
+    {type:'switch_menu'},
+    '换人',
+    switchable.length ? [`可换${switchable.length}只`, '不耗能'] : ['无可换精灵'],
+    switchable.length === 0,
+    null,
+    'switch',
+    {onClick: btn => toggleManualSwitchList(side, btn)}
+  );
+
+  switchable.forEach(({p, idx}) => {
     const pct = p.hp > 0 ? Math.round(p.current_hp / p.hp * 100) : 0;
-    addManualChoice(panel, side, {type:'switch', index:idx}, `换上 · ${p.name}`, `HP ${pct}% · E${p.energy}`, false);
+    addManualChoice(switchList, side, {type:'switch', index:idx}, `换上 ${p.name}`, [`HP ${pct}%`, energyText(p.energy), '不耗能'], false, null, 'switch');
   });
 }
 
-function addManualChoice(panel, side, action, title, meta, disabled, skillInfo=null){
+function toggleManualSwitchList(side, btn){
+  const panel = document.getElementById(`manual-actions-${side}`);
+  const list = panel.querySelector('[data-role="switches"]');
+  if(!list) return;
+  const nextHidden = !list.hidden ? true : false;
+  list.hidden = nextHidden;
+  btn.classList.toggle('switch-open', !nextHidden);
+}
+
+function addManualChoice(panel, side, action, title, meta, disabled, skillInfo=null, kind='neutral', options={}){
   const btn = document.createElement('button');
-  btn.className = 'manual-choice';
+  btn.className = `manual-choice action-${kind}`;
   btn.disabled = !!disabled;
   btn.innerHTML = `
-    <div class="manual-choice-main"><span>${esc(title)}</span></div>
-    <div class="manual-choice-meta">${esc(meta)}</div>`;
+    ${manualActionIcon(kind, skillInfo)}
+    <div class="manual-choice-text">
+      <div class="manual-choice-main"><span>${esc(title)}</span></div>
+      <div class="manual-choice-meta">${manualMetaHtml(meta)}</div>
+    </div>`;
   if(skillInfo){
     btn.onmouseenter = ev => showSkillTooltip(skillInfo, ev);
     btn.onmousemove = moveSkillTooltip;
     btn.onmouseleave = hideSkillTooltip;
   }
-  btn.onclick = () => selectManualAction(side, action, btn, title);
+  btn.onclick = () => {
+    if(options.onClick){
+      options.onClick(btn);
+      return;
+    }
+    selectManualAction(side, action, btn, title);
+  };
   panel.appendChild(btn);
 }
 
@@ -1120,7 +1325,7 @@ function _swCardHtml(p, i, isForce){
     ${iconHtml}
     <div class="sw-info">
       <div class="sw-name">${p.name}</div>
-      <div class="sw-hp">HP ${p.current_hp}/${p.hp}(${pct}%) ⚡${p.energy}</div>
+      <div class="sw-hp">HP ${p.current_hp}/${p.hp}(${pct}%) · ${energyText(p.energy)}</div>
     </div>
     <span class="type-badge ${tc}" style="font-size:8px">${TYPE_ZH[p.type]||p.type}</span>
     ${advHtml}`;
@@ -1392,6 +1597,17 @@ function appendLogs(lines){
   logCount = lines.length;
 }
 
+const LOG_ICONS = ['⚔️','⚠️','❌','🏆','🟦','🟥','📌','💥','💚','☠️','⚡','🟣','🔥','🌿','☄️','🧊','📈','🔄','👑','💧','📊','✦','🔷'];
+function splitLogText(text){
+  const clean = String(text || '').trim();
+  for(const icon of LOG_ICONS){
+    if(clean.startsWith(icon)){
+      return {icon, body: clean.slice(icon.length).trim()};
+    }
+  }
+  return {icon: '•', body: clean};
+}
+
 function addLogLine(text){
   const log=document.getElementById('battle-log');
   const el =document.createElement('div');
@@ -1412,10 +1628,15 @@ function addLogLine(text){
     el.className='log-line log-status'; el.textContent=text;
   } else if(text.includes('萌化')){
     el.className='log-line log-cute'; el.textContent=text;
-  } else if(text.includes('MP')||text.includes('💔')){
+  } else if(text.includes('MP')||text.includes('魔力')||text.includes('💔')){
     el.className='log-line log-mp'; el.textContent=text;
   } else {
     el.className='log-line'; el.textContent=text;
+  }
+
+  if(el.className.includes('log-line')){
+    const parsed = splitLogText(text);
+    el.innerHTML = `<span class="log-icon">${esc(parsed.icon)}</span><span class="log-body">${esc(parsed.body)}</span>`;
   }
 
   log.appendChild(el);

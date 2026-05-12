@@ -1130,6 +1130,7 @@ function typeLabel(type){
 function multiplierText(value){
   const num = Number(value);
   if(!Number.isFinite(num)) return '';
+  if(Math.abs(num - (1 / 3)) < 0.001) return '1/3';
   return Number.isInteger(num) ? `${num}` : String(num);
 }
 function multiplierClass(value){
@@ -1403,6 +1404,15 @@ function typePill(row, mode = ''){
   return `<span class="type-pill ${mode || multiplierClass(row.multiplier)}">${typeIcon(type)}${esc(type.name)}${multiplier}</span>`;
 }
 
+function typeResultCard(title, rows, mode){
+  return `
+    <div class="type-result-card">
+      <h3>${esc(title)}</h3>
+      <div class="type-pill-row">${(rows || []).map(row => typePill(row, mode)).join('') || '<span class="status-tag">无</span>'}</div>
+    </div>
+  `;
+}
+
 function renderTypeResult(payload){
   const result = payload.result;
   const attackSummary = payload.attack_summary;
@@ -1425,28 +1435,22 @@ function renderTypeResult(payload){
 
   if(attackSummary && !defenseSummary){
     cards.push(`
-      <div class="type-result-card">
-        <h3>可造成 2 倍伤害的防御属性</h3>
-        <div class="type-pill-row">${(attackSummary.strong || []).map(row => typePill(row, 'super')).join('') || '<span class="status-tag">无</span>'}</div>
-      </div>
-      <div class="type-result-card">
-        <h3>只能造成 0.5 倍伤害的防御属性</h3>
-        <div class="type-pill-row">${(attackSummary.resist || []).map(row => typePill(row, 'resist')).join('') || '<span class="status-tag">无</span>'}</div>
-      </div>
+      ${typeResultCard('可造成 2 倍伤害的防御属性', attackSummary.strong || [], 'super')}
+      ${typeResultCard('只能造成 0.5 倍伤害的防御属性', attackSummary.resist || [], 'resist')}
     `);
   }
 
   if(defenseSummary){
-    cards.push(`
-      <div class="type-result-card">
-        <h3>会受到高倍伤害的攻击属性</h3>
-        <div class="type-pill-row">${(defenseSummary.weak_to || []).map(row => typePill(row, 'super')).join('') || '<span class="status-tag">无</span>'}</div>
-      </div>
-      <div class="type-result-card">
-        <h3>会受到低倍伤害的攻击属性</h3>
-        <div class="type-pill-row">${(defenseSummary.resist_from || []).map(row => typePill(row, 'resist')).join('') || '<span class="status-tag">无</span>'}</div>
-      </div>
-    `);
+    const weakRows = defenseSummary.weak_to || [];
+    const tripleWeakRows = weakRows.filter(row => Number(row.multiplier) >= 3);
+    const normalWeakRows = weakRows.filter(row => Number(row.multiplier) < 3);
+    const resistRows = defenseSummary.resist_from || [];
+    const tripleResistRows = resistRows.filter(row => Number(row.multiplier) < 0.5);
+    const normalResistRows = resistRows.filter(row => Number(row.multiplier) >= 0.5);
+    if(tripleWeakRows.length) cards.push(typeResultCard('会受到 3 倍伤害的攻击属性', tripleWeakRows, 'super'));
+    if(normalWeakRows.length || !tripleWeakRows.length) cards.push(typeResultCard(tripleWeakRows.length ? '会受到 2 倍伤害的攻击属性' : '会受到高倍伤害的攻击属性', normalWeakRows, 'super'));
+    if(tripleResistRows.length) cards.push(typeResultCard('形成 3 倍抵抗的攻击属性', tripleResistRows, 'resist'));
+    if(normalResistRows.length || !tripleResistRows.length) cards.push(typeResultCard(tripleResistRows.length ? '会受到 0.5 倍伤害的攻击属性' : '会受到低倍伤害的攻击属性', normalResistRows, 'resist'));
   }
 
   typeEls.result.innerHTML = cards.length

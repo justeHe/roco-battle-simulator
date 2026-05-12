@@ -355,6 +355,10 @@ def _has_will_impact_item(state: BattleState, team: str) -> bool:
     return _team_item(state, team) in {"愿力冲击", "强化术"}
 
 
+def _team_state_attr(base: str, team: str) -> str:
+    return f"{base}_{team}"
+
+
 def _is_leader_bloodline(pokemon: Pokemon) -> bool:
     return "首领" in (getattr(pokemon, "bloodline", "") or "")
 
@@ -429,24 +433,36 @@ def will_impact_status(state: BattleState, team: str) -> dict:
     team_list = state.team_a if team == "a" else state.team_b
     idx = state.current_a if team == "a" else state.current_b
     pokemon = team_list[idx]
+    uses = int(getattr(state, _team_state_attr("will_impact_uses", team), 0))
+    next_turn = int(getattr(state, _team_state_attr("will_impact_next_turn", team), 0))
+    remaining_uses = max(0, 2 - uses)
     if pokemon.is_fainted:
-        return {"can_use": False, "reason": "当前精灵已倒下"}
+        return {"can_use": False, "reason": "当前精灵已倒下", "uses_remaining": remaining_uses}
     if not _has_will_impact_item(state, team):
-        return {"can_use": False, "reason": "队伍未携带愿力冲击"}
+        return {"can_use": False, "reason": "队伍未携带愿力冲击", "uses_remaining": remaining_uses}
+    if uses >= 2:
+        return {"can_use": False, "reason": "愿力冲击次数已用尽", "uses_remaining": 0}
+    if state.turn < next_turn:
+        return {
+            "can_use": False,
+            "reason": f"愿力冲击还需{next_turn - state.turn}回合",
+            "uses_remaining": remaining_uses,
+            "next_turn": next_turn,
+        }
     blood_type = _bloodline_type(pokemon)
     if not blood_type:
-        return {"can_use": False, "reason": "只有元素血脉精灵可以使用"}
+        return {"can_use": False, "reason": "只有元素血脉精灵可以使用", "uses_remaining": remaining_uses}
     if not pokemon.skills:
-        return {"can_use": False, "reason": "没有可替换的一号技能"}
+        return {"can_use": False, "reason": "没有可替换的一号技能", "uses_remaining": remaining_uses}
     first_skill = pokemon.skills[0]
     first_cd = pokemon.cooldowns.get(0, 0)
     if first_cd > 0:
-        return {"can_use": False, "reason": f"一号技能仍在冷却{first_cd}回合"}
+        return {"can_use": False, "reason": f"一号技能仍在冷却{first_cd}回合", "uses_remaining": remaining_uses}
     if pokemon.energy < first_skill.energy_cost:
-        return {"can_use": False, "reason": "能量不足"}
+        return {"can_use": False, "reason": "能量不足", "uses_remaining": remaining_uses}
     slot_lock = pokemon.ability_state.get("skill_slot_lock")
     if slot_lock is not None and 0 not in slot_lock:
-        return {"can_use": False, "reason": "一号技能位被限制"}
+        return {"can_use": False, "reason": "一号技能位被限制", "uses_remaining": remaining_uses}
     category = (
         SkillCategory.PHYSICAL
         if pokemon.effective_atk() >= pokemon.effective_spatk()
@@ -461,7 +477,16 @@ def will_impact_status(state: BattleState, team: str) -> dict:
         "type": blood_type.value,
         "category": category.value,
         "counter_status_multiplier": 2.5,
+        "uses_remaining": remaining_uses,
+        "next_turn": next_turn,
     }
+
+
+def _record_will_impact_use(state: BattleState, team: str) -> None:
+    uses_attr = _team_state_attr("will_impact_uses", team)
+    next_turn_attr = _team_state_attr("will_impact_next_turn", team)
+    setattr(state, uses_attr, int(getattr(state, uses_attr, 0)) + 1)
+    setattr(state, next_turn_attr, state.turn + 3)
 
 
 def _apply_passive_ability_flags_for_battle(pokemon: Pokemon) -> None:
@@ -528,6 +553,8 @@ def leader_evolution_status(state: BattleState, team: str) -> dict:
         return {"can_use": False, "reason": "当前精灵已倒下"}
     if _team_item(state, team) != "进化之力":
         return {"can_use": False, "reason": "队伍未携带进化之力"}
+    if getattr(state, _team_state_attr("leader_evolution_used", team), False):
+        return {"can_use": False, "reason": "进化之力已使用"}
     if not _is_leader_bloodline(pokemon):
         return {"can_use": False, "reason": "只有首领血脉精灵可以使用"}
     if getattr(pokemon, "is_leader_evolved", False) or "首领" in (getattr(pokemon, "evo_stage", "") or ""):
@@ -599,6 +626,7 @@ def execute_leader_evolution(state: BattleState, team: str) -> tuple[bool, str]:
     pokemon.ability = (target["特性"] or "").strip()
     pokemon.ability_effects = load_ability_effects(pokemon.ability) if pokemon.ability else []
     pokemon.is_leader_evolved = "首领" in (pokemon.evo_stage or "")
+    setattr(state, _team_state_attr("leader_evolution_used", team), True)
     _apply_passive_ability_flags_for_battle(pokemon)
 
     if hasattr(state, "battle_event_log"):
@@ -1625,6 +1653,8 @@ def _execute_with_counter(state: BattleState, team: str, action: Action,
 
     # 记录实际能耗到技能上，供逐魂鸟等效果检查
     skill._last_actual_cost = actual_cost
+    if action[0] == ACTION_WILL_IMPACT:
+        _record_will_impact_use(state, team)
 
     # ── 迸发系统：入场第一回合使用带迸发标记的技能 ──
     burst_map = state.burst_entry_turn_a if team == "a" else state.burst_entry_turn_b

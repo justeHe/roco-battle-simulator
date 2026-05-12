@@ -85,3 +85,16 @@ def test_leader_evolution_recalculates_form_and_keeps_runtime_state():
     assert p.poison_stacks == 2
     assert p.current_hp / p.hp == 0.5
     assert leader_evolution_status(state, "a")["can_use"] is False
+    assert state.leader_evolution_used_a is True
+
+
+def test_leader_evolution_item_is_team_limited_once():
+    state = _state(_make_pokemon("火神"))
+    ok, reason = execute_leader_evolution(state, "a")
+    assert ok, reason
+
+    state.current_a = 1
+    state.team_a[1] = _make_pokemon("火神")
+    status = leader_evolution_status(state, "a")
+    assert status["can_use"] is False
+    assert status["reason"] == "进化之力已使用"

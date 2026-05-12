@@ -469,6 +469,12 @@ class BattleState:
     weather: Optional[str] = None
     team_item_a: str = ""
     team_item_b: str = ""
+    leader_evolution_used_a: bool = False
+    leader_evolution_used_b: bool = False
+    will_impact_uses_a: int = 0
+    will_impact_uses_b: int = 0
+    will_impact_next_turn_a: int = 0
+    will_impact_next_turn_b: int = 0
 
     # 魔法值：初始4，精灵倒下-1，降到0则败北
     mp_a: int = 4
@@ -535,6 +541,12 @@ class BattleState:
             current_a=self.current_a, current_b=self.current_b,
             turn=self.turn, weather=self.weather,
             team_item_a=self.team_item_a, team_item_b=self.team_item_b,
+            leader_evolution_used_a=self.leader_evolution_used_a,
+            leader_evolution_used_b=self.leader_evolution_used_b,
+            will_impact_uses_a=self.will_impact_uses_a,
+            will_impact_uses_b=self.will_impact_uses_b,
+            will_impact_next_turn_a=self.will_impact_next_turn_a,
+            will_impact_next_turn_b=self.will_impact_next_turn_b,
             mp_a=self.mp_a, mp_b=self.mp_b,
             marks_a=dict(self.marks_a), marks_b=dict(self.marks_b),
             counter_count_a=self.counter_count_a,

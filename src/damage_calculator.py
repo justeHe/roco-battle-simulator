@@ -237,6 +237,9 @@ def _combined_effectiveness(attack_type: str, defense_types: list[str]) -> tuple
         return values[0], parts
     if any(value > 1 for value in values) and any(value < 1 for value in values):
         return 1.0, parts
+    if all(value < 1 for value in values):
+        resistance = sum(1 / max(value, 0.001) for value in values) - (len(values) - 1)
+        return round(1 / resistance, 3), parts
     return round(max(0.5, sum(values) - (len(values) - 1)), 3), parts
 
 

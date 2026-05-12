@@ -88,3 +88,26 @@ def test_will_impact_counters_status_for_two_point_five_damage():
     assert enemy.current_hp == enemy.hp - expected
     assert user.skills[0].name == "一号位"
     assert user.energy == 7
+
+
+def test_will_impact_has_two_uses_with_two_turn_gap():
+    user = _pokemon("愿力手", Type.NORMAL, "火")
+    user.energy = 10
+    enemy = _pokemon("靶子", Type.GRASS, "草")
+    enemy.skills = [_status_skill()]
+    state = BattleState(team_a=[user], team_b=[enemy], team_item_a="愿力冲击")
+
+    assert will_impact_status(state, "a")["uses_remaining"] == 2
+    execute_full_turn(state, (ACTION_WILL_IMPACT,), (0,))
+
+    status = will_impact_status(state, "a")
+    assert status["can_use"] is False
+    assert status["uses_remaining"] == 1
+
+    state.turn = status["next_turn"]
+    user.energy = 10
+    assert will_impact_status(state, "a")["can_use"] is True
+    execute_full_turn(state, (ACTION_WILL_IMPACT,), (0,))
+
+    assert will_impact_status(state, "a")["can_use"] is False
+    assert will_impact_status(state, "a")["uses_remaining"] == 0

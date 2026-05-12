@@ -594,6 +594,9 @@ def _type_combined_effectiveness(attack_id: str, defense_ids: list[str]) -> floa
         return values[0]
     if any(value > 1 for value in values) and any(value < 1 for value in values):
         return 1.0
+    if all(value < 1 for value in values):
+        resistance = sum(1 / max(value, 0.001) for value in values) - (len(values) - 1)
+        return round(1 / resistance, 3)
     total = sum(values) - (len(values) - 1)
     return round(max(0.5, total), 3)
 
@@ -956,9 +959,9 @@ def _diff_to_logs(before: dict, after: dict, state: BattleState) -> List[str]:
             e_before = before.get(f"{team}_{i}_energy", 0)
             e_after  = after.get(f"{team}_{i}_energy", 0)
             if e_after > e_before:
-                logs.append(f"  ⚡ {label} {name} 能量 +{e_after - e_before} → {e_after}")
+                logs.append(f"  ⚡ {label} {name} 能量 +{e_after - e_before} → 能量×{e_after}")
             elif e_after < e_before:
-                logs.append(f"  ⚡ {label} {name} 能量 -{e_before - e_after} → {e_after}")
+                logs.append(f"  ⚡ {label} {name} 能量 -{e_before - e_after} → 能量×{e_after}")
 
             # 状态层数变化
             for key, icon, label_cn in [
@@ -995,9 +998,9 @@ def _diff_to_logs(before: dict, after: dict, state: BattleState) -> List[str]:
     mp_b_before = before.get("mp_b", 4)
     mp_b_after  = after.get("mp_b", 4)
     if mp_a_after < mp_a_before:
-        logs.append(f"  💔 {side_label('a')} MP -{mp_a_before - mp_a_after} → {mp_a_after}")
+        logs.append(f"  💚 {side_label('a')} 魔力 -{mp_a_before - mp_a_after} → {mp_a_after}")
     if mp_b_after < mp_b_before:
-        logs.append(f"  💔 {side_label('b')} MP -{mp_b_before - mp_b_after} → {mp_b_after}")
+        logs.append(f"  💚 {side_label('b')} 魔力 -{mp_b_before - mp_b_after} → {mp_b_after}")
 
     # 换人（换人优先级最高，提到结算日志最前以反映真实执行顺序）
     switch_logs = []
@@ -2202,7 +2205,7 @@ def _log_declared_action(state: BattleState, side: str, action):
     pokemon = team[current_idx]
 
     if action[0] == -1:
-        session.add_log(f"  {icon} {side_name}选择：汇合聚能（+5能）")
+        session.add_log(f"  {icon} {side_name}选择：聚能（能量+5）")
     elif action[0] == -2:
         session.add_log(f"  {icon} {side_name}选择：换上 {team[action[1]].name}（优先执行）")
     elif action[0] == -3:
@@ -2214,13 +2217,13 @@ def _log_declared_action(state: BattleState, side: str, action):
         type_name = _TYPE_LABELS.get(status.get("type", ""), status.get("type", ""))
         session.add_log(
             f"  {icon} {side_name}：{pokemon.name} 发动【愿力冲击】"
-            f"（{type_name} {status.get('category', '')} 消耗{status.get('energy_cost', 0)}能 威力{status.get('power', 80)}）"
+            f"（{type_name} {status.get('category', '')} 能量×{status.get('energy_cost', 0)} 威力{status.get('power', 80)}）"
         )
     else:
         skill = pokemon.skills[action[0]]
         session.add_log(
             f"  {icon} {side_name}：{pokemon.name} 使用【{skill.name}】"
-            f"（消耗{skill.energy_cost}能 威力{skill.power}）{_eff_preview(skill)}"
+            f"（能量×{skill.energy_cost} 威力{skill.power}）{_eff_preview(skill)}"
         )
 
 
@@ -2342,7 +2345,7 @@ async def start_manual_custom_battle(ws: WebSocket, msg: dict):
     session.add_log(f"🟦 我方: {', '.join(p.name for p in team_a)}")
     session.add_log(f"🟥 对方: {', '.join(p.name for p in team_b)}")
     if team_item_a or team_item_b:
-        session.add_log(f"🎒 携带物: 我方={_lineup_magic_label(team_item_a) or '无'} | 对方={_lineup_magic_label(team_item_b) or '无'}")
+        session.add_log(f"✦ 战斗道具: 我方={_lineup_magic_label(team_item_a) or '无'} | 对方={_lineup_magic_label(team_item_b) or '无'}")
     session.add_log("═══════════════════════════")
 
     snap_before = _snapshot(state)
@@ -2379,8 +2382,8 @@ async def receive_manual_turn(ws: WebSocket, msg: dict):
     session.add_log("")
     session.add_log(f"─── 回合 {state.turn} ───")
     session.add_log(
-        f"  📌 当前: 🟦{pa.name}（HP {round(pa.current_hp, 2)}/{pa.hp} E={pa.energy}）"
-        f"  vs  🟥{pb.name}（HP {round(pb.current_hp, 2)}/{pb.hp} E={pb.energy}）"
+        f"  📌 当前: 🟦{pa.name}（HP {round(pa.current_hp, 2)}/{pa.hp} 能量×{pa.energy}）"
+        f"  vs  🟥{pb.name}（HP {round(pb.current_hp, 2)}/{pb.hp} 能量×{pb.energy}）"
     )
     _log_declared_action(state, "a", action_a)
     _log_declared_action(state, "b", action_b)
@@ -2416,7 +2419,7 @@ async def receive_manual_turn(ws: WebSocket, msg: dict):
         side_str = "我方" if ev["team"] == "a" else "对方"
         session.add_log(
             f"  ⚡ {side_str} {ev['pokemon']} 能量不足（需{ev['needed']}，有{ev['had']}），"
-            f"自动聚能+5，{ev['skill']}未能释放"
+            f"自动聚能，能量+5，{ev['skill']}未能释放"
         )
 
     if moisture_a > 0:
@@ -2430,10 +2433,10 @@ async def receive_manual_turn(ws: WebSocket, msg: dict):
     pa2 = state.team_a[state.current_a]
     pb2 = state.team_b[state.current_b]
     session.add_log(
-        f"  📊 结算 → 🟦{pa2.name} HP:{round(max(0, pa2.current_hp), 2)}/{pa2.hp} E={pa2.energy}"
-        f"  |  🟥{pb2.name} HP:{round(max(0, pb2.current_hp), 2)}/{pb2.hp} E={pb2.energy}"
+        f"  📊 结算 → 🟦{pa2.name} HP:{round(max(0, pa2.current_hp), 2)}/{pa2.hp} 能量×{pa2.energy}"
+        f"  |  🟥{pb2.name} HP:{round(max(0, pb2.current_hp), 2)}/{pb2.hp} 能量×{pb2.energy}"
     )
-    session.add_log(f"  🔷 MP → 我方={state.mp_a} | 对方={state.mp_b}")
+    session.add_log(f"  💚 魔力 → 我方×{state.mp_a} | 对方×{state.mp_b}")
 
     events = _build_events(snap_before, snap_after, state, action_a, action_b, pa, pb)
 
