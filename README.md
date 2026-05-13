@@ -181,6 +181,8 @@ dist/洛克模拟器/洛克模拟器
 - `roco-battle-simulator-windows.zip`
 - `roco-battle-simulator-macos.zip`
 
+手动运行时，产物会出现在对应 workflow run 的 `Artifacts` 区域。推送 `v*` 标签时，工作流还会自动创建或更新同名 GitHub Release，并把两个 zip 上传到 Release 资产中。
+
 详细说明见 [docs/PYINSTALLER_PACKAGING.md](/Users/hedong/Desktop/Programming/Github_Project/roco-battle-simulator/docs/PYINSTALLER_PACKAGING.md)。
 
 ## 致谢与数据来源

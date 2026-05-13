@@ -151,13 +151,15 @@ python3 scripts/build_desktop.py --windowed
 
 触发方式：
 
-- 在 GitHub 仓库页面进入 `Actions`，选择 `Build Desktop Apps`，点击 `Run workflow`。
-- 推送 `v*` 标签，例如 `v0.1.0`，会自动打包。
+- 在 GitHub 仓库页面进入 `Actions`，选择 `Build Desktop Apps`，点击 `Run workflow`。如果不填写 `release_tag`，只上传 workflow artifact；如果填写 `v0.1.0` 这类标签名，会创建或更新同名 Release。
+- 推送 `v*` 标签，例如 `v0.1.0`，会自动打包并发布 Release。
 
 工作流会在 GitHub 托管 runner 上分别构建：
 
 - Windows：`windows-latest`，上传 `roco-battle-simulator-windows.zip`
 - macOS：`macos-latest`，上传 `roco-battle-simulator-macos.zip`
+
+打包产物会先作为 Actions artifact 保存。触发 Release 发布时，工作流还会把这两个 zip 上传到 GitHub Release 资产中；如果同名 Release 已经存在，会覆盖旧的同名 zip。
 
 发布新版本时可以用：
 
@@ -166,7 +168,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-打包完成后，在对应 workflow run 的 `Artifacts` 区域下载产物。
+打包完成后，可以在对应 workflow run 的 `Artifacts` 区域下载产物，也可以在仓库 `Releases` 页面下载正式发布包。
 
 ## 9. 注意
 
