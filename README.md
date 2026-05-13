@@ -129,19 +129,57 @@ python3 -m py_compile src/models.py src/battle.py src/server.py src/damage_calcu
 
 ## 桌面打包
 
-项目可以用 PyInstaller 打成桌面版，本质是启动本地 FastAPI 服务并打开本机浏览器。
+项目可以用 PyInstaller 打成桌面版，本质是启动本地 FastAPI 服务并打开本机浏览器。建议在目标系统上打包：Windows 包在 Windows 上构建，macOS 包在 macOS 上构建。
 
-```bash
-python3 -m pip install -r requirements.txt
-python3 -m pip install pyinstaller
-python3 scripts/build_desktop.py
+### Windows 打包
+
+```bat
+cd %USERPROFILE%\Desktop\Programming\Github_Project\roco-battle-simulator
+py -3 -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+python -m pip install pyinstaller
+python scripts\build_desktop.py --windowed
 ```
 
 产物默认位于：
 
 ```text
-dist/洛克模拟器/
+dist\洛克模拟器\洛克模拟器.exe
 ```
+
+### macOS 打包
+
+```bash
+cd ~/Desktop/Programming/Github_Project/roco-battle-simulator
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+python3 -m pip install pyinstaller
+python3 scripts/build_desktop.py --windowed
+```
+
+产物默认位于：
+
+```text
+dist/洛克模拟器.app
+```
+
+如果不加 `--windowed`，会生成普通目录包：
+
+```bash
+python3 scripts/build_desktop.py
+dist/洛克模拟器/洛克模拟器
+```
+
+### GitHub Actions 自动打包
+
+仓库内置工作流 [build-desktop.yml](/Users/hedong/Desktop/Programming/Github_Project/roco-battle-simulator/.github/workflows/build-desktop.yml)，可以在 GitHub 的 Actions 页面手动运行，也会在推送 `v*` 标签时自动运行。
+
+工作流会分别生成：
+
+- `roco-battle-simulator-windows.zip`
+- `roco-battle-simulator-macos.zip`
 
 详细说明见 [docs/PYINSTALLER_PACKAGING.md](/Users/hedong/Desktop/Programming/Github_Project/roco-battle-simulator/docs/PYINSTALLER_PACKAGING.md)。
 

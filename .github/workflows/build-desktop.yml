@@ -1,0 +1,94 @@
+name: Build Desktop Apps
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
+
+      - name: Build Windows app
+        shell: pwsh
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          python scripts\build_desktop.py --windowed
+
+      - name: Archive Windows app
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "dist\洛克模拟器" -DestinationPath "roco-battle-simulator-windows.zip" -Force
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: roco-battle-simulator-windows
+          path: roco-battle-simulator-windows.zip
+          if-no-files-found: error
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
+
+      - name: Build macOS app
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          python scripts/build_desktop.py --windowed
+
+      - name: Archive macOS app
+        run: |
+          if [ -d "dist/洛克模拟器.app" ]; then
+            ditto -c -k --sequesterRsrc --keepParent "dist/洛克模拟器.app" "roco-battle-simulator-macos.zip"
+          else
+            ditto -c -k --sequesterRsrc --keepParent "dist/洛克模拟器" "roco-battle-simulator-macos.zip"
+          fi
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: roco-battle-simulator-macos
+          path: roco-battle-simulator-macos.zip
+          if-no-files-found: error
