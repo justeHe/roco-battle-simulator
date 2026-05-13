@@ -5,11 +5,15 @@
 import os
 import math
 import sqlite3
+import sys
 from typing import Optional, List, Dict, Tuple
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from src.paths import data_path
+
 _conn: Optional[sqlite3.Connection] = None
-_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                        "data", "nrc.db")
+_DB_PATH = os.fspath(data_path("nrc.db"))
 
 # 全库速度种族值中位线 (从 DB 中动态计算后缓存)
 _speed_median: Optional[float] = None

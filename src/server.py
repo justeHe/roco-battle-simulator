@@ -12,6 +12,14 @@ from typing import Optional, List
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from src.paths import data_path, project_root, web_path
+
+ROOT_DIR = os.fspath(project_root())
+DATA_DIR = os.fspath(data_path())
+STATIC_DIR = os.fspath(web_path())
+
+sys.path.insert(0, ROOT_DIR)
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -27,8 +35,6 @@ from src.battle import (
 )
 
 app = FastAPI()
-
-STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web")
 
 _db_loaded = False
 _skill_meta_cache: Optional[dict] = None
@@ -202,7 +208,7 @@ def _build_skill_icon_cache():
     global _SKILL_ICON_CACHE
     if _SKILL_ICON_CACHE:
         return
-    icon_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_icons")
+    icon_dir = os.path.join(DATA_DIR, "skill_icons")
     if not os.path.exists(icon_dir):
         return
     for fname in os.listdir(icon_dir):
@@ -223,11 +229,7 @@ def _build_skill_meta_icon_cache() -> dict:
     if _SKILL_META_ICON_CACHE is not None:
         return _SKILL_META_ICON_CACHE
 
-    root = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "data",
-        "skill_meta_icons",
-    )
+    root = os.path.join(DATA_DIR, "skill_meta_icons")
     cache = {"elements": {}, "categories": {}, "misc": {}}
     for kind in cache:
         icon_dir = os.path.join(root, kind)
@@ -253,11 +255,7 @@ def _build_mechanic_icon_cache() -> dict[str, str]:
     if _MECHANIC_ICON_CACHE is not None:
         return _MECHANIC_ICON_CACHE
 
-    root = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "data",
-        "mechanic_icons",
-    )
+    root = os.path.join(DATA_DIR, "mechanic_icons")
     cache: dict[str, str] = {}
     if os.path.exists(root):
         for current, _, files in os.walk(root):
@@ -283,7 +281,7 @@ def _build_ability_icon_cache() -> dict[str, str]:
     if _ABILITY_ICON_CACHE is not None:
         return _ABILITY_ICON_CACHE
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root = ROOT_DIR
     manifest = os.path.join(root, "data", "ability_icons_manifest.csv")
     icon_dir = os.path.join(root, "data", "ability_icons")
     cache: dict[str, str] = {}
@@ -322,7 +320,7 @@ def _egg_groups_data() -> dict:
     if _EGG_GROUPS_CACHE is not None:
         return _EGG_GROUPS_CACHE
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root = ROOT_DIR
     path = os.path.join(root, "data", "egg_groups.json")
     if not os.path.exists(path):
         _EGG_GROUPS_CACHE = {"ok": True, "groups": [], "cards": []}
@@ -368,7 +366,7 @@ def _egg_measurements_data() -> dict:
     if _EGG_MEASUREMENTS_CACHE is not None:
         return _EGG_MEASUREMENTS_CACHE
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root = ROOT_DIR
     path = os.path.join(root, "data", "egg_measurements.json")
     if not os.path.exists(path):
         _EGG_MEASUREMENTS_CACHE = {"total": 0, "totalPets": 0, "groups": []}
@@ -1059,7 +1057,7 @@ def _build_icon_cache():
     global _ICON_CACHE
     if _ICON_CACHE:
         return
-    icons_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "spirit_icons")
+    icons_dir = os.path.join(DATA_DIR, "spirit_icons")
     if not os.path.exists(icons_dir):
         return
     import re
@@ -1096,7 +1094,7 @@ def _pvp_lineups_data() -> dict:
     if _PVP_LINEUPS_CACHE is not None:
         return _PVP_LINEUPS_CACHE
 
-    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root = ROOT_DIR
     path = os.path.join(root, "data", "pvp_lineups.json")
     if not os.path.exists(path):
         _PVP_LINEUPS_CACHE = {"ok": True, "lineups": [], "magic_icons": []}
@@ -1592,8 +1590,7 @@ def _mechanics_entries() -> list[dict]:
     if _MECHANICS_CACHE is not None:
         return _MECHANICS_CACHE
     path = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "data",
+        DATA_DIR,
         "mechanics_entries.json",
     )
     if not os.path.exists(path):
@@ -1765,8 +1762,7 @@ def _build_spirit_icon_meta_cache() -> dict:
         return _SPIRIT_ICON_META_CACHE
 
     manifest = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        "data",
+        DATA_DIR,
         "spirit_icons_manifest.csv",
     )
     by_name: dict[str, dict] = {}
@@ -3617,31 +3613,31 @@ if os.path.exists(ASSETS_DIR):
 if os.path.exists(STATIC_DIR):
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "spirit_icons")
+ICONS_DIR = os.path.join(DATA_DIR, "spirit_icons")
 if os.path.exists(ICONS_DIR):
     app.mount("/icons", StaticFiles(directory=ICONS_DIR), name="icons")
 
-SKILL_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_icons")
+SKILL_ICONS_DIR = os.path.join(DATA_DIR, "skill_icons")
 if os.path.exists(SKILL_ICONS_DIR):
     app.mount("/skill-icons", StaticFiles(directory=SKILL_ICONS_DIR), name="skill-icons")
 
-SKILL_META_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "skill_meta_icons")
+SKILL_META_ICONS_DIR = os.path.join(DATA_DIR, "skill_meta_icons")
 if os.path.exists(SKILL_META_ICONS_DIR):
     app.mount("/skill-meta-icons", StaticFiles(directory=SKILL_META_ICONS_DIR), name="skill-meta-icons")
 
-ABILITY_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "ability_icons")
+ABILITY_ICONS_DIR = os.path.join(DATA_DIR, "ability_icons")
 if os.path.exists(ABILITY_ICONS_DIR):
     app.mount("/ability-icons", StaticFiles(directory=ABILITY_ICONS_DIR), name="ability-icons")
 
-LINEUP_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "lineup_icons")
+LINEUP_ICONS_DIR = os.path.join(DATA_DIR, "lineup_icons")
 if os.path.exists(LINEUP_ICONS_DIR):
     app.mount("/lineup-icons", StaticFiles(directory=LINEUP_ICONS_DIR), name="lineup-icons")
 
-EGG_GROUP_AVATARS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "egg_group_avatars")
+EGG_GROUP_AVATARS_DIR = os.path.join(DATA_DIR, "egg_group_avatars")
 if os.path.exists(EGG_GROUP_AVATARS_DIR):
     app.mount("/egg-group-avatars", StaticFiles(directory=EGG_GROUP_AVATARS_DIR), name="egg-group-avatars")
 
-MECHANIC_ICONS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "mechanic_icons")
+MECHANIC_ICONS_DIR = os.path.join(DATA_DIR, "mechanic_icons")
 if os.path.exists(MECHANIC_ICONS_DIR):
     app.mount("/mechanic-icons", StaticFiles(directory=MECHANIC_ICONS_DIR), name="mechanic-icons")
 

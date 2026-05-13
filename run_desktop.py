@@ -25,9 +25,14 @@ DEFAULT_PAGE = "/dex"
 
 def app_root() -> Path:
     """Return the source root, or PyInstaller's bundled resource root."""
-    if getattr(sys, "frozen", False):
-        return Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
-    return Path(__file__).resolve().parent
+    try:
+        from src.paths import project_root
+
+        return project_root()
+    except Exception:
+        if getattr(sys, "frozen", False):
+            return Path(getattr(sys, "_MEIPASS", Path(sys.executable).resolve().parent))
+        return Path(__file__).resolve().parent
 
 
 def port_available(host: str, port: int) -> bool:
@@ -66,6 +71,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     root = app_root()
+    os.environ["ROCO_APP_ROOT"] = str(root)
     os.chdir(root)
     sys.path.insert(0, str(root))
 

@@ -13,6 +13,10 @@ from typing import Optional, List
 
 import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from src.paths import data_path, project_root
+
+sys.path.insert(0, os.fspath(project_root()))
 from src.models import Skill, Type, SkillCategory, TYPE_NAME_MAP, CATEGORY_NAME_MAP
 
 # 魔攻属性类型
@@ -21,8 +25,7 @@ SPECIAL_TYPES = {Type.FIRE, Type.WATER, Type.GRASS, Type.ELECTRIC, Type.ICE,
 
 _conn: Optional[sqlite3.Connection] = None
 _skill_db: dict = {}
-_DB_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                        "data", "nrc.db")
+_DB_PATH = os.fspath(data_path("nrc.db"))
 
 # 属性中文名→Type（含短名）
 _TYPE_MAP = {
